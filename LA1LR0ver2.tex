@@ -85,15 +85,9 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \mathrm{LA}^\prime =_\mu \mathbf{propagate}_{\mathrm{LA}^\prime} ,
 \end{align}
 로 정의하자. 여기서
-\[
-\infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime} ( q_0 , [ S^\prime \to \cdot S ] )}{}
-\]
-\[
-\infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime} ( q_f , [ S^\prime \to S \cdot ] )}{}
-\]
-\[
-\infer{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime} ( q , [ A \to \alpha \cdot \beta ] )}{\alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}
-\]
+\[ \infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_0 , [ S^\prime \to \cdot S ] )}{} \]
+\[ \infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_f , [ S^\prime \to S \cdot ] )}{} \]
+\[ \infer{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{prev} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q , [ A \to \alpha \cdot \beta ] )}{\alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p} \]
 \noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) \right\}
