@@ -43,25 +43,25 @@
 
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[(i)] For $ts_1 \subseteq \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\}$ and $ts_2 \subseteq \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\}$, \[ ts_1 \odot ts_2 \triangleq \begin{cases} ts_1 , & \mathrm{if} \, \varepsilon \notin ts_1 ; \\ ( ts_1 \setminus \left\{ \varepsilon \right\} ) \cup ts_2 , & \mathrm{otherwise} . \end{cases} \]
-\item[(ii)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) \triangleq ( N \uplus \left\{ S^\prime \right\} , T \uplus \left\{ \$ \right\} , P \uplus \left\{ [ S^\prime \to S ] \right\} , S^\prime )$.
+\item[(ii)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \left\{ S^\prime \right\} , T \uplus \left\{ \$ \right\} , P \uplus \left\{ [ S^\prime \to S ] \right\} , S^\prime )$.
 \item[(iii)] $V \triangleq N \uplus T$, $V^\prime \triangleq N^\prime \uplus T^\prime$.
-\item[(iv)] $Q \triangleq \mathrm{PT} \setminus \left\{ \emptyset \right\}$ where $\mathrm{PT} = \left\{ q_0 \right\} \cup \left\{ \mathrm{GOTO} ( q , X ) | q \in \mathrm{PT} , X \in V \right\}$.
-\item[(v)] $q_0 \triangleq \mathrm{Cl} ( \left\{ [ S^\prime \to \cdot S ] \right\} )$.
-\item[(vi)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set{ [ A \to \alpha X \cdot \beta ] | [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
-\item[(vii)] $\mathrm{Cl} ( q ) = q \cup \set{ [ A \to \cdot \omega ] | [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
-\item[(viii)] $\varepsilon : p \to q \iff p = q$.
-\item[(ix)] $X \alpha : p \to q \iff \mathrm{GOTO} ( p , X ) \ne \emptyset \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
-\item[(x)] $\mathrm{First} ( A ) := \set{ t | t \in T^\prime , \omega \in V^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set{ \varepsilon | A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
-\item[(xi)] $\mathrm{First} ( t ) := \left\{ t \right\}$ for $t \in T^\prime$.
-\item[(xii)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$.
-\item[(xiii)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$.
-\item[(xiv)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$.
-\item[(xv)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset & t \in T }$$
-\item[(xvi)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset & A \in N }$$
-\item[(xvii)] $\mathrm{next} ( q , X ) = \mathrm{GOTO} ( q , X )$.
-\item[(xviii)] $[ A \to \alpha \beta ] \in \mathrm{reduce} ( q , t ) \iff [ A \to \omega ] \in P^\prime \land t \in \mathrm{LA} ( q , [ A \to \omega ] )$.
-\item[(xix)] $q_f = \mathrm{GOTO} ( q_0 , S )$.
-\item[(xx)] $I \triangleq \left\{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime \right\}$.
+\item[(iv)] $I \triangleq \left\{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime \right\}$.
+\item[(v)] $\mathrm{Cl} ( q ) = q \cup \set{ [ A \to \cdot \omega ] | [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
+\item[(vi)] $q_0 \triangleq \mathrm{Cl} ( \left\{ [ S^\prime \to \cdot S ] \right\} )$.
+\item[(vii)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set{ [ A \to \alpha X \cdot \beta ] | [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
+\item[(viii)] $Q \triangleq \mathrm{PT} \setminus \left\{ \emptyset \right\}$ where $\mathrm{PT} = \left\{ q_0 \right\} \cup \left\{ \mathrm{GOTO} ( q , X ) | q \in \mathrm{PT} , X \in V \right\}$.
+\item[(ix)] $\varepsilon : p \to q \iff p = q$.
+\item[(x)] $X \alpha : p \to q \iff \mathrm{GOTO} ( p , X ) \ne \emptyset \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[(xi)] $\mathrm{First} ( A ) := \set{ t | t \in T^\prime , \omega \in V^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set{ \varepsilon | A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
+\item[(xii)] $\mathrm{First} ( t ) := \left\{ t \right\}$ for $t \in T^\prime$.
+\item[(xiii)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$.
+\item[(xiv)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$.
+\item[(xv)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$.
+\item[(xvi)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset & t \in T }$$
+\item[(xvii)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset & A \in N }$$
+\item[(xviii)] $\mathrm{next} ( q , X ) = \mathrm{GOTO} ( q , X )$.
+\item[(xix)] $[ A \to \alpha \beta ] \in \mathrm{reduce} ( q , t ) \iff [ A \to \omega ] \in P^\prime \land t \in \mathrm{LA} ( q , [ A \to \omega ] )$.
+\item[(xx)] $q_f = \mathrm{GOTO} ( q_0 , S )$.
 \end{enumerate}
 
 \noindent \textbf{Theorem. (LA)}
