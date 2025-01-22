@@ -95,7 +95,7 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{matrix} \\ \infer[\mathbf{Accept}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{previous} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{[ A \to \alpha \cdot \beta ] \in q & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
+\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{previous} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{[ A \to \alpha \beta ] \in P & [ A \to \alpha \cdot \beta ] \in q & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
 \noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
