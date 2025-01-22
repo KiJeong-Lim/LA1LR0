@@ -56,8 +56,8 @@
 \item[(xii)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$.
 \item[(xiii)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$.
 \item[(xiv)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$.
-\item[(xv)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) }$$
-\item[(xvi)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) }$$
+\item[(xv)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset }$$
+\item[(xvi)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset }$$
 \item[(xvii)] $\mathrm{next} ( q , X ) = \mathrm{GOTO} ( q , X )$.
 \item[(xviii)] $[ A \to \alpha \beta ] \in \mathrm{reduce} ( q , t ) \iff [ A \to \omega ] \in P^\prime \land t \in \mathrm{LA} ( q , [ A \to \omega ] )$.
 \item[(xix)] $q_f = \mathrm{GOTO} ( q_0 , S )$.
