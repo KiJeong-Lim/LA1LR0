@@ -52,9 +52,9 @@
 \item[(viii)] $Q \triangleq \mathrm{PT} \setminus \left\{ \emptyset \right\}$ where $\mathrm{PT} =_\mu \left\{ q_0 \right\} \cup \left\{ \mathrm{GOTO} ( q , X ) | q \in \mathrm{PT} , X \in V \right\}$.
 \item[(ix)] $\varepsilon : p \to q \iff p \in Q \land p = q$.
 \item[(x)] $X \alpha : p \to q \iff p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
-\item[(xi)] $\mathrm{next} ( q , X ) = \mathrm{GOTO} ( q , X )$.
-\item[(xii)] $[ A \to \omega ] \in \mathrm{reduce} ( q , t ) \iff [ A \to \omega ] \in P^\prime \land t \in \mathrm{LA} ( q , [ A \to \omega ] )$.
-\item[(xiii)] $q_f = \mathrm{GOTO} ( q_0 , S )$.
+\item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V$.
+\item[(xii)] $q_f := \mathrm{GOTO} ( q_0 , S )$.
+\item[(xiii)] $\mathrm{reduce} ( q , t ) := \left\{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathrm{LA} ( q , [ A \to \omega ] ) \right\}$ for $q \in Q$ and $t \in T^\prime$.
 \item[(xiv)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset & t \in T }$$
 \item[(xv)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset & A \in N }$$
 \item[(xvi)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$. $L ( G ) = L ( LRA ( G ) )$.
