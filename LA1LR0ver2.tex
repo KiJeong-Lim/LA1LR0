@@ -101,10 +101,22 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) \right\}
 \end{align}
-\noindent 이다. 이는
+\noindent 이 성립한다. 이는
 \begin{align}
 \mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \left\{ \mathrm{First} ( z \$ ) \, \left\vert \, S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast \right. \right\}
 \end{align}
-\noindent 이 성립하기 때문이다.
+\noindent 이기 때문이다.
+
+\noindent \textbf{Lemma. (lfp)} 집합 $ A $가 주어졌다고 하자. 그러면, 함수 $F : \powerset ( A ) \to \powerset ( A )$가 단조증가할 때, $F$의 최소고정점 $\mu_F$가 존재한다.
+\begin{proof}
+$A$의 부분집합들의 순서열 $\langle X_\alpha \rangle_{\alpha \in \mathbf{Ord}}$을 다음과 같이 초한재귀로 정의하자.
+\begin{align*}
+X_\alpha \triangleq \bigcup_{\beta < \alpha} F ( X_\beta ) \quad \mathrm{for} \, \alpha \in \mathbf{Ord} .
+\end{align*}
+이제 $A$의 Hartog 수 $\mathbf{h} ( A ) \triangleq \left\{ \zeta \in \mathbf{Ord} \mid \exists i : \zeta \hookrightarrow A \right\}$에 대하여 $$ \mu_F := X_{\mathbf{h} ( A )} $$로 놓으면,
+$\mu_F$가 원하던 $F$의 최소고정점이 된다.
+\end{proof}
+만약 $A$가 유한집합이면 $$\mathbf{h} ( A ) = \left| A \right| + 1$$이다.
+우리가 다뤘던 $A$들은 모두 유한집합이었으므로 구하고자 했던 최소고정점 계산은 항상 수렴하고 $F$를 최대 $\left| A \right|$번 호출하며 종료한다.
 
 \end{document}
