@@ -72,7 +72,7 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) \triangleq \left\{ t \in T^\prime \, \left\vert \, \begin{matrix} (\alpha \omega : q_0 \to q , t z) \vdash_{\mathrm{Reduce} ( A \to \omega )} ( \alpha A : q_0 \to q^\prime , t z ) \\ \land \\ ( \alpha A : q_0 \to q^\prime , t z ) \vdash^\ast ( S : q_0 \to q_f , \$ ) \end{matrix} \right. \right\} .
 \end{align}
-라 하자. 그러면, 이때
+라 하자. 그러면
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \, \left\vert \, S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) \right. \right\}
 \end{align}
@@ -85,9 +85,15 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \mathrm{LA}^\prime =_\mu \mathbf{propagate}_{\mathrm{LA}^\prime} ,
 \end{align}
 로 정의하자. 여기서
-\[ \infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_0 , [ S^\prime \to \cdot S ] )}{} \]
-\[ \infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_f , [ S^\prime \to S \cdot ] )}{} \]
-\[ \infer{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{prev} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q , [ A \to \alpha \cdot \beta ] )}{\alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p} \]
+\begin{equation}
+\begin{matrix} \\ \infer[\mathbf{Base}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
+\end{equation}
+\begin{equation}
+\begin{matrix} \\ \infer[\mathbf{Accept}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
+\end{equation}
+\begin{equation}
+\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{prev} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{prev}} ( q , [ A \to \alpha \cdot \beta ] )}{\alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
+\end{equation}
 \noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) \right\}
