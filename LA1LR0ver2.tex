@@ -1,0 +1,107 @@
+\documentclass[12pt]{paper}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage[bottom]{footmisc}
+\usepackage[a4paper, left=20mm, right=20mm, top=20mm, bottom=20mm]{geometry}
+\usepackage{graphicx}
+\usepackage{kotex}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{proof}
+\usepackage{xparse}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{lmodern}
+\usepackage{mathtools, nccmath}
+\usepackage{mathtools}
+\usepackage{indentfirst}
+
+%
+\DeclarePairedDelimiterX{\set}[1]{\{}{\}}{\setargs{#1}}
+\NewDocumentCommand{\setargs}{>{\SplitArgument{1}{;}}m}
+{\setargsaux#1}
+\NewDocumentCommand{\setargsaux}{mm}
+{\IfNoValueTF{#2}{#1}{#1\,\delimsize|\,\mathopen{}#2}}%{#1\:;\:#2}
+
+\newenvironment{context}[1][]
+{ \noindent \textbf{{#1}.} }
+{ \hfill $ \dashv $ }
+
+\newcommand{\powerset}
+{ \mathcal{P} }
+
+\title{LA(1)LR(0)}
+\author{임기정}
+
+\begin{document}
+
+\maketitle
+
+잇창명님께 감사드립니다. 다음은 LALR 파서를 생성하는 데에 필요한 정의이다.
+
+\begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
+\item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \left\{ S^\prime \right\} , T \uplus \left\{ \$ \right\} , P \uplus \left\{ [ S^\prime \to S ] \right\} , S^\prime )$.
+\item[(ii)] $V \triangleq N \uplus T$, $V^\prime \triangleq N^\prime \uplus T^\prime$.
+\item[(iii)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
+\item[(iv)] $I \triangleq \left\{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime \right\}$.
+\item[(v)] $\mathrm{Cl} ( q ) =_\mu q \cup \set{ [ A \to \cdot \omega ] | [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
+\item[(vi)] $q_0 \triangleq \mathrm{Cl} ( \left\{ [ S^\prime \to \cdot S ] \right\} )$.
+\item[(vii)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set{ [ A \to \alpha X \cdot \beta ] | [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
+\item[(viii)] $Q \triangleq \mathrm{PT} \setminus \left\{ \emptyset \right\}$ where $\mathrm{PT} =_\mu \left\{ q_0 \right\} \cup \left\{ \mathrm{GOTO} ( q , X ) | q \in \mathrm{PT} , X \in V \right\}$.
+\item[(ix)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$.
+\item[(x)] $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V$.
+\item[(xii)] $q_f := \mathrm{GOTO} ( q_0 , S )$.
+\item[(xiii)] $\mathrm{reduce} ( q , t ) := \left\{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathrm{LA} ( q , [ A \to \omega ] ) \right\}$ for $q \in Q$ and $t \in T^\prime$.
+\item[(xiv)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset & t \in T }$$
+\item[(xv)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset & A \in N }$$
+\item[(xvi)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$. $L ( G ) = L ( LRA ( G ) )$.
+\item[(xvii)] For $ts_1 \subseteq \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\}$ and $ts_2 \subseteq \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\}$, \[ ts_1 \odot ts_2 := \begin{cases} ts_1 , & \mathrm{if} \, \varepsilon \notin ts_1 ; \\ ( ts_1 \setminus \left\{ \varepsilon \right\} ) \cup ts_2 , & \mathrm{otherwise} . \end{cases} \]
+\item[(xviii)] $\mathrm{First} ( A ) := \set{ t | t \in T^\prime , \omega \in V^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set{ \varepsilon | A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
+\item[(xix)] $\mathrm{First} ( t ) := \left\{ t \right\}$ for $t \in T^\prime$.
+\item[(xx)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in ( V^\prime )^\ast $.
+\end{enumerate}
+
+\noindent \textbf{Theorem. (LA)}
+$ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V^\ast$에 대하여,
+\begin{align}
+\mathrm{LA} ( q , [ A \to \omega ] ) \triangleq \left\{ t \in T^\prime \, \left\vert \, \begin{matrix} (\alpha \omega : q_0 \to q , t z) \vdash_{\mathrm{Reduce} ( A \to \omega )} ( \alpha A : q_0 \to q^\prime , t z ) \\ \land \\ ( \alpha A : q_0 \to q^\prime , t z ) \vdash^\ast ( S : q_0 \to q_f , \$ ) \end{matrix} \right. \right\} .
+\end{align}
+라 하자. 그러면
+\begin{align}
+\mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \, \left\vert \, S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) \right. \right\}
+\end{align}
+이 항상 성립한다.
+
+\newpage
+
+\noindent 이제 $\mathrm{LA}^\prime : \left\{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q \right\} \to \powerset ( \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\} )$를
+\begin{align}
+\mathrm{LA}^\prime =_\mu \mathbf{propagate}_{\mathrm{LA}^\prime} ,
+\end{align}
+로 정의하자. 여기서
+\[
+\infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime} ( q_0 , [ S^\prime \to \cdot S ] )}{}
+\]
+\[
+\infer{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime} ( q_f , [ S^\prime \to S \cdot ] )}{}
+\]
+\[
+\infer{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime} ( q , [ A \to \alpha \cdot \beta ] )}{\alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}
+\]
+\noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
+\begin{align}
+\mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) \right\}
+\end{align}
+\noindent 이다. 추가로,
+\begin{align}
+\mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \left\{ \mathrm{First} ( z \$ ) \, \left\vert \, S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast \right. \right\}
+\end{align}
+\noindent 이 항상 성립한다.
+
+\end{document}
