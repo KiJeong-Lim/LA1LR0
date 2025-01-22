@@ -50,13 +50,13 @@
 \item[(vi)] $q_0 \triangleq \mathrm{Cl} ( \left\{ [ S^\prime \to \cdot S ] \right\} )$.
 \item[(vii)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set{ [ A \to \alpha X \cdot \beta ] | [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
 \item[(viii)] $Q \triangleq \mathrm{PT} \setminus \left\{ \emptyset \right\}$ where $\mathrm{PT} = \left\{ q_0 \right\} \cup \left\{ \mathrm{GOTO} ( q , X ) | q \in \mathrm{PT} , X \in V \right\}$.
-\item[(ix)] $\varepsilon : p \to q \iff p = q$.
-\item[(x)] $X \alpha : p \to q \iff \mathrm{GOTO} ( p , X ) \ne \emptyset \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[(ix)] $\varepsilon : p \to q \iff p \in Q \land p = q$.
+\item[(x)] $X \alpha : p \to q \iff p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[(xi)] $\mathrm{First} ( A ) := \set{ t | t \in T^\prime , \omega \in V^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set{ \varepsilon | A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
 \item[(xii)] $\mathrm{First} ( t ) := \left\{ t \right\}$ for $t \in T^\prime$.
-\item[(xiii)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$.
-\item[(xiv)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$.
-\item[(xv)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$.
+\item[(xiii)] $\mathrm{First} ( \varepsilon ) := \left\{ \varepsilon \right\}$, $\mathrm{First} ( X \omega ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \omega )$ for $X \in V^\prime$ and $\omega \in ( V^\prime )^\ast $.
+\item[(xiv)] $L ( G ) := \set{ z \in T^\ast | S \Rightarrow_P^\ast z }$, $L ( G^\prime ) := \set{ z \in T^\ast | S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
+\item[(xv)] $L ( LRA ( G ) ) := \set{ z \in T^\ast | ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$. $L ( G ) = L ( LRA ( G ) )$.
 \item[(xvi)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ & q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset & t \in T }$$
 \item[(xvii)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset & A \in N }$$
 \item[(xviii)] $\mathrm{next} ( q , X ) = \mathrm{GOTO} ( q , X )$.
