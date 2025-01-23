@@ -83,16 +83,16 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 
 \newpage
 
-\noindent 이제 $\mathrm{LA}^\prime : \left\{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q \right\} \to \powerset ( \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\} )$를
+\noindent 이제 $\mathrm{LA}^\prime : \left\{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q \right\} \to \powerset ( \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| = 1 \right\} )$를
 \begin{align}
 \mathrm{LA}^\prime =_\mu \mathbf{propagate}_{\mathrm{LA}^\prime} ,
 \end{align}
 로 정의하자. 여기서
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Base}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
+\begin{matrix} \\ \infer[\mathbf{Initial}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Accept}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
+\begin{matrix} \\ \infer[\mathbf{Final}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
 \begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{previous} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{[ A \to \alpha \beta ] \in P & [ A \to \alpha \cdot \beta ] \in q & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
