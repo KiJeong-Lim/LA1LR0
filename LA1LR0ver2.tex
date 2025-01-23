@@ -81,7 +81,7 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \end{align}
 이 성립한다.
 
-\newpage
+\newpage \setstretch{1.6}
 
 \noindent 이제 $\mathrm{LA}^\prime : \left\{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q \right\} \to \powerset ( \left\{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 \right\} )$를
 \begin{align}
@@ -106,5 +106,16 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \left\{ \mathrm{First} ( z \$ ) \, \left\vert \, S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast \right. \right\}
 \end{align}
 \noindent 이기 때문이다.
+
+\noindent \textbf{Remark. (lfp)}
+완비순서격자 $ ( D , \leq ) $에 대하여 단조증가함수 $f : D \to D$의 최소고정점은 $$ \mu_f = \bigwedge \left\{ x \in D \mid f ( x ) \le x \right\} $$이다.
+그러나 어떻게 $f$의 최소고정점 $\mu_f$를 구성적으로 계산할 수 있을 것인가? 답:
+\begin{align*}
+\langle x_\alpha \rangle_{ \alpha \in \mathbf{Ord} } & : \mathbf{Ord} \to D \\
+x_0 & := \bot , \\
+x_{S ( \alpha )} & := x_\alpha \vee f ( x_\alpha ) , \\
+x_{\zeta} & := \bigvee_{\alpha < \zeta} x_\alpha , \quad \mathrm{if} \, \zeta \in \mathbf{limOrd}_{>0} .
+\end{align*}
+그러면, $\kappa := \mathbf{h} ( A ) \triangleq \left\{ \beta \in \mathbf{Ord} \mid \exists \iota : \beta \hookrightarrow A \right\}$에 대하여, $\mu_f = x_\kappa$이다.
 
 \end{document}
