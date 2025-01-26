@@ -21,6 +21,8 @@
 \usepackage{mathtools}
 \usepackage{indentfirst}
 
+\newtheorem*{theorem}{Theorem}
+
 \DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
 
 \newenvironment{context}[1][]
@@ -47,7 +49,7 @@
 \item[(ix)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V }$.
 \item[(x)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V$.
-\item[(xii)] $\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathrm{LA} ( q , [ A \to \omega ] ) }$ for $q \in Q$ and $t \in T^\prime$.
+\item[(xii)] $\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }$ for $q \in Q$ and $t \in T^\prime$.
 \item[(xiii)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset }$$
 \item[(xiv)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset }$$
 \item[(xv)] $q_f := \mathrm{GOTO} ( q_0 , S )$.
@@ -58,26 +60,30 @@
 \item[(xx)] $\mathrm{First} ( \varepsilon ) := \set*{ \varepsilon }$. $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in ( V^\prime )^\ast $.
 \end{enumerate}
 
-\noindent \textbf{Theorem. (LA)}
-For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $,
+\begin{theorem}[\textbf{LALR(1)}]
+For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, take
 \begin{align}
-\mathrm{LA} ( q , [ A \to \omega ] )
-& \triangleq \set*{ t \in T^\prime \mid \begin{matrix} (\alpha \omega : q_0 \to q , t z) \vdash_{\mathrm{Reduce} ( A \to \omega )} ( \alpha A : q_0 \to q^\prime , t z ) , \\ ( \alpha A : q_0 \to q^\prime , t z ) \vdash^\ast ( S : q_0 \to q_f , \$ ) \end{matrix} } \\
-& = \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
+\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
 \end{align}
-Moreover, it can be calculated by
+Then, it can be calculated by
 \begin{align}
-\mathrm{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) } ,
+\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid t \in \mathbf{LA}^\prime ( q , [ A \to \omega \cdot ] ) } ,
 \end{align}
-for some $\mathrm{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 } )$ such that:
+for some $\mathbf{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 } )$ with:
 \begin{align}
-\mathrm{LA}^\prime ( q_0 , [ S^\prime \to \cdot S ] ) & = \set*{ \$ } ; \\
-\mathrm{LA}^\prime ( q_f , [ S^\prime \to S \cdot ] ) & = \set*{ \$ } ; \\
-\mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & = \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) 
+\mathbf{LA}^\prime ( q_0 , [ S^\prime \to \cdot S ] ) & = \set*{ \$ } \label{eq:initial} ; \\
+\mathbf{LA}^\prime ( q_f , [ S^\prime \to S \cdot ] ) & = \set*{ \$ } \label{eq:final} ; \\
+\mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & = \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \label{eq:step} 
 \end{align}
-if $ A \ne S^\prime $\textbf{---}because, whenever $q \in Q$ and $[ A \to \alpha \cdot \beta ] \in q$,
+if $ A \ne S^\prime $.
+\end{theorem}
+
+\begin{proof}
+Satisfying $\eqref{eq:initial}$, $\eqref{eq:final}$, and $\eqref{eq:step}$, there exists $\mathbf{LA}^\prime$ such that
 \begin{align}
-\mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast } .
+\mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast }
 \end{align}
+whenever $q \in Q$ and $[ A \to \alpha \cdot \beta ] \in q$.
+\end{proof}
 
 \end{document}
