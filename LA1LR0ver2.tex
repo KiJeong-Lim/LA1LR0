@@ -115,8 +115,8 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \noindent \textbf{Remark. (Fixed-point)} 완비격자 $( D , \le )$가 주어졌다고 하자. 함수 $$f : D \to D$$가 단조증가할 때, $x_0 \in D$ 이상의 $f$의 고정점 중 가장 작은 것을 구하는 법을 생각해보자.
 \begin{align*}
 x : \mathsf{Ord} & \to D \\
-S ( \alpha ) & \mapsto f ( x_\alpha ) \\
-\alpha & \mapsto \sup_{\zeta < \alpha} x_\zeta \quad \mathrm{if} \, \alpha \in \mathsf{LimOrd}_{>0}
+S ( \alpha ) & \mapsto x_0 \vee f ( x_\alpha ) \\
+\alpha & \mapsto \bigvee_{\zeta < \alpha} x_\zeta \quad \mathrm{if} \, \alpha \in \mathsf{LimOrd}_{>0}
 \end{align*}
 로 잡고, $\kappa := \mathbf{h} ( D ) \triangleq \left\{ \alpha \in \mathsf{Ord} \mid \exists \, \iota : \alpha \hookrightarrow \left| D \right| \right\}$로 놓으면,
 $ x_\kappa $가 구하는 그것이 된다.
