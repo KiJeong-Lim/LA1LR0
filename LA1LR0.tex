@@ -69,13 +69,13 @@ Moreover, if $q \in Q$ and $ [ A \to \omega \cdot ] \in q $, then
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) } ,
 \end{align}
-where $\mathrm{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| = 1 } )$ is given by
+where $\mathrm{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| = 1 } )$ satisfies:
 \begin{align}
-\mathrm{LA}^\prime ( q_0 , [ S^\prime \to \cdot S ] ) & \triangleq \set*{ \$ } , \\
-\mathrm{LA}^\prime ( q_f , [ S^\prime \to S \cdot ] ) & \triangleq \set*{ \$ } , \\
-\mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & \triangleq \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \,
+\mathrm{LA}^\prime ( q_0 , [ S^\prime \to \cdot S ] ) & = \set*{ \$ } , \\
+\mathrm{LA}^\prime ( q_f , [ S^\prime \to S \cdot ] ) & = \set*{ \$ } , \\
+\mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & = \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \,
 \end{align}
-for $ [ A \to \alpha \beta ] \in P $.
+if $ [ A \to \alpha \beta ] \in P $.
 Furthermore, whenever $q \in Q$ and $[ A \to \alpha \cdot \beta ] \in q$,
 \begin{align}
 \mathrm{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast } .
