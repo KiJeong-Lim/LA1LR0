@@ -21,12 +21,9 @@
 \usepackage{mathtools}
 \usepackage{indentfirst}
 
-%
-\DeclarePairedDelimiterX{\set}[1]{\{}{\}}{\setargs{#1}}
-\NewDocumentCommand{\setargs}{>{\SplitArgument{1}{;}}m}
-{\setargsaux#1}
-\NewDocumentCommand{\setargsaux}{mm}
-{\IfNoValueTF{#2}{#1}{#1\,\delimsize|\,\mathopen{}#2}}%{#1\:;\:#2}
+\DeclarePairedDelimiter{\SET}{\lbrace}{\rbrace}
+\DeclareDocumentCommand{\set}{o m}
+{\IfNoValueTF{#1}{\SET*{\,#2\,}}{\SET*{\,#1\,:\,#2\,}}}
 
 \newenvironment{context}[1][]
 { \noindent \textbf{{#1}.} }
