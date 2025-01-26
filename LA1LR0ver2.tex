@@ -87,7 +87,7 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{align}
 \mathrm{LA}^\prime =_\mu \mathbf{propagate}_{\mathrm{LA}^\prime} ,
 \end{align}
-로 정의하자. 여기서 $\mathbf{propagate}$의 도입 규칙은 모두 4가지로
+로 정의하자. 여기서 $\mathbf{propagate}$의 도입 규칙은 모두 3가지로
 \begin{equation}
 \begin{matrix} \\ \infer[\mathbf{Initial}]{\$ \in \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
 \end{equation}
@@ -97,9 +97,9 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{equation}
 \begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathrm{LA}^\prime_\mathrm{previous} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & [ A \to \alpha \beta ] \in P & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
-%  \begin{equation}
-%  \begin{matrix}\infer[\mathbf{Extensive}]{\mathrm{LA}^\prime_\mathrm{previous} ( q , [ A \to \alpha \cdot \beta ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q}\end{matrix}
-%  \end{equation}
+% \begin{equation}
+% \begin{matrix}\infer[\mathbf{Extensive}]{\mathrm{LA}^\prime_\mathrm{previous} ( q , [ A \to \alpha \cdot \beta ] ) \subseteq \mathbf{propagate}_{\mathrm{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q}\end{matrix}
+% \end{equation}
 \noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
 \mathrm{LA} ( q , [ A \to \omega ] ) = \left\{ t \in T^\prime \mid t \in \mathrm{LA}^\prime ( q , [ A \to \omega \cdot ] ) \right\}
