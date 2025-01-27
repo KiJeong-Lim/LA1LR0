@@ -47,14 +47,14 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \uplus \set*{ [ S^\prime \to S ] } , S^\prime )$.
 \item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
-\item[(iii)] $L ( G ) := \set*{ z \in T^\ast \mid S \Rightarrow_P^\ast z }$. $L ( G^\prime ) := \set*{ z \in T^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
-\item[(iv)] $I \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
-\item[(v)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
-\item[(vi)] $q_0 \triangleq \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S ] } )$.
-\item[(vii)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
-\item[(xiii)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V }$.
-\item[(ix)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$.
-\item[(x)] $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast }$.
+\item[(iv)] $L ( G ) := \set*{ z \in T^\ast \mid S \Rightarrow_P^\ast z }$. $L ( G^\prime ) := \set*{ z \in T^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
+\item[(v)] $I \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
+\item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
+\item[(vii)] $q_0 \triangleq \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S ] } )$.
+\item[(viii)] $\mathrm{GOTO} ( q , X ) \triangleq \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I ) $ and $ X \in V $.
+\item[(ix)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V }$.
+\item[(x)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V$.
 \item[(xii)] $\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }$ for $q \in Q$ and $t \in T^\prime$.
 \item[(xiii)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset }$$
