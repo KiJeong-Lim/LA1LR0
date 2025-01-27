@@ -21,6 +21,11 @@
 \usepackage{mathtools}
 \usepackage{indentfirst}
 
+\newtheorem*{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\newtheorem*{remark}{Remark}
+
 \DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
 
 \newenvironment{context}[1][]
@@ -40,12 +45,12 @@
 
 \maketitle
 
-잇창명님께 감사드립니다. 다음은 LALR 파서를 생성하는 데에 필요한 정의이다.
-
+\begin{definition}[\textbf{LR(0)}]
+Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
-\item[(i)] Let $G \triangleq ( N , T , P , S )$ be a CFG.
-\item[(ii)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \uplus \set*{ [ S^\prime \to S ] } , S^\prime )$.
-\item[(iii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
+\item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \uplus \set*{ [ S^\prime \to S ] } , S^\prime )$.
+\item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
+\item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast }$.
 \item[(iv)] $L ( G ) := \set*{ z \in T^\ast \mid S \Rightarrow_P^\ast z }$. $L ( G^\prime ) := \set*{ z \in T^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
 \item[(v)] $I \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
 \item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I ) $.
@@ -64,25 +69,20 @@
 \item[(xix)] $\mathrm{First} ( t ) := \set*{ t }$ for $t \in T^\prime$.
 \item[(xx)] $\mathrm{First} ( \varepsilon ) := \set*{ \varepsilon }$. $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in ( V^\prime )^\ast $.
 \end{enumerate}
+\end{definition}
 
-\noindent \textbf{Theorem. (LA)}
+\begin{theorem}[\textbf{LA(1)}]
 $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V^\ast$에 대하여,
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid \begin{matrix} (\alpha \omega : q_0 \to q , t z) \vdash_{\mathrm{Reduce} ( A \to \omega )} ( \alpha A : q_0 \to q^\prime , t z ) \\ \andb \\ ( \alpha A : q_0 \to q^\prime , t z ) \vdash^\ast ( S : q_0 \to q_f , \$ ) \end{matrix} } .
+\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) }
 \end{align}
-라 하자. 그러면
-\begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) }
-\end{align}
-이 성립한다.
-
-\newpage
-
-\noindent 이제 $\mathbf{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 } )$를
+라 하자. 이제 $\mathbf{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 } )$를
 \begin{align}
 \mathbf{LA}^\prime =_\mu \mathbf{propagate}_{\mathbf{LA}^\prime} ,
 \end{align}
-로 정의하자. 여기서 $\mathbf{propagate}$의 도입 규칙은 모두 3가지로
+로 정의하자.
+\newpage \noindent
+여기서 $\mathbf{propagate}$의 도입 규칙은 모두 3가지로
 \begin{equation}
 \begin{matrix} \\ \infer[\mathbf{Initial}]{\$ \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
 \end{equation}
@@ -95,19 +95,21 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 % \begin{equation}
 % \begin{matrix}\infer[\mathbf{Extensive}]{\mathbf{LA}^\prime_\mathrm{previous} ( q , [ A \to \alpha \cdot \beta ] ) \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q}\end{matrix}
 % \end{equation}
-\noindent 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
+이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid t \in \mathbf{LA}^\prime ( q , [ A \to \omega \cdot ] ) }
 \end{align}
-\noindent 이 성립한다. 이는
+이 성립한다. 이는
 \begin{align}
 \mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast }
 \end{align}
-\noindent 이기 때문이다.
+이기 때문이다.
+\end{theorem}
 
-\par\noindent\rule{\textwidth}{0.2pt}
+\par\noindent\rule{\textwidth}{0.1pt}
 
-\noindent \textbf{Remark. (Fixed-point)} 완비격자 $( D , \le )$가 주어졌다고 하자. 함수 $$f : D \to D$$가 단조증가할 때, $x_0 \in D$ 이상의 $f$의 고정점 중 가장 작은 것을 구하는 법을 생각해보자.
+\begin{remark}[\textbf{Fixed-point}]
+완비격자 $( D , \le )$가 주어졌다고 하자. 함수 $$f : D \to D$$가 단조증가할 때, $x_0 \in D$ 이상의 $f$의 고정점 중 가장 작은 것을 구하는 법을 생각해보자.
 \begin{align*}
 x : \mathsf{Ord} & \to D \\
 S ( \alpha ) & \mapsto x_0 \vee f ( x_\alpha ) \\
@@ -127,5 +129,15 @@ x_\kappa = f ( x_\kappa )
 이다.
 여기서, 임의의 집합 $A$에 대하여 \[\mathbf{h} ( A ) \triangleq \set*{ \alpha \in \mathsf{Ord} \mid \exists \, \iota : \alpha \hookrightarrow A } \] 이며,
 $A$가 유한하면 $\mathbf{h} ( A ) = \left| A \right| + 1$이다.
+\end{remark}
+
+\par\noindent\rule{\textwidth}{0.1pt}
+
+\noindent\textbf{감사의 말.} 잇창명님께 감사드립니다.
+
+\noindent\textbf{참고문헌.}
+\begin{enumerate}
+\item[(1)] 컴파일러 입문, 개정판. 오세만 저. ISBN: 9788935304677.
+\end{enumerate}
 
 \end{document}
