@@ -1,4 +1,4 @@
-\documentclass[12pt]{paper}
+\documentclass[12pt]{article}
 
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -20,6 +20,7 @@
 \usepackage{mathtools, nccmath}
 \usepackage{mathtools}
 \usepackage{indentfirst}
+\usepackage{nopageno}
 
 \newtheorem*{theorem}{Theorem}
 
@@ -36,6 +37,8 @@
 \author{임기정, 잇창명}
 
 \begin{document}
+
+\thispagestyle{empty}
 
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[(i)] Let $G \triangleq ( N , T , P , S )$ be a CFG.
@@ -79,11 +82,11 @@ if $ A \ne S^\prime $.
 \end{theorem}
 
 \begin{proof}
-Satisfying $\eqref{eq:initial}$, $\eqref{eq:final}$, and $\eqref{eq:step}$, there exists $\mathbf{LA}^\prime$ such that
+There exists the least fixed point $\mathbf{LA}^\prime$ of some monotonic function such that
 \begin{align}
 \mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast }
 \end{align}
-whenever $q \in Q$ and $[ A \to \alpha \cdot \beta ] \in q$.
+whenever $q \in Q$ and $[ A \to \alpha \cdot \beta ] \in q$, satisfying $\eqref{eq:initial}$, $\eqref{eq:final}$, and $\eqref{eq:step}$.
 \end{proof}
 
 \end{document}
