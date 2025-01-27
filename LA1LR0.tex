@@ -63,8 +63,8 @@
 \item[(xx)] $\mathrm{First} ( \varepsilon ) := \set*{ \varepsilon }$. $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in ( V^\prime )^\ast $.
 \end{enumerate}
 
-\begin{theorem}[\textbf{LALR(1)}]
-For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, take
+\begin{theorem}[\textbf{LA}]
+For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, let
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
 \end{align}
@@ -82,7 +82,7 @@ if $ A \ne S^\prime $.
 \end{theorem}
 
 \begin{proof}
-There exists the least fixed point $\mathbf{LA}^\prime$ of some monotonic function such that
+There exists the least fixed point $\mathbf{LA}^\prime$ of some monotonic func such that
 \begin{align}
 \mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast }
 \end{align}
