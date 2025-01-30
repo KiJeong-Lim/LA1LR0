@@ -85,13 +85,13 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 로 정의하자.
 여기서 $\mathbf{propagate}$의 도입 규칙은 모두 3가지로
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Initial}]{( q_0 , [ S^\prime \to \cdot S ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
+\begin{matrix} \\ \infer[]{( q_0 , [ S^\prime \to \cdot S ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Final}]{( q_f , [ S^\prime \to S \cdot ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
+\begin{matrix} \\ \infer[]{( q_f , [ S^\prime \to S \cdot ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \set*{ z \mid ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] , z ) \in \mathbf{LA}^\prime_\mathrm{p}  } \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
+\begin{matrix}ts := \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 , ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] , z ) \in \mathbf{LA}^\prime_\mathrm{previous} } \\ \infer[]{\mathrm{First} ( \alpha_2 ) \odot ts \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
