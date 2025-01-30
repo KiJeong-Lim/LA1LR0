@@ -47,7 +47,7 @@
 
 \begin{definition}[\textbf{LR(0)}]
 Let $G \triangleq ( N , T , P , S )$ be a CFG.
-\begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
+\begin{enumerate}
 \item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S ] } , S^\prime )$.
 \item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
 \item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast }$.
@@ -71,33 +71,31 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \end{enumerate}
 \end{definition}
 
+\newpage \noindent
+
 \begin{theorem}[\textbf{LA(1)}]
 $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V^\ast$에 대하여,
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) }
 \end{align}
-라 하자. 이제 $\mathbf{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q } \to \powerset ( \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 } )$를
+라 하자. 이제 $\mathbf{LA}^\prime \subseteq \set*{ ( q , [ A \to \alpha \cdot \beta ] , z ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q , z \in ( T^\prime )^\ast , \left| z \right| \le 1 } $를
 \begin{align}
-\mathbf{LA}^\prime =_\mu \mathbf{propagate}_{\mathbf{LA}^\prime} ,
+\mathbf{LA}^\prime =_\mu \mathbf{propagate}_{\mathbf{LA}^\prime}
 \end{align}
 로 정의하자.
-\newpage \noindent
 여기서 $\mathbf{propagate}$의 도입 규칙은 모두 3가지로
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Initial}]{\$ \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
+\begin{matrix} \\ \infer[\mathbf{Initial}]{( q_0 , [ S^\prime \to \cdot S ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix} \\ \infer[\mathbf{Final}]{\$ \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
+\begin{matrix} \\ \infer[\mathbf{Final}]{( q_f , [ S^\prime \to S \cdot ] , \$ ) \in \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}}}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime_\mathrm{previous} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
+\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot \set*{ z \mid ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] , z ) \in \mathbf{LA}^\prime_\mathrm{p}  } \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{p}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
-% \begin{equation}
-% \begin{matrix}\infer[\mathbf{Extensive}]{\mathbf{LA}^\prime_\mathrm{previous} ( q , [ A \to \alpha \cdot \beta ] ) \subseteq \mathbf{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{q \in Q & [ A \to \alpha \cdot \beta ] \in q}\end{matrix}
-% \end{equation}
 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid t \in \mathbf{LA}^\prime ( q , [ A \to \omega \cdot ] ) }
+\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid ( q , [ A \to \omega \cdot ] , t ) \in \mathbf{LA}^\prime }
 \end{align}
 이 성립한다. 이는
 \begin{align}
@@ -105,31 +103,6 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \end{align}
 이기 때문이다.
 \end{theorem}
-
-\par\noindent\rule{\textwidth}{0.1pt}
-
-\begin{remark}[\textbf{Fixed-point}]
-완비격자 $( D , \le )$가 주어졌다고 하자. 함수 $$f : D \to D$$가 단조증가할 때, $x_0 \in D$ 이상의 $f$의 고정점 중 가장 작은 것을 구하는 법을 생각해보자.
-\begin{align*}
-x : \mathsf{Ord} & \to D \\
-S ( \alpha ) & \mapsto x_0 \vee f ( x_\alpha ) \\
-\alpha & \mapsto \bigvee_{\zeta < \alpha} x_\zeta \quad \mathrm{if} \, \alpha \in \mathsf{LimOrd}_{>0}
-\end{align*}
-로 잡고,
-$\kappa := \mathbf{h} ( D )$로 놓으면,
-$ x_\kappa $가 구하는 그것이 된다.
-즉,
-\begin{align}
-x_\kappa = f ( x_\kappa )
-\end{align}
-이고
-\begin{align}
-( \forall x \in D ) ( x = f ( x ) \to ( x_0 \le x \leftrightarrow x_\kappa \le x ) )
-\end{align}
-이다.
-여기서, 임의의 집합 $A$에 대하여 \[\mathbf{h} ( A ) \triangleq \set*{ \alpha \in \mathsf{Ord} \mid \exists \, \iota : \alpha \hookrightarrow A } \] 이며,
-$A$가 유한하면 $\mathbf{h} ( A ) = \left| A \right| + 1$이다.
-\end{remark}
 
 \par\noindent\rule{\textwidth}{0.1pt}
 
