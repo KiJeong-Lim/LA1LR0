@@ -20,11 +20,14 @@
 \usepackage{mathtools, nccmath}
 \usepackage{mathtools}
 \usepackage{indentfirst}
+\usepackage{biblatex}
+\addbibresource{ref.bib}
 
-\newtheorem*{theorem}{Theorem}
+\newcommand\bibname{참고문헌}
+
 \theoremstyle{definition}
 \newtheorem*{definition}{Definition}
-\newtheorem*{remark}{Remark}
+\newtheorem*{theorem}{Theorem}
 
 \DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
 
@@ -71,7 +74,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \end{enumerate}
 \end{definition}
 
-\newpage \noindent
+\newpage
 
 \begin{theorem}[\textbf{LA(1)}]
 $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V^\ast$에 대하여,
@@ -107,15 +110,12 @@ $q \in Q \land [ A \to \alpha \cdot \beta ] \in q$일 때마다
 이기 때문이다.
 \end{proof}
 
-\par\noindent\rule{\textwidth}{0.1pt}
+\section*{감사의 인사}
+\begin{itemize}
+\item 이 글을 쓰는 데 많은 도움을 주신 잇창명\footnote{\texttt{https://eatchangmyeong.github.io/}}님께 감사의 말씀을 드립니다.
+\item 또한, 참고문헌 \cite{DeRemer1982}과 \cite{oh2010}로부터 따온 정의 및 정리를 사용하였음을 밝힙니다.
+\end{itemize}
 
-\noindent\textbf{감사의 인사.}
-이 글을 쓰는 데 도움을 많이 주신 잇창명\footnote{\texttt{https://eatchangmyeong.github.io/}}님께 감사의 말씀을 드립니다.
-
-\noindent\textbf{참고문헌.}
-\begin{enumerate}
-\item[{[1]}] 컴파일러 입문(개정판). 오세만. ISBN: 9788935304677.
-\item[{[2]}] Efficient Computation of LALR(1) Look-Ahead Sets. Frank DeRemer, Thomas Pennello.
-\end{enumerate}
+\printbibliography[title={참고문헌}]
 
 \end{document}
