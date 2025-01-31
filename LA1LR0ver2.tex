@@ -93,14 +93,14 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{equation}
 \begin{matrix}\\ \infer[]{\mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime_\mathrm{prev} \mathbin{!} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \textbf{Propagate}_{\mathbf{LA}^\prime_\mathrm{prev}} \mathbin{!} ( q , [ A \to \alpha \cdot \beta ])}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
-이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다
+이다. 그러면, $q \in Q \land [ A \to \omega \cdot ] \in q$일 때마다
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid ( ( q , [ A \to \omega \cdot ] ) , t ) \in \mathbf{LA}^\prime }
 \end{align}
 이 성립한다.
 \end{theorem}
 \begin{proof}
-$q \in Q$이고 $[ A \to \alpha \cdot \beta ] \in q$일 때마다
+$q \in Q \land [ A \to \alpha \cdot \beta ] \in q$일 때마다
 \begin{align}
 \mathbf{LA}^\prime \mathbin{!} ( q , [ A \to \alpha \cdot \beta ] ) = \bigcup \set*{ \mathrm{First} ( z \$ ) \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \omega A z \xRightarrow[\mathbf{rm}]{}_{P^\prime} \omega \alpha \beta z , \omega \alpha : q_0 \to q , z \in T^\ast }
 \end{align}
