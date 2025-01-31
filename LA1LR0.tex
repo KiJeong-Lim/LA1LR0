@@ -81,9 +81,8 @@ for some $\mathbf{LA}^\prime : \set*{ ( q , [ A \to \alpha \cdot \beta ] ) \mid 
 \begin{align}
 \mathbf{LA}^\prime ( q_0 , [ S^\prime \to \cdot S ] ) & = \set*{ \$ } \label{eq:initial} ; \\
 \mathbf{LA}^\prime ( q_f , [ S^\prime \to S \cdot ] ) & = \set*{ \$ } \label{eq:final} ; \\
-\mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & = \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \label{eq:step} 
+\mathbf{LA}^\prime ( q , [ A \to \alpha \cdot \beta ] ) & = \bigcup_{\alpha : p \to q} \bigcup_{[ B \to \alpha_1 \cdot A \alpha_2 ] \in p} \mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \, \, \mathrm{if} \, \, A \ne S^\prime . \label{eq:step}
 \end{align}
-if $ A \ne S^\prime $.
 \end{theorem}
 
 \begin{proof}
