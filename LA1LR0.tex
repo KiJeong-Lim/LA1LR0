@@ -69,7 +69,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \end{definition}
 
 \begin{theorem}[\textbf{LA(1)}]
-For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, let
+For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, define
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) := \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
 \end{align}

@@ -78,20 +78,20 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) }
 \end{align}
-라 하자. 이제 $\mathbf{LA}^\prime \subseteq \set*{ ( q , [ A \to \alpha \cdot \beta ] , z ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q , z \in ( T^\prime )^\ast , \left| z \right| \le 1 } $를
+라 하자. 이제 $\mathbf{LA}^\prime \subseteq \set*{ ( ( q , [ A \to \alpha \cdot \beta ] ) , z ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q , z \in ( T^\prime )^\ast , \left| z \right| \le 1 } $를
 \begin{align}
 \mathbf{LA}^\prime =_\mu \mathrm{propagate}_{\mathbf{LA}^\prime}
 \end{align}
 로 정의하자.
-여기서 $\mathrm{propagate}$의 도입 규칙은 모두 3가지로
+여기서 $\mathrm{propagate}$의 도입 규칙은 3가지로, $M \mathbin{!} k \triangleq \set*{ x \mid ( k , x ) \in M }$라 할 때,
 \begin{equation}
-\begin{matrix}\\ \infer[\mathbf{Initial}]{( q_0 , [ S^\prime \to \cdot S ] , \$ ) \in \mathrm{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}}}{}\end{matrix}
+\begin{matrix}\\ \infer[]{\$ \in \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\\ \infer[\mathbf{Final}]{( q_f , [ S^\prime \to S \cdot ] , \$ ) \in \mathrm{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}}}{}\end{matrix}
+\begin{matrix}\\ \infer[]{\$ \in \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q_f , [ S^\prime \to S \cdot ] , \$ )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\infer[\mathbf{Step}]{\mathrm{First} ( \alpha_2 ) \odot ts \subseteq \mathrm{propagate}_{\mathbf{LA}^\prime_\mathrm{previous}} ( q , [ A \to \alpha \cdot \beta ] )}{\begin{matrix} \begin{matrix} q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p \end{matrix} \\ ts = \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 , ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] , z ) \in \mathbf{LA}^\prime_\mathrm{previous} }\end{matrix}}\end{matrix}
+\begin{matrix}\\ \infer[]{\mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime_p \mathbin{!} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q , [ A \to \alpha \cdot \beta ])}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
