@@ -51,7 +51,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S ] } , S^\prime )$.
 \item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
 \item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast }$.
-\item[(iv)] $L ( G ) \triangleq \set*{ z \in T^\ast \mid S \Rightarrow_P^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in T^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
+\item[(iv)] $L ( G ) \triangleq \set*{ z \in T^\ast \mid S \Rightarrow_\mathrm{prev}^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in T^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z }$. $L ( G ) = L ( G^\prime )$.
 \item[(v)] $I_{\text{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
 \item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\text{LR(0)}} ) $.
 \item[(vii)] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S ] } )$.
@@ -80,18 +80,18 @@ $ [ A \to \omega \cdot ] \in q $인 $q \in Q$, $A \in N^\prime$와 $\omega \in V
 \end{align}
 라 하자. 이제 $\mathbf{LA}^\prime \subseteq \set*{ ( ( q , [ A \to \alpha \cdot \beta ] ) , z ) \mid q \in Q , [ A \to \alpha \cdot \beta ] \in q , z \in ( T^\prime )^\ast , \left| z \right| \le 1 } $를
 \begin{align}
-\mathbf{LA}^\prime =_\mu \mathrm{propagate}_{\mathbf{LA}^\prime}
+\mathbf{LA}^\prime =_\mu \textbf{Propagate}_{\mathbf{LA}^\prime}
 \end{align}
 로 정의하자.
-여기서 $\mathrm{propagate}$의 도입 규칙은 3가지로, $M \mathbin{!} k := \set*{ x \mid ( k , x ) \in M }$라 할 때,
+여기서 $\textbf{Propagate}$의 도입 규칙은 3가지로, $M \mathbin{!} k := \set*{ x \mid ( k , x ) \in M }$라 할 때,
 \begin{equation}
-\begin{matrix}\\ \infer[]{\$ \in \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
+\begin{matrix}\\ \infer[]{\$ \in \textbf{Propagate}_{\mathbf{LA}^\prime_\mathrm{prev}} \mathbin{!} ( q_0 , [ S^\prime \to \cdot S ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\\ \infer[]{\$ \in \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
+\begin{matrix}\\ \infer[]{\$ \in \textbf{Propagate}_{\mathbf{LA}^\prime_\mathrm{prev}} \mathbin{!} ( q_f , [ S^\prime \to S \cdot ] )}{}\end{matrix}
 \end{equation}
 \begin{equation}
-\begin{matrix}\\ \infer[]{\mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime_p \mathbin{!} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \mathrm{propagate}_{\mathbf{LA}^\prime_p} \mathbin{!} ( q , [ A \to \alpha \cdot \beta ])}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
+\begin{matrix}\\ \infer[]{\mathrm{First} ( \alpha_2 ) \odot \mathbf{LA}^\prime_\mathrm{prev} \mathbin{!} ( p , [ B \to \alpha_1 \cdot A \alpha_2 ] ) \subseteq \textbf{Propagate}_{\mathbf{LA}^\prime_\mathrm{prev}} \mathbin{!} ( q , [ A \to \alpha \cdot \beta ])}{q \in Q & [ A \to \alpha \cdot \beta ] \in q & A \ne S^\prime & \alpha : p \to q & [ B \to \alpha_1 \cdot A \alpha_2] \in p}\end{matrix}
 \end{equation}
 이다. 그러면, $q \in Q$이고 $ [ A \to \omega \cdot ] \in q $일 때마다,
 \begin{align}
