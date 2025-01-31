@@ -53,7 +53,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\text{LR(0)}} ) $.
 \item[(vii)] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S ] } )$.
 \item[(viii)] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $ q \in \powerset ( I_{\text{LR(0)}} ) $ and $ X \in V $.
-\item[(ix)] $Q \triangleq \mathrm{Table} \setminus \set*{ \emptyset }$ where $\mathrm{Table} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{Table} , X \in V }$.
+\item[(ix)] $Q \triangleq \mathrm{Tbl} \setminus \set*{ \emptyset }$ where $\mathrm{Tbl} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{Tbl} , X \in V }$.
 \item[(x)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V$.
 \item[(xii)] $\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }$ for $q \in Q$ and $t \in T^\prime$.
@@ -71,7 +71,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \begin{theorem}[\textbf{LA(1)}]
 For $q \in Q$, $A \in N^\prime$, and $\omega \in V^\ast$ with $ [ A \to \omega \cdot ] \in q $, define
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) := \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
+\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A z , \alpha \omega : q_0 \to q , \alpha \in V^\ast , z \in T^\ast , t \in \mathrm{First} ( z \$ ) } .
 \end{align}
 Then, it can be calculated by
 \begin{align}
