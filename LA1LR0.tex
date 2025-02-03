@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[12pt]{article}
 
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -47,32 +47,29 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
 \item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
-\item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast }$.
-\item[(iv)] $L ( G ) \triangleq \set*{ z \in ( T^\prime )^\ast \mid S \Rightarrow_{P}^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in ( T^\prime )^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ z \$ }$. $L ( G ) = L ( G^\prime )$.
+\item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast }$.
+\item[(iv)] $L ( G ) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
 \item[(v)] $I_{\text{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
 \item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\text{LR(0)}} ) $.
 \item[(vii)] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S \$ ] } )$.
 \item[(viii)] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\text{LR(0)}} )$ and $X \in V^\prime$.
 \item[(ix)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
 \item[(x)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
-\item[(xi)] $\mathrm{next} ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
+\item[(xi)] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
 \item[(xii)] $\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }$ for $q \in Q$ and $t \in T^\prime$.
-\item[(xiii)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \mathrm{next} ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset }$$
-\item[(xiv)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \mathrm{next} ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset }$$
-\item[(xv)] $q_f := \mathrm{GOTO} ( q_0 , S )$.
-\item[(xvi)] $L ( LRA ( G ) ) \triangleq \set*{ z \in ( T^\prime )^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^+ ( S : q_0 \to q_f , \$ ) }$. $L ( G ) = L ( LRA ( G ) )$.
-\item[(xvii)] For $ts_1 \subseteq \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 }$ and $ts_2 \subseteq \set*{ z \in ( T^\prime )^\ast \mid \left| z \right| \le 1 }$, \[ ts_1 \odot ts_2 := \begin{cases} ( ts_1 \setminus \set*{ \varepsilon } ) \cup ts_2 , & \text{if } \varepsilon \in ts_1 ; \\ ts_1 , & \text{if } \varepsilon \notin ts_1 . \end{cases} \]
-\item[(xviii)] $\mathrm{First} ( A ) := \set*{ t \mid t \in T^\prime , \omega \in ( V^\prime )^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set*{ \varepsilon \mid A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
+\item[(xiii)] $$\infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) & q^{\prime \prime} \ne \emptyset }$$
+\item[(xiv)] $$\infer[\mathrm{Reduce} (A \to \omega)]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathrm{reduce} ( q^\prime , t ) & q^{\prime \prime} = \delta ( q^\prime , A ) & q^{\prime \prime} \ne \emptyset }$$
+\item[(xv)] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
+\item[(xvi)] $L ( LRA ( G ) ) \triangleq \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) }$. $L ( G ) = L ( LRA ( G ) )$.
+\item[(xvii)] For $ts_1 \subseteq \set*{ z \in { T^\prime }^\ast \mid \left| z \right| \le 1 }$ and $ts_2 \subseteq \set*{ z \in { T^\prime }^\ast \mid \left| z \right| \le 1 }$, \[ ts_1 \odot ts_2 := \begin{cases} ( ts_1 \setminus \set*{ \varepsilon } ) \cup ts_2 , & \text{if } \varepsilon \in ts_1 ; \\ ts_1 , & \text{if } \varepsilon \notin ts_1 . \end{cases} \]
+\item[(xviii)] $\mathrm{First} ( A ) := \set*{ t \mid t \in T^\prime , \omega \in { V^\prime }^\ast , A \Rightarrow_{P^\prime}^\ast t \omega } \cup \set*{ \varepsilon \mid A \Rightarrow_{P^\prime}^\ast \varepsilon }$ for $A \in N^\prime$.
 \item[(xix)] $\mathrm{First} ( t ) := \set*{ t }$ for $t \in T^\prime$.
-\item[(xx)] $\mathrm{First} ( \varepsilon ) := \set*{ \varepsilon }$. $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in ( V^\prime )^\ast $.
+\item[(xx)] $\mathrm{First} ( \varepsilon ) := \set*{ \varepsilon }$. $\mathrm{First} ( X \alpha ) := \mathrm{First} ( X ) \odot \mathrm{First} ( \alpha )$ for $X \in V^\prime$ and $\alpha \in { V^\prime }^\ast $.
 \end{enumerate}
 \end{definition}
 
-\begin{theorem}
-For $q \in Q$, $A \in N^\prime$, and $\omega \in ( V^\prime )^\ast$ with $[ A \to \omega \cdot ] \in q$, set
-\begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^+ \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in ( V^\prime )^\ast , z \in ( T^\prime )^\ast } .
-\end{align}
-\end{theorem}
+\begin{definition} For $q \in Q$, $A \in N^\prime$, and $\omega \in { V^\prime }^\ast$ with $[ A \to \omega \cdot ] \in q$,
+define \[ \mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast } . \]
+\end{definition}
 
 \end{document}
