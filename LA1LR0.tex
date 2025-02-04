@@ -64,24 +64,26 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \end{enumerate}
 \end{definition}
 
-\begin{theorem}[$\mathbf{LA}$]
-For $q \in Q$, $A \in N^\prime$, and $\omega \in { V^\prime }^\ast$ with $[ A \to \omega \cdot ] \in q$, define
+\begin{theorem}[Lookahead]
+Define
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast } .
+\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast }
 \end{align}
-Now, for any $q \in Q$ and any $t \in T^\prime$, override
+for $q \in Q$, $A \in N^\prime$, and $\omega \in { V^\prime }^\ast$ with $[ A \to \omega \cdot ] \in q$.
+Then, overriding
 \begin{align*}
-\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) } .
+\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }
 \end{align*}
-Then, the above $\mathrm{LR(0)}$ parser becomes an $\mathrm{LALR(1)}$ parser if there is no conflict.
+for all $ ( q , t ) \in Q \times T^\prime $ yields an $\mathrm{LALR(1)}$ parser if there is no conflict.
 \end{theorem}
 
 \begin{theorem}[Construction]
-Letting $ M \mathbin{!} k := \set*{ v \mid ( k , v ) \in M } $,
+Letting $ M \mathbin{!} k := \set*{ v \mid ( k , v ) \in M } $, the identity
 \begin{align}
-\mathbf{LA} ( q , A ) = \set*{ t \in T^\prime \mid \delta ( p , A ) \ne \emptyset , \omega : p \to q , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
+\mathbf{LA} ( q , A ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q ,  \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
 \end{align}
-holds whenever $q \in Q \land [ A \to \omega \cdot ] \in q$, where $$ \mathbf{Read} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ and $$ \mathbf{Follow} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ are inductively defined by:
+holds whenever $q \in Q \land [ A \to \omega \cdot ] \in q$,
+where $$ \mathbf{Read} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ and $$ \mathbf{Follow} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ are inductively defined by:
 \[
 \begin{matrix}
 \infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( p , A ) = r & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
