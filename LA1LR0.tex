@@ -42,17 +42,17 @@
 
 \thispagestyle{empty}
 
-\begin{definition}[\text{LR(0)}]
+\begin{definition}[$\mathrm{LR(0)}$]
 Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[(i)] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
 \item[(ii)] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
 \item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast }$.
 \item[(iv)] $L ( G ) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
-\item[(v)] $I_{\text{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
-\item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\text{LR(0)}} ) $.
+\item[(v)] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
+\item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
 \item[(vii)] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S \$ ] } )$.
-\item[(viii)] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\text{LR(0)}} )$ and $X \in V^\prime$.
+\item[(viii)] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
 \item[(ix)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
 \item[(x)] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[(xi)] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
@@ -69,11 +69,11 @@ For $q \in Q$, $A \in N^\prime$, and $\omega \in { V^\prime }^\ast$ with $[ A \t
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast } .
 \end{align}
-Now, whenever $( q , t ) \in Q \times T^\prime$, override
-\begin{align}
+Now, for any $q \in Q$ and any $t \in T^\prime$, override
+\begin{align*}
 \mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) } .
-\end{align}
-Then, we have an LA(1)LR(0) parser.
+\end{align*}
+Then, the above $\mathrm{LR(0)}$ parser becomes an $\mathrm{LALR(1)}$ parser if there is no conflict.
 \end{theorem}
 
 \begin{theorem}[Construction]
