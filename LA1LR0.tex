@@ -84,7 +84,7 @@ Letting $ M \mathbin{!} k := \set*{ v \mid ( k , v ) \in M } $,
 holds whenever $q \in Q \land [ A \to \omega \cdot ] \in q$, where $$ \mathbf{Read} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ and $$ \mathbf{Follow} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ are inductively defined by:
 \[
 \begin{matrix}
-\infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , C ) \ne \emptyset & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
+\infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( p , A ) = r & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
 \\
 \infer[\mathrm{Read}]{ t \in \mathbf{Follow} \mathbin{!} ( p , A ) }{ t \in \mathbf{Read} \mathbin{!} ( p , A ) } & \infer[\mathrm{includes}]{ \mathbf{Follow} \mathbin{!} ( p^\prime , B ) \subseteq \mathbf{Follow} \mathbin{!} ( p , A ) }{ [ B \to \beta \cdot A \gamma ] \in p & \gamma \Rightarrow_{P^\prime}^\ast \varepsilon & \beta : p^\prime \to p }
 \end{matrix}
