@@ -79,7 +79,7 @@ Then, the above $\mathrm{LR(0)}$ parser becomes an $\mathrm{LALR(1)}$ parser if 
 \begin{theorem}[Construction]
 Letting $ M \mathbin{!} k := \set*{ v \mid ( k , v ) \in M } $,
 \begin{align}
-\mathbf{LA} ( q , A ) = \set*{ t \in T^\prime \mid \delta ( p , A ) \ne \emptyset , \omega : p \to q , t \in \mathbf{Follow} ( p , A ) }
+\mathbf{LA} ( q , A ) = \set*{ t \in T^\prime \mid \delta ( p , A ) \ne \emptyset , \omega : p \to q , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
 \end{align}
 holds whenever $q \in Q \land [ A \to \omega \cdot ] \in q$, where $$ \mathbf{Read} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ and $$ \mathbf{Follow} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ are inductively defined by:
 \[
