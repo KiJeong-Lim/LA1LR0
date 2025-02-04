@@ -65,16 +65,15 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \end{definition}
 
 \begin{theorem}[Lookahead]
-Define
+Define $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot ] \in q } \to \powerset ( T^\prime )$ by
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast }
+\mathbf{LA} ( q , [ A \to \omega ] ) \triangleq \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast } .
 \end{align}
-for $q \in Q$, $A \in N^\prime$, and $\omega \in { V^\prime }^\ast$ with $[ A \to \omega \cdot ] \in q$.
-Then, overriding
+Then, overriding $\mathrm{reduce} : Q \times T^\prime \to \powerset ( P^\prime )$ of the above $\mathrm{LR(0)}$ parser with
 \begin{align*}
-\mathrm{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }
+( q , t ) \mapsto \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }
 \end{align*}
-for all $ ( q , t ) \in Q \times T^\prime $ yields an $\mathrm{LALR(1)}$ parser if there is no conflict.
+yields an $\mathrm{LALR(1)}$ parser if there are no conflicts among actions.
 \end{theorem}
 
 \begin{theorem}[Construction]
