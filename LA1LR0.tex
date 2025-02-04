@@ -50,7 +50,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG.
 \item[(iii)] $\alpha_1 \xRightarrow[\mathbf{rm}]{}_{P^\prime} \alpha_2 \xLeftrightarrow[]{\mathrm{def}} ( \alpha_1 , \alpha_2 ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in { V^\prime }^\ast , z \in { T^\prime }^\ast }$.
 \item[(iv)] $L ( G ) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }$. $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
 \item[(v)] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
-\item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \alpha_1 \cdot A \alpha_2 ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
+\item[(vi)] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
 \item[(vii)] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \cdot S \$ ] } )$.
 \item[(viii)] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
 \item[(ix)] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
