@@ -80,7 +80,7 @@ for all $ ( q , t ) \in Q \times T^\prime $ yields an $\mathrm{LALR(1)}$ parser 
 \begin{theorem}[Construction]
 Letting $ M \mathbin{!} k := \set*{ v \mid ( k , v ) \in M } $, the identity
 \begin{align}
-\mathbf{LA} ( q , A ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q ,  \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
+\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q ,  \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
 \end{align}
 holds whenever $q \in Q \land [ A \to \omega \cdot ] \in q$,
 where $$ \mathbf{Read} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ and $$ \mathbf{Follow} \subseteq \set*{ ( ( p , A ) , t ) \mid p \in Q , A \in N^\prime , t \in T^\prime , \delta ( p , A ) \ne \emptyset } $$ are inductively defined by:
