@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage[bottom]{footmisc}
+\usepackage[a4paper, left=10mm, right=10mm, top=20mm, bottom=20mm]{geometry}
+\usepackage{graphicx}
+\usepackage{kotex}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{proof}
+\usepackage{xparse}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{lmodern}
+\usepackage{mathtools, nccmath}
+\usepackage{mathtools}
+\usepackage{indentfirst}
+\usepackage{nopageno}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+
+\DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
+
+\newenvironment{context}[1][]
+{ \noindent \textbf{{#1}.} }
+{ \hfill $ \dashv $ }
+
+\newcommand{\powerset}
+{ \mathcal{P} }
+
+\title{LA(1)LR(0)}
+\author{임기정}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{definition}[$\mathrm{LRA}(G)$]
+Let $G \triangleq ( N , T , P , S )$ be a CFG. $L ( G ) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }$.
+\begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
+\item[$\mathrm{(i)}$] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
+\item[$\mathrm{(ii)}$] $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \Rightarrow_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
+\item[$\mathrm{(iii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
+\item[$\mathrm{(iv)}$] $\beta \xRightarrow[\mathbf{rm}]{}_{P^\prime} \gamma \xLeftrightarrow[]{\mathrm{def}} ( \beta , \gamma ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} }$.
+\item[$\mathrm{(v)}$] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
+\item[$\mathrm{(vi)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
+\item[$\mathrm{(vii)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
+\item[$\mathrm{(viii)}$] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
+\item[$\mathrm{(ix)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
+\item[$\mathrm{(x)}$] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[$\mathrm{(xi)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
+\item[$\mathrm{(xii)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
+\item[$\mathrm{(xiii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
+\item[$\mathrm{(xiv)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules: \newline
+$\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } & & \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) } \end{matrix}$
+\item[$\mathrm{(xv)}$] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
+\item[$\mathrm{(xvi)}$] $L ( \mathrm{LRA} ( G ) ) \triangleq \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) }$. $L ( G ) = L ( \mathrm{LRA} ( G ) )$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}
+Define a function $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot \varepsilon ] \in q } \to \powerset ( T^\prime )$ by
+\begin{align}
+\mathbf{LA} ( q , [ A \to \omega ] ) := \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} } .
+\end{align}
+Then, overriding $\mathbf{reduce} : Q \times T^\prime \to \powerset ( P^\prime )$ of the $\mathrm{LR(0)}$ parser $\mathrm{LRA} ( G )$ with
+\begin{align*}
+( q , t ) \mapsto \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }
+\end{align*}
+yields an $\mathrm{LALR(1)}$ parser if there are no conflicts among actions.
+\end{theorem}
+
+\begin{theorem}
+Letting $ R \mathbin{!} x \triangleq \set*{ y \mid ( x , y ) \in R } $,
+define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set $$ \set*{ ( p , A ) \mid p \in Q , A \in N^\prime , \delta ( p , A ) \ne \emptyset } $$ to the set $T^\prime$ inductively as follows:
+\[
+\begin{matrix}
+\infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( p , A ) = r & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
+& & \\
+\infer[\mathrm{Read}]{ t \in \mathbf{Follow} \mathbin{!} ( p , A ) }{ t \in \mathbf{Read} \mathbin{!} ( p , A ) } & & \infer[\mathrm{includes}]{ \mathbf{Follow} \mathbin{!} ( p^\prime , B ) \subseteq \mathbf{Follow} \mathbin{!} ( p , A ) }{ [ B \to \beta \cdot A \gamma ] \in p & \beta : p^\prime \to p & \gamma \Rightarrow_{P^\prime}^\ast \varepsilon }
+\end{matrix}
+\]
+Then, the equality
+\begin{align}
+\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
+\end{align}
+holds whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$.
+\end{theorem}
+
+\end{document}
