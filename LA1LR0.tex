@@ -65,7 +65,7 @@ $\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash
 \end{definition}
 
 \begin{theorem}
-Define a function $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot \varepsilon ] \in q } \to \powerset ( T^\prime )$ by
+Define $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot \varepsilon ] \in q } \to \powerset ( T^\prime )$ by
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) := \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} } .
 \end{align}
@@ -86,11 +86,10 @@ define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set $$ \set*{ ( 
 \infer[\mathrm{Read}]{ t \in \mathbf{Follow} \mathbin{!} ( p , A ) }{ t \in \mathbf{Read} \mathbin{!} ( p , A ) } & & \infer[\mathrm{includes}]{ \mathbf{Follow} \mathbin{!} ( p^\prime , B ) \subseteq \mathbf{Follow} \mathbin{!} ( p , A ) }{ [ B \to \beta \cdot A \gamma ] \in p & \beta : p^\prime \to p & \gamma \Rightarrow_{P^\prime}^\ast \varepsilon }
 \end{matrix}
 \]
-Then, the equality
+Then, whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$, the subset $\mathbf{LA} (q , [ A \to \omega ])$ of $T^\prime$ can be computed by
 \begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) }
+\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) } .
 \end{align}
-holds whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$.
 \end{theorem}
 
 \end{document}
