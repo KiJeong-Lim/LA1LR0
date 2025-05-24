@@ -6,7 +6,7 @@
 \usepackage{amsthm}
 \usepackage{color}
 \usepackage[bottom]{footmisc}
-\usepackage[a4paper, left=10mm, right=10mm, top=20mm, bottom=20mm]{geometry}
+\usepackage[a4paper, left=10mm, right=10mm, top=10mm, bottom=10mm]{geometry}
 \usepackage{graphicx}
 \usepackage{kotex}
 \usepackage{listings}
@@ -57,8 +57,7 @@ Let $G \triangleq ( N , T , P , S )$ be a CFG. $L ( G ) \triangleq \set*{ z \in 
 \item[$\mathrm{(xi)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
 \item[$\mathrm{(xii)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
 \item[$\mathrm{(xiii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
-\item[$\mathrm{(xiv)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules: \newline
-$\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } & & \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) } \end{matrix}$
+\item[$\mathrm{(xiv)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules: \newline $\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } & & \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) } \end{matrix}$
 \item[$\mathrm{(xv)}$] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
 \item[$\mathrm{(xvi)}$] $L ( \mathrm{LRA} ( G ) ) \triangleq \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) }$. $L ( G ) = L ( \mathrm{LRA} ( G ) )$.
 \end{enumerate}
@@ -77,8 +76,7 @@ yields an $\mathrm{LALR(1)}$ parser if there are no conflicts.
 \end{theorem}
 
 \begin{theorem}
-Letting $ R \mathbin{!} x \triangleq \set*{ y \mid ( x , y ) \in R } $,
-define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set $$ \set*{ ( p , A ) \mid p \in Q , A \in N^\prime , \delta ( p , A ) \ne \emptyset } $$ to the set $T^\prime$ inductively as follows:
+Letting $ R \mathbin{!} x \triangleq \set*{ y \mid ( x , y ) \in R } $, define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set $$ \set*{ ( p , A ) \mid p \in Q , A \in N^\prime , \delta ( p , A ) \ne \emptyset } $$ to the set $T^\prime$ inductively as follows:
 \[
 \begin{matrix}
 \infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( p , A ) = r & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
@@ -86,7 +84,7 @@ define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set $$ \set*{ ( 
 \infer[\mathrm{Read}]{ t \in \mathbf{Follow} \mathbin{!} ( p , A ) }{ t \in \mathbf{Read} \mathbin{!} ( p , A ) } & & \infer[\mathrm{includes}]{ \mathbf{Follow} \mathbin{!} ( p^\prime , B ) \subseteq \mathbf{Follow} \mathbin{!} ( p , A ) }{ [ B \to \beta \cdot A \gamma ] \in p & \beta : p^\prime \to p & \gamma \Rightarrow_{P^\prime}^\ast \varepsilon }
 \end{matrix}
 \]
-Then, whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$, the subset $\mathbf{LA} (q , [ A \to \omega ])$ of $T^\prime$ can be computed by
+Then, whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$, we can compute $\mathbf{LA} (q , [ A \to \omega ])$ by
 \begin{align}
 \mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) } .
 \end{align}
