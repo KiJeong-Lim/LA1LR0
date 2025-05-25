@@ -45,9 +45,9 @@
 Let $G \triangleq ( N , T , P , S )$ be a CFG. $L ( G ) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }$.
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[$\mathrm{(i)}$] $G^\prime \triangleq ( N^\prime , T^\prime , P^\prime , S^\prime ) = ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
-\item[$\mathrm{(ii)}$] $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \Rightarrow_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
-\item[$\mathrm{(iii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
-\item[$\mathrm{(iv)}$] $\beta \xRightarrow[\mathbf{rm}]{}_{P^\prime} \gamma \xLeftrightarrow[]{\mathrm{def}} ( \beta , \gamma ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} }$.
+\item[$\mathrm{(ii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
+\item[$\mathrm{(iii)}$] $\beta \xRightarrow[\mathbf{rm}]{}_{P^\prime} \gamma \xLeftrightarrow[]{\mathrm{def}} ( \beta , \gamma ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} }$.
+\item[$\mathrm{(iv)}$] $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
 \item[$\mathrm{(v)}$] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
 \item[$\mathrm{(vi)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
 \item[$\mathrm{(vii)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
