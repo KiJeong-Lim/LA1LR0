@@ -47,19 +47,18 @@ Let \(G \triangleq ( N , T , P , S )\) be a CFG{.}
 \item[$\mathrm{(i)}$] $G^\prime := ( N^\prime , T^\prime , P^\prime , S^\prime ) \triangleq ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
 \item[$\mathrm{(ii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
 \item[$\mathrm{(iii)}$] $\beta \xRightarrow[\mathbf{rm}]{}_{P^\prime} \gamma \xLeftrightarrow[]{\mathrm{def}} ( \beta , \gamma ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} }$.
-\item[$\mathrm{(iv)}$] $L ( G^\prime ) \triangleq \set*{ z \in { T }^\ast \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast z \$ }$. $L ( G ) = L ( G^\prime )$.
-\item[$\mathrm{(v)}$] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
-\item[$\mathrm{(vi)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
-\item[$\mathrm{(vii)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
-\item[$\mathrm{(viii)}$] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
-\item[$\mathrm{(ix)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
-\item[$\mathrm{(x)}$] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
-\item[$\mathrm{(xi)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
-\item[$\mathrm{(xii)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
-\item[$\mathrm{(xiii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
-\item[$\mathrm{(xiv)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules: \newline $\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } & & \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) } \end{matrix}$
-\item[$\mathrm{(xv)}$] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
-\item[$\mathrm{(xvi)}$] The language accepted by $\mathrm{LRA}(G)$ is defined as \[L ( \mathrm{LRA} ( G ) ) := \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) } .\]
+\item[$\mathrm{(iv)}$] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
+\item[$\mathrm{(v)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
+\item[$\mathrm{(vi)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
+\item[$\mathrm{(vii)}$] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
+\item[$\mathrm{(vii)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
+\item[$\mathrm{(ix)}$] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
+\item[$\mathrm{(x)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
+\item[$\mathrm{(xi)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
+\item[$\mathrm{(xii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
+\item[$\mathrm{(vii)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules: \newline $\begin{matrix} \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } & & \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) } \end{matrix}$
+\item[$\mathrm{(xiv)}$] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
+\item[$\mathrm{(xv)}$] The language accepted by $\mathrm{LRA}(G)$ is defined as \[L ( \mathrm{LRA} ( G ) ) := \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) } .\]
 \end{enumerate}
 \end{definition}
 
