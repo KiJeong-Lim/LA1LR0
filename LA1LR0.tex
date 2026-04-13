@@ -23,8 +23,9 @@
 \usepackage{nopageno}
 
 \newtheorem{theorem}{Theorem}
-\newtheorem{definition}[theorem]{Definition}
 \newtheorem{fact}[theorem]{Fact}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
 
 \DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
 
@@ -42,7 +43,7 @@
 \thispagestyle{empty}
 
 \begin{definition}[$\mathrm{LRA}(G)$]
-Let \(G \triangleq ( N , T , P , S )\) be a CFG{.}
+Let \(G \triangleq ( N , T , P , S )\) be a context-free grammar{.}
 \begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
 \item[$\mathrm{(i)}$] $G^\prime := ( N^\prime , T^\prime , P^\prime , S^\prime ) \triangleq ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
 \item[$\mathrm{(ii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
