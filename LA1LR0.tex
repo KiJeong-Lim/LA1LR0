@@ -21,6 +21,8 @@
 \usepackage{mathtools}
 \usepackage{indentfirst}
 \usepackage{nopageno}
+\allowdisplaybreaks
+\sloppy
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{fact}[theorem]{Fact}
@@ -52,7 +54,7 @@ Let \(G \triangleq ( N , T , P , S )\) be a context-free grammar{.}
 \item[$\mathrm{(v)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
 \item[$\mathrm{(vi)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
 \item[$\mathrm{(vii)}$] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
-\item[$\mathrm{(vii)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
+\item[$\mathrm{(viii)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
 \item[$\mathrm{(ix)}$] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
 \item[$\mathrm{(x)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
 \item[$\mathrm{(xi)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
@@ -74,6 +76,61 @@ Let \(G \triangleq ( N , T , P , S )\) be a context-free grammar{.}
 It is known that $L ( G ) = L ( \mathrm{LRA} ( G ) )$, where \(L(G) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }\).
 \end{fact}
 
+\begin{proof}
+We first record the standard viable-prefix property of the LR(0)
+automaton.  If \(\eta\) is a viable prefix, then there is a state \(q\in Q\)
+such that \(\eta:q_0\to q\).  Moreover, if an occurrence of \(\omega\) at the
+end of \(\eta\) is a handle for a production \([A\to\omega]\), then the state
+reached by \(\eta\) contains the item \([A\to\omega\cdot\varepsilon]\).  This is
+an immediate induction on the construction of \(\mathrm{Cl}\), \(\mathrm{GOTO}\),
+and paths in the characteristic LR(0) automaton.
+
+For soundness, suppose that
+\[
+(\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon).
+\]
+For a configuration \((\alpha:p\to q,u)\), call \(\alpha u\) its yield.  A shift
+step preserves the yield.  A reduce step
+\[
+(\alpha\omega:q\to q',tz)\vdash(\alpha A:q\to q'',tz)
+\]
+with \([A\to\omega]\in P'\) changes the yield from \(\alpha\omega tz\) to
+\(\alpha A tz\), and the latter derives the former by one rightmost step:
+\[
+\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz,
+\]
+because the suffix \(tz\) is terminal.  Therefore, reading the accepting
+computation backwards and ignoring the shift steps, we obtain
+\[
+S\$ \xRightarrow[\mathbf{rm}]{}_{P'}{}^* z\$.
+\]
+Since \(\$\notin T\) and the only role of the augmented production
+\([S'\to S\$]\) is to create the initial and final LR(0) states, this is
+equivalent to \(S\Rightarrow_P^* z\).  Hence
+\(L(\mathrm{LRA}(G))\subseteq L(G)\).
+
+For completeness, assume \(S\Rightarrow_P^*z\).  Then
+\(S\$\xRightarrow[\mathbf{rm}]{}_{P'}{}^*z\$\).  Choose such a rightmost
+derivation and run it backwards.  Whenever the reverse derivation exposes a
+terminal as the next unread input symbol, use the Shift rule.  Whenever the
+reverse derivation replaces a handle \(\omega\) by its left-hand side \(A\), say
+\[
+\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz,
+\]
+the viable-prefix property gives states \(p,q\in Q\) with
+\(\alpha:q_0\to p\), \(\omega:p\to q\), and
+\([A\to\omega\cdot\varepsilon]\in q\).  Thus
+\([A\to\omega]\in \mathbf{reduce}(q,t)\), and the Reduce rule performs exactly
+the inverse step from \((\alpha\omega:q_0\to q,tz)\) to
+\((\alpha A:q_0\to\delta(p,A),tz)\).  Induction over the reversed rightmost
+derivation yields
+\[
+(\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon).
+\]
+Thus \(L(G)\subseteq L(\mathrm{LRA}(G))\), and the two languages are equal.
+\end{proof}
+
+
 \begin{theorem}
 Define $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot \varepsilon ] \in q } \to \powerset ( T^\prime )$ by
 \begin{align}
@@ -85,6 +142,48 @@ Then, overriding $\mathbf{reduce} : Q \times T^\prime \to \powerset ( P^\prime )
 \end{align*}
 yields an $\mathrm{LALR(1)}$ parser if there are no conflicts, which accepts the same language.
 \end{theorem}
+
+\begin{proof}
+Let \(\vdash_{\mathbf{LA}}\) denote the transition relation obtained from
+\(\vdash\) by replacing \(\mathbf{reduce}\) with the lookahead-restricted
+function displayed in the statement.  Every \(\vdash_{\mathbf{LA}}\)-reduction is
+also an LR(0) reduction, so every \(\vdash_{\mathbf{LA}}\)-computation is an
+\(\mathrm{LRA}(G)\)-computation.  By Fact 2, this gives
+\[
+L(\vdash_{\mathbf{LA}})\subseteq L(\mathrm{LRA}(G))=L(G).
+\]
+
+Conversely, let \(z\in L(G)\).  In the completeness part of the proof of Fact 2
+we constructed an accepting computation by reversing a rightmost derivation
+\[
+S\$\xRightarrow[\mathbf{rm}]{}_{P'}{}^*z\$.
+\]
+Consider any reduction used in that computation.  It is the inverse of a
+rightmost step
+\[
+\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz
+\]
+for some \(t\in T'\) and \(z\in T'^*\), and at the moment of the reduction the
+stack prefix is \(\alpha\omega:q_0\to q\), where
+\([A\to\omega\cdot\varepsilon]\in q\).  Hence, by the definition of
+\(\mathbf{LA}\),
+\[
+t\in \mathbf{LA}(q,[A\to\omega]).
+\]
+Therefore every reduction in that accepting computation is still permitted by
+\(\vdash_{\mathbf{LA}}\).  The same computation accepts \(z\), so
+\(L(G)\subseteq L(\vdash_{\mathbf{LA}})\).  Hence the lookahead-restricted parser
+accepts exactly \(L(G)\).
+
+The action table of this parser consists of the LR(0) shift actions together
+with precisely those reduce actions whose terminal lookahead belongs to the
+corresponding \(\mathbf{LA}\)-set.  Thus it is the usual LALR(1) table obtained
+from the LR(0) cores by attaching LALR(1) lookahead sets to reduce items.  If no
+state/lookahead pair contains two enabled actions, namely no shift/reduce or
+reduce/reduce conflict, the table is deterministic with one symbol of
+lookahead; hence it yields an \(\mathrm{LALR(1)}\) parser.
+\end{proof}
+
 
 \begin{theorem}
 Letting $ R \mathbin{!} x \triangleq \set*{ y \mid ( x , y ) \in R } $, define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set \[ \set*{ ( p , A ) \mid p \in Q , A \in N^\prime , \delta ( p , A ) \ne \emptyset } \] to the set $T^\prime$ inductively as follows:
@@ -100,5 +199,316 @@ Then, whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$, we can 
 \mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) } .
 \end{align}
 \end{theorem}
+
+\begin{proof}
+Let
+\[
+D=\set*{(p,A)\mid p\in Q,\ A\in N',\ \delta(p,A)\ne\emptyset}.
+\]
+For the proof, define two semantic sets on \(D\).  First, let
+\[
+\mathsf{Read}(p,A)=
+\set*{t\in T' \mid
+\delta(p,A)=r,\ \gamma\Rightarrow_{P'}^*\varepsilon,\
+\gamma t:r\to s\text{ for some }\gamma\in N'^*,\ s\in Q } .
+\]
+Thus \(t\in\mathsf{Read}(p,A)\) exactly when, after the transition on \(A\), one
+can reach a terminal transition on \(t\) through zero or more nullable
+nonterminal transitions.  Second, let
+\[
+\mathsf{Follow}(p,A)=
+\set*{t\in T' \mid
+S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz,\
+\alpha:q_0\to p,\ \alpha\in V'^*,\ z\in T'^* } .
+\]
+This is the semantic follow set of the nonterminal transition \((p,A)\).
+
+We first show that the displayed rules compute \(\mathsf{Read}\).  If
+\(\gamma=\varepsilon\) in the definition of \(\mathsf{Read}(p,A)\), then
+\(\delta(\delta(p,A),t)\ne\emptyset\), which is exactly the rule \(\mathrm{DR}\).
+If \(\gamma=C\gamma'\), then \(C\Rightarrow_{P'}^*\varepsilon\),
+\(\delta(p,A)=r\), and \(\gamma't:\delta(r,C)\to s\).  Hence
+\(t\in\mathsf{Read}(r,C)\), and the rule \(\mathrm{reads}\) propagates this
+terminal to \(\mathsf{Read}(p,A)\).  The converse direction is immediate from
+the same decomposition: \(\mathrm{DR}\) corresponds to \(\gamma=\varepsilon\),
+and each use of \(\mathrm{reads}\) prefixes one nullable nonterminal to
+\(\gamma\).  Since \(D\) and \(T'\) are finite, the inductive definition is the
+least fixed point of these monotone clauses, so
+\[
+\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)
+\quad\text{for all }(p,A)\in D.
+\]
+When \((r,C)\notin D\), the set \(\mathbf{Read}\mathbin{!}(r,C)\) is empty, so
+the printed \(\mathrm{reads}\) rule is vacuous in that case.
+
+Next we characterize \(\mathsf{Follow}\).  The first terminal after an occurrence
+of \(A\) in a right-sentential form can arise in exactly two ways.
+
+First, it can be read inside the same local LR(0) context after the transition on
+\(A\), possibly after passing through nullable nonterminals.  These terminals
+are precisely \(\mathsf{Read}(p,A)\), and hence they are included in
+\(\mathsf{Follow}(p,A)\) by the rule \(\mathrm{Read}\).
+
+Second, the occurrence of \(A\) can appear in a production
+\([B\to\beta A\gamma]\) whose suffix \(\gamma\) is nullable.  If
+\([B\to\beta\cdot A\gamma]\in p\), \(\beta:p'\to p\), and
+\(\gamma\Rightarrow_{P'}^*\varepsilon\), then every terminal that can follow the
+transition \((p',B)\) can also follow \((p,A)\): from a sentential form
+\(\alpha Btz\) with \(\alpha:q_0\to p'\), one rightmost expansion of \(B\) gives
+\(\alpha\beta A\gamma tz\), and then \(\gamma\Rightarrow^*\varepsilon\) gives a
+right-sentential form whose prefix \(\alpha\beta\) reaches \(p\) and in which
+\(t\) follows \(A\).  This is exactly the rule \(\mathrm{includes}\).
+
+Conversely, given
+\(S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz\) with
+\(\alpha:q_0\to p\), inspect the production occurrence in the rightmost
+derivation that produced the displayed occurrence of \(A\).  If the first
+terminal \(t\) after \(A\) lies inside the remaining suffix of that production
+after passing only through nullable nonterminals, then
+\(t\in\mathsf{Read}(p,A)\).  Otherwise the entire suffix to the right of \(A\)
+in that production is nullable, and the terminal \(t\) is inherited from the
+symbol on the left-hand side of that production; this gives an
+\(\mathrm{includes}\) edge from some \((p',B)\) to \((p,A)\).  Repeating this
+argument moves outward through the finite rightmost derivation until a
+\(\mathsf{Read}\)-case is reached.  Therefore \(\mathsf{Follow}\) is the least
+solution of the \(\mathrm{Read}\) and \(\mathrm{includes}\) clauses, and so
+\[
+\mathbf{Follow}\mathbin{!}(p,A)=\mathsf{Follow}(p,A)
+\quad\text{for all }(p,A)\in D.
+\]
+
+It remains to translate this semantic follow set into the lookahead set of a
+completed item.  Let \(q\in Q\) and \([A\to\omega\cdot\varepsilon]\in q\).  Then
+\[
+\begin{aligned}
+&t\in\mathbf{LA}(q,[A\to\omega]) \\
+&\quad\Longleftrightarrow
+\exists\alpha,z\;.
+S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz
+\text{ and }\alpha\omega:q_0\to q \\
+&\quad\Longleftrightarrow
+\exists p\in Q\;.
+\omega:p\to q,\ \delta(p,A)\ne\emptyset,
+\text{ and }t\in\mathsf{Follow}(p,A) \\
+&\quad\Longleftrightarrow
+\exists p\in Q\;.
+\omega:p\to q,\ \delta(p,A)\ne\emptyset,
+\text{ and }t\in\mathbf{Follow}\mathbin{!}(p,A).
+\end{aligned}
+\]
+The middle equivalence just cuts the path \(\alpha\omega:q_0\to q\) at the point
+reached after \(\alpha\); conversely, concatenating \(\alpha:q_0\to p\) and
+\(\omega:p\to q\) recovers \(\alpha\omega:q_0\to q\).  This is precisely the
+formula claimed in the theorem.
+\end{proof}
+
+
+\appendix
+\section*{Appendix A. Digraph algorithm and implementation specification}
+
+This appendix gives an executable specification for computing the sets used in
+Theorem 4.  The construction is the usual digraph view of LALR(1) lookahead
+computation: direct seed sets are placed on nodes, dependency edges describe set
+inclusions, and the least fixed point is obtained by collapsing strongly
+connected components and propagating set unions along the resulting DAG
+\cite{DeRemerPennello1982,Tarjan1972,Gallier2008}.
+
+\subsection*{A.1. General digraph fixed-point problem}
+Let \(X\) be a finite set of nodes, let \(E\subseteq X\times X\) be a directed
+edge relation, and let \(\mathrm{Seed}:X\to\powerset(T')\).  We use the edge
+orientation
+\[
+  x\leadsto y \quad\text{to mean}\quad F(y)\subseteq F(x).
+\]
+Thus the desired solution is the least function \(F:X\to\powerset(T')\)
+satisfying
+\begin{align}
+F(x)=\mathrm{Seed}(x)\cup\bigcup_{x\leadsto y}F(y). \tag{DG}
+\end{align}
+
+\paragraph{Algorithm \(\mathrm{DIGRAPH}(X,E,\mathrm{Seed})\).}
+\begin{enumerate}[leftmargin=7mm]
+\item Compute the strongly connected components of \((X,E)\), for example by
+Tarjan's depth-first-search algorithm.
+\item Build the condensation DAG \(\mathcal C\).  Its nodes are SCCs, and
+\(C\leadsto D\) is an edge when some \(x\in C\) and \(y\in D\) satisfy
+\(x\leadsto y\) and \(C\ne D\).
+\item Initialize
+\[
+  \mathrm{Val}(C):=\bigcup_{x\in C}\mathrm{Seed}(x)
+\]
+for every SCC \(C\).
+\item Process the SCCs in reverse topological order with respect to
+\(\leadsto\), so that every successor \(D\) of \(C\) has already been processed,
+and set
+\[
+  \mathrm{Val}(C):=\mathrm{Val}(C)\cup
+  \bigcup_{C\leadsto D}\mathrm{Val}(D).
+\]
+\item Return \(F(x):=\mathrm{Val}(C_x)\), where \(C_x\) is the SCC containing
+\(x\).
+\end{enumerate}
+
+\paragraph{Correctness condition.}
+For every SCC \(C\), after step 4,
+\[
+  \mathrm{Val}(C)=\bigcup\{\mathrm{Seed}(y)\mid
+  \text{some }x\in C\text{ reaches }y\text{ in }(X,E)\}.
+\]
+Therefore the returned \(F\) is exactly the least solution of \((\mathrm{DG})\).
+This is the only property of the graph algorithm needed by Theorem 4.
+
+\paragraph{Complexity.}
+Let \(b=\lceil |T'|/w\rceil\), where \(w\) is the machine word size used for
+bitsets.  SCC construction is \(O(|X|+|E|)\), and the set propagation is
+\(O((|X|+|E|)b)\).  A simple work-list implementation that repeatedly applies
+\(F(x):=F(x)\cup F(y)\) for \(x\leadsto y\) is also correct, but the SCC version
+avoids repeated propagation inside cycles.
+
+\subsection*{A.2. Instance for \(\mathbf{Read}\)}
+Let
+\[
+D=\set*{(p,A)\mid p\in Q,\ A\in N',\ \delta(p,A)\ne\emptyset}.
+\]
+First compute nullable nonterminals by the least fixed point
+\[
+  \mathrm{Null}(A) \Longleftrightarrow
+  \exists [A\to X_1\cdots X_k]\in P'\text{ such that every }X_i
+  \text{ is nullable},
+\]
+where terminals are never nullable and \(k=0\) is allowed.  Extend this to
+strings by \(\mathrm{Null}(X_1\cdots X_k)\) iff every \(X_i\) is nullable.
+
+For each node \(x=(p,A)\in D\), define the direct-read seed
+\[
+  \mathrm{DR}(p,A)=\set*{t\in T'\mid \delta(\delta(p,A),t)\ne\emptyset}.
+\]
+Define the reads dependency graph \(E_R\subseteq D\times D\) by
+\[
+  (p,A)\leadsto_R(r,C)
+  \quad\Longleftrightarrow\quad
+  \delta(p,A)=r,
+  \ C\in N',
+  \ \mathrm{Null}(C),
+  \ (r,C)\in D.
+\]
+The last condition merely makes explicit the domain of Theorem 4.  If
+\((r,C)\notin D\), then \(\mathbf{Read}\mathbin{!}(r,C)=\emptyset\), so no edge is
+needed.
+
+Then compute
+\[
+  \mathbf{Read}\mathbin{!}(p,A)
+  :=\mathrm{DIGRAPH}(D,E_R,\mathrm{DR})(p,A).
+\]
+This is the least relation satisfying the \(\mathrm{DR}\) and
+\(\mathrm{reads}\) rules of Theorem 4.
+
+\subsection*{A.3. Instance for \(\mathbf{Follow}\)}
+The seed for follow propagation is the already computed read set:
+\[
+  \mathrm{Seed}_F(p,A):=\mathbf{Read}\mathbin{!}(p,A).
+\]
+Define the includes dependency graph \(E_I\subseteq D\times D\) by
+\[
+\begin{aligned}
+(p,A)\leadsto_I(p',B)
+\quad\Longleftrightarrow\quad
+&[B\to\beta\cdot A\gamma]\in p,\\
+&\beta:p'\to p,\\
+&\mathrm{Null}(\gamma),\\
+&(p',B)\in D.
+\end{aligned}
+\]
+The edge orientation again means that the right-hand node contributes to the
+left-hand node:
+\[
+  \mathbf{Follow}\mathbin{!}(p',B)
+  \subseteq
+  \mathbf{Follow}\mathbin{!}(p,A).
+\]
+Then compute
+\[
+  \mathbf{Follow}\mathbin{!}(p,A)
+  :=\mathrm{DIGRAPH}(D,E_I,\mathrm{Seed}_F)(p,A).
+\]
+This is the least relation satisfying the \(\mathrm{Read}\) and
+\(\mathrm{includes}\) rules of Theorem 4.
+
+\subsection*{A.4. Lookback relation and lookahead construction}
+For every completed item \([A\to\omega\cdot\varepsilon]\in q\), define its
+lookback set by
+\[
+  \mathrm{LB}(q,A\to\omega)
+  :=\set*{(p,A)\in D\mid \omega:p\to q}.
+\]
+The lookahead set is then computed by
+\[
+  \mathbf{LA}(q,[A\to\omega])
+  :=\bigcup_{(p,A)\in\mathrm{LB}(q,A\to\omega)}
+  \mathbf{Follow}\mathbin{!}(p,A).
+\]
+This is the formula of Theorem 4 written as an implementation step.
+
+\paragraph{Implementation note.}
+The query \(\omega:p\to q\) can be implemented by following \(\delta\)-edges from
+\(p\) along \(\omega\).  The query \(\beta:p'\to p\) in \(E_I\) can be implemented
+by caching reverse-path queries keyed by \((\beta,p)\), or by storing predecessor
+edges during construction of the LR(0) automaton.
+
+\subsection*{A.5. Parser-table and conflict specification}
+After \(\mathbf{LA}\) has been computed, construct actions as follows.
+\begin{enumerate}[leftmargin=7mm]
+\item If \(\delta(q,t)\ne\emptyset\) for \(t\in T'\), add the shift action
+\(q\xrightarrow{t}\delta(q,t)\).
+\item For each \([A\to\omega\cdot\varepsilon]\in q\) and each
+\(t\in\mathbf{LA}(q,[A\to\omega])\), add the reduce action
+\(A\to\omega\) under lookahead \(t\).
+\item Report a shift/reduce conflict when both a shift action and a reduce
+action are present for the same pair \((q,t)\).
+\item Report a reduce/reduce conflict when two distinct reduce productions are
+present for the same pair \((q,t)\).
+\end{enumerate}
+The accepting condition remains the one in Definition 1: the parser accepts when
+it reaches \((S\$:q_0\to q_f,\varepsilon)\).  Equivalently, in a conventional
+ACTION/GOTO table, \(q_f\) may be treated as the accepting state after the input
+marker has been consumed.
+
+\subsection*{A.6. Summary specification}
+The complete computation required by Theorem 4 is:
+\begin{enumerate}[leftmargin=7mm]
+\item Build \(G'\), \(Q\), and \(\delta\) as in Definition 1.
+\item Compute nullable nonterminals and nullable strings.
+\item Build \(D\), \(\mathrm{DR}\), and \(E_R\); compute \(\mathbf{Read}\) by
+\(\mathrm{DIGRAPH}(D,E_R,\mathrm{DR})\).
+\item Build \(E_I\); compute \(\mathbf{Follow}\) by
+\(\mathrm{DIGRAPH}(D,E_I,\mathbf{Read})\).
+\item Build \(\mathrm{LB}\) and compute each \(\mathbf{LA}(q,[A\to\omega])\) by
+unioning the appropriate \(\mathbf{Follow}\)-sets.
+\item Construct the guarded reduce actions and check conflicts.
+\end{enumerate}
+The postcondition is that the computed \(\mathbf{Read}\), \(\mathbf{Follow}\),
+and \(\mathbf{LA}\) are the least sets satisfying Theorem 4, and hence the
+lookahead-restricted parser of Theorem 3 uses exactly the LALR(1) lookahead sets
+determined by the LR(0) automaton.
+
+\begin{thebibliography}{9}
+\bibitem{DeRemerPennello1982}
+F. DeRemer and T. J. Pennello.
+\newblock Efficient computation of LALR(1) look-ahead sets.
+\newblock \emph{ACM Transactions on Programming Languages and Systems},
+4(4):615--649, 1982.
+
+\bibitem{Tarjan1972}
+R. E. Tarjan.
+\newblock Depth-first search and linear graph algorithms.
+\newblock \emph{SIAM Journal on Computing}, 1(2):146--160, 1972.
+
+\bibitem{Gallier2008}
+J. H. Gallier.
+\newblock A survey of LR-parsing methods: The graph method for computing fixed
+points and LALR(1) lookahead sets.
+\newblock CIS 511 lecture notes, University of Pennsylvania, 2008.
+\end{thebibliography}
 
 \end{document}
