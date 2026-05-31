@@ -77,59 +77,93 @@ It is known that $L ( G ) = L ( \mathrm{LRA} ( G ) )$, where \(L(G) \triangleq \
 \end{fact}
 
 \begin{proof}
-We first record the standard viable-prefix property of the LR(0)
-automaton.  If \(\eta\) is a viable prefix, then there is a state \(q\in Q\)
-such that \(\eta:q_0\to q\).  Moreover, if an occurrence of \(\omega\) at the
-end of \(\eta\) is a handle for a production \([A\to\omega]\), then the state
-reached by \(\eta\) contains the item \([A\to\omega\cdot\varepsilon]\).  This is
-an immediate induction on the construction of \(\mathrm{Cl}\), \(\mathrm{GOTO}\),
-and paths in the characteristic LR(0) automaton.
+For a configuration \(c=(\alpha:p\to q,u)\in\mathbf{Config}\) write
+\(\mathrm{Y}(c):=\alpha u\in V'^*\) for its \emph{yield}.
 
-For soundness, suppose that
-\[
-(\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon).
-\]
-For a configuration \((\alpha:p\to q,u)\), call \(\alpha u\) its yield.  A shift
-step preserves the yield.  A reduce step
-\[
-(\alpha\omega:q\to q',tz)\vdash(\alpha A:q\to q'',tz)
-\]
-with \([A\to\omega]\in P'\) changes the yield from \(\alpha\omega tz\) to
-\(\alpha A tz\), and the latter derives the former by one rightmost step:
-\[
-\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz,
-\]
-because the suffix \(tz\) is terminal.  Therefore, reading the accepting
-computation backwards and ignoring the shift steps, we obtain
-\[
-S\$ \xRightarrow[\mathbf{rm}]{}_{P'}^* z\$.
-\]
-Since \(S'\) occurs on no right-hand side of \(P'\), the production
-\([S'\to S\$]\) is never applicable in a derivation that starts from \(S\$\);
-hence every step of \(S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$\) uses a
-production of \(P\), and as the terminal \(\$\in T'\setminus T\) is carried
-unchanged at the right end, this is equivalent to \(S\Rightarrow_P^* z\).  Hence
-\(L(\mathrm{LRA}(G))\subseteq L(G)\).
+\paragraph{Viable-prefix lemma.}
+For \(\eta\in V'^*\):
+\begin{itemize}
+\item[$(\mathrm V1)$] \((\exists q\in Q)\ \eta:q_0\to q\) iff \(\eta\) is a viable
+prefix of \(G'\);
+\item[$(\mathrm V2)$] if \(\eta=\eta'\omega\) with \(\eta':q_0\to p\),
+\(\omega:p\to q\), and this occurrence of \(\omega\) is the handle of
+\([A\to\omega]\in P'\) (i.e.
+\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\eta' A y\xRightarrow[\mathbf{rm}]{}_{P'}\eta'\omega y\),
+\(y\in T'^*\)), then \([A\to\omega\cdot\varepsilon]\in q\), so
+\([A\to\omega]\in\mathbf{reduce}(q,t)\) for the first symbol \(t\) of \(y\).
+\end{itemize}
+Both are the standard correctness of the characteristic LR(0) automaton and
+follow by induction on the clauses \(\mathrm{Cl}\), \(\mathrm{GOTO}\) of
+Definition 1(v),(vii) and the path relation (ix).
 
-For completeness, assume \(S\Rightarrow_P^*z\).  Then
-\(S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$\).  Choose such a rightmost
-derivation and run it backwards.  Whenever the reverse derivation exposes a
-terminal as the next unread input symbol, use the Shift rule.  Whenever the
-reverse derivation replaces a handle \(\omega\) by its left-hand side \(A\), say
+\paragraph{Step invariant.}
+For \(c\vdash c'\),
+\begin{equation}
+\mathrm{Y}(c')=\mathrm{Y}(c)\ \ (\text{Shift}),\qquad
+\mathrm{Y}(c')\xRightarrow[\mathbf{rm}]{}_{P'}\mathrm{Y}(c)\ \ (\text{Reduce}).
+\tag{$\ast$}
+\end{equation}
+Indeed a Shift \((\alpha:q\to q',tz)\vdash(\alpha t:q\to q'',z)\) has
+\(\mathrm{Y}=\alpha tz\) on both sides, and a Reduce
+\((\alpha\omega:q\to q',tz)\vdash(\alpha A:q\to q'',tz)\), \([A\to\omega]\in P'\),
+has \(\mathrm{Y}(c)=\alpha\omega tz\), \(\mathrm{Y}(c')=\alpha A tz\) with
+\(\alpha\in V'^*\), \(tz\in T'^*\), so
+\(\alpha A tz\xRightarrow[\mathbf{rm}]{}_{P'}\alpha\omega tz\) by Definition 1(iii).
+Iterating \((\ast)\) along \(c\vdash^* c'\),
+\begin{equation}
+c\vdash^* c'\ \Longrightarrow\ \mathrm{Y}(c')\xRightarrow[\mathbf{rm}]{}_{P'}^*\mathrm{Y}(c).
+\tag{$\ast\ast$}
+\end{equation}
+
+\paragraph{Soundness, \(L(\mathrm{LRA}(G))\subseteq L(G)\).}
+Let \(z\in L(\mathrm{LRA}(G))\), so
+\((\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon)\). The endpoints
+have yields \(z\$\) and \(S\$\), so \((\ast\ast)\) gives
 \[
-\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz,
+S\$\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ z\$.
 \]
-the viable-prefix property gives states \(p,q\in Q\) with
-\(\alpha:q_0\to p\), \(\omega:p\to q\), and
-\([A\to\omega\cdot\varepsilon]\in q\).  Thus
-\([A\to\omega]\in \mathbf{reduce}(q,t)\), and the Reduce rule performs exactly
-the inverse step from \((\alpha\omega:q_0\to q,tz)\) to
-\((\alpha A:q_0\to\delta(p,A),tz)\).  Induction over the reversed rightmost
-derivation yields
+Since \(S'\) occurs on no right-hand side of \(P'\), \([S'\to S\$]\) is applied at
+no step of a derivation from \(S\$\); thus every step uses a production of \(P\).
+As \(\$\in T'\setminus T\) is never rewritten and never matched by a production of
+\(P\), it rides unchanged at the right end, and deleting it gives
+\(S\Rightarrow_P^* z\), i.e. \(z\in L(G)\).
+
+\paragraph{Completeness, \(L(G)\subseteq L(\mathrm{LRA}(G))\).}
+Let \(z\in L(G)\) and fix a rightmost derivation
 \[
-(\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon).
+S\$=\gamma_0\xRightarrow[\mathbf{rm}]{}_{P'}\gamma_1\xRightarrow[\mathbf{rm}]{}_{P'}\cdots\xRightarrow[\mathbf{rm}]{}_{P'}\gamma_N=z\$,
 \]
-Thus \(L(G)\subseteq L(\mathrm{LRA}(G))\), and the two languages are equal.
+which exists because \(S\Rightarrow_P^* z\). Write the \(k\)-th step as
+\[
+\gamma_k=\alpha_k A_k y_k\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha_k\omega_k y_k=\gamma_{k+1},
+\qquad [A_k\to\omega_k]\in P',\ \alpha_k\in V'^*,\ y_k\in T'^*,
+\]
+where \(y_k\) ends in \(\$\), hence is nonempty with first symbol \(t_k\). The
+suffix \(\omega_k\) of the viable prefix \(\alpha_k\omega_k\) is the handle of
+\([A_k\to\omega_k]\), so by \((\mathrm V2)\) there are \(p_k,q_k\in Q\) with
+\[
+\alpha_k:q_0\to p_k,\quad \omega_k:p_k\to q_k,\quad
+[A_k\to\omega_k\cdot\varepsilon]\in q_k,\quad
+[A_k\to\omega_k]\in\mathbf{reduce}(q_k,t_k).
+\]
+Read the derivation from \(\gamma_N=z\$\) down to \(\gamma_0=S\$\): starting at
+\((\varepsilon:q_0\to q_0,z\$)\), for \(k=N-1,\dots,0\) Shift the terminals lying
+between the current stack and the handle \(\omega_k\) (each legal by the Shift
+rule, as \(\delta\) is defined along the viable prefix \(\alpha_k\omega_k\)) until
+the configuration is \((\alpha_k\omega_k:q_0\to q_k,y_k)\), then apply
+\(\mathrm{Reduce}(A_k\to\omega_k)\), obtaining by the line above and
+Definition 1(xiii)
+\[
+(\alpha_k\omega_k:q_0\to q_k,\,y_k)\ \vdash\ (\alpha_k A_k:q_0\to\delta(p_k,A_k),\,y_k),
+\]
+the configuration associated with \(\gamma_k\). Each iteration inverts one
+\(\xRightarrow[\mathbf{rm}]{}_{P'}\) step; after all \(N\) of them and a final Shift of the
+endmarker \(\$\) the input is exhausted and the stack carries \(S\$\):
+\[
+(\varepsilon:q_0\to q_0,z\$)\ \vdash^*\ (S\$:q_0\to q_f,\varepsilon),
+\qquad q_f=\delta(\delta(q_0,S),\$),
+\]
+so \(z\in L(\mathrm{LRA}(G))\). With soundness, \(L(G)=L(\mathrm{LRA}(G))\).
 \end{proof}
 
 
@@ -146,44 +180,49 @@ yields an $\mathrm{LALR(1)}$ parser if there are no conflicts, which accepts the
 \end{theorem}
 
 \begin{proof}
-Let \(\vdash_{\mathbf{LA}}\) denote the transition relation obtained from
-\(\vdash\) by replacing \(\mathbf{reduce}\) with the lookahead-restricted
-function displayed in the statement.  Every \(\vdash_{\mathbf{LA}}\)-reduction is
-also an LR(0) reduction, so every \(\vdash_{\mathbf{LA}}\)-computation is an
-\(\mathrm{LRA}(G)\)-computation.  By Fact 2, this gives
+Let \(\vdash_{\mathbf{LA}}\) be \(\vdash\) with \(\mathbf{reduce}\) replaced by
 \[
-L(\vdash_{\mathbf{LA}})\subseteq L(\mathrm{LRA}(G))=L(G).
+\mathbf{reduce}_{\mathbf{LA}}(q,t):=\set*{[A\to\omega]\mid [A\to\omega\cdot\varepsilon]\in q,\ t\in\mathbf{LA}(q,[A\to\omega])},
+\]
+and let \(L(\vdash_{\mathbf{LA}})\) be the language it accepts.
+
+\(\boldsymbol{(\subseteq)}\) Since
+\(\mathbf{reduce}_{\mathbf{LA}}(q,t)\subseteq\mathbf{reduce}(q,t)\) for every
+\((q,t)\), each Reduce instance of \(\vdash_{\mathbf{LA}}\) is one of \(\vdash\),
+and the Shift rule is shared; hence \(\vdash_{\mathbf{LA}}\subseteq\vdash\),
+\(\vdash_{\mathbf{LA}}^*\subseteq\vdash^*\), and
+\[
+L(\vdash_{\mathbf{LA}})\subseteq L(\mathrm{LRA}(G))\overset{\text{Fact 2}}{=}L(G).
 \]
 
-Conversely, let \(z\in L(G)\).  In the completeness part of the proof of Fact 2
-we constructed an accepting computation by reversing a rightmost derivation
+\(\boldsymbol{(\supseteq)}\) Let \(z\in L(G)\). The completeness construction of
+Fact 2 yields a computation
 \[
-S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$.
+(\varepsilon:q_0\to q_0,z\$)\ \vdash^*\ (S\$:q_0\to q_f,\varepsilon)
 \]
-Consider any reduction used in that computation.  It is the inverse of a
-rightmost step
+each of whose Reduce steps inverts a rightmost step
+\(\alpha A tz'\xRightarrow[\mathbf{rm}]{}_{P'}\alpha\omega tz'\) and is taken at a
+configuration \((\alpha\omega:q_0\to q,tz')\) with
+\([A\to\omega\cdot\varepsilon]\in q\) and \(\alpha\omega:q_0\to q\). As
+\(S'\xRightarrow[\mathbf{rm}]{}_{P'}S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz'\), the
+witnesses \(\alpha,z'\) and the path \(\alpha\omega:q_0\to q\) meet the defining
+condition (1) of \(\mathbf{LA}\), so
 \[
-\alpha A tz \xRightarrow[\mathbf{rm}]{}_{P'} \alpha\omega tz
+t\in\mathbf{LA}(q,[A\to\omega]),\qquad\text{i.e.}\qquad
+[A\to\omega]\in\mathbf{reduce}_{\mathbf{LA}}(q,t).
 \]
-for some \(t\in T'\) and \(z\in T'^*\), and at the moment of the reduction the
-stack prefix is \(\alpha\omega:q_0\to q\), where
-\([A\to\omega\cdot\varepsilon]\in q\).  Hence, by the definition of
-\(\mathbf{LA}\),
-\[
-t\in \mathbf{LA}(q,[A\to\omega]).
-\]
-Therefore every reduction in that accepting computation is still permitted by
-\(\vdash_{\mathbf{LA}}\).  The same computation accepts \(z\), so
-\(L(G)\subseteq L(\vdash_{\mathbf{LA}})\).  Hence the lookahead-restricted parser
-accepts exactly \(L(G)\).
+Thus every step is also a \(\vdash_{\mathbf{LA}}\)-step and the same computation
+accepts \(z\); hence \(L(G)\subseteq L(\vdash_{\mathbf{LA}})\). Combining,
+\(L(\vdash_{\mathbf{LA}})=L(G)\).
 
-The action table of this parser consists of the LR(0) shift actions together
-with precisely those reduce actions whose terminal lookahead belongs to the
-corresponding \(\mathbf{LA}\)-set.  Thus it is the usual LALR(1) table obtained
-from the LR(0) cores by attaching LALR(1) lookahead sets to reduce items.  If no
-state/lookahead pair contains two enabled actions, namely no shift/reduce or
-reduce/reduce conflict, the table is deterministic with one symbol of
-lookahead; hence it yields an \(\mathrm{LALR(1)}\) parser.
+For the table, each pair \((q,t)\) carries the shift to \(\delta(q,t)\) when
+\(\delta(q,t)\ne\emptyset\) and the reduces \([A\to\omega]\) with
+\([A\to\omega\cdot\varepsilon]\in q\) and \(t\in\mathbf{LA}(q,[A\to\omega])\)~---
+exactly the LR(0) cores annotated with the LALR(1) lookahead sets \(\mathbf{LA}\).
+If no \((q,t)\) enables two distinct actions~--- no shift/reduce
+(\(\delta(q,t)\ne\emptyset\) together with an enabled reduce) and no
+reduce/reduce (two distinct enabled reduces)~--- then \(\vdash_{\mathbf{LA}}\) is
+deterministic with one symbol of lookahead, i.e. an \(\mathrm{LALR(1)}\) parser.
 \end{proof}
 
 
@@ -225,65 +264,92 @@ S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz,\
 \]
 This is the semantic follow set of the nonterminal transition \((p,A)\).
 
-We first show that the displayed rules compute \(\mathsf{Read}\).  If
-\(\gamma=\varepsilon\) in the definition of \(\mathsf{Read}(p,A)\), then
-\(\delta(\delta(p,A),t)\ne\emptyset\), which is exactly the rule \(\mathrm{DR}\).
-If \(\gamma=C\gamma'\), then \(C\Rightarrow_{P'}^*\varepsilon\),
-\(\delta(p,A)=r\), and \(\gamma't:\delta(r,C)\to s\).  Hence
-\(t\in\mathsf{Read}(r,C)\), and the rule \(\mathrm{reads}\) propagates this
-terminal to \(\mathsf{Read}(p,A)\).  The converse direction is immediate from
-the same decomposition: \(\mathrm{DR}\) corresponds to \(\gamma=\varepsilon\),
-and each use of \(\mathrm{reads}\) prefixes one nullable nonterminal to
-\(\gamma\).  Since \(D\) and \(T'\) are finite, the inductive definition is the
-least fixed point of these monotone clauses, so
+\paragraph{Computation of \(\mathsf{Read}\).}
+We prove \(\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)\) on \(D\) by showing
+both are the least fixed point of \(\{\mathrm{DR},\mathrm{reads}\}\). For
+\(t\in\mathsf{Read}(p,A)\) fix a witness \(\gamma\in N'^*\) with
+\(\gamma\Rightarrow_{P'}^*\varepsilon\) and \(\gamma t:\delta(p,A)\to s\), and
+induct on \(|\gamma|\):
 \[
-\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)
-\quad\text{for all }(p,A)\in D.
+\begin{aligned}
+|\gamma|=0:\quad& t:\delta(p,A)\to s
+\ \overset{\text{1(ix)}}{\Longleftrightarrow}\ s=\delta(\delta(p,A),t)\ne\emptyset
+\ \Longleftrightarrow\ t\in\mathrm{DR}(p,A);\\
+\gamma=C\gamma'\ (C\in N'):\quad& C\Rightarrow_{P'}^*\varepsilon,\
+\gamma'\Rightarrow_{P'}^*\varepsilon,\
+\gamma' t:\delta(\delta(p,A),C)\to s,
+\end{aligned}
 \]
-When \((r,C)\notin D\), the set \(\mathbf{Read}\mathbin{!}(r,C)\) is empty, so
-the printed \(\mathrm{reads}\) rule is vacuous in that case.
-
-Next we characterize \(\mathsf{Follow}\).  The first terminal after an occurrence
-of \(A\) in a right-sentential form can arise in exactly two ways.
-
-First, it can be read inside the same local LR(0) context after the transition on
-\(A\), possibly after passing through nullable nonterminals.  These terminals
-are precisely \(\mathsf{Read}(p,A)\), and indeed
-\(\mathsf{Read}(p,A)\subseteq\mathsf{Follow}(p,A)\): given \(t\in\mathsf{Read}(p,A)\),
-with nullable witness \(\gamma\in N'^*\) and path \(\gamma t:\delta(p,A)\to s\),
-choose \(\alpha:q_0\to p\) (possible because \(p\in Q\) is accessible), so that
-\(\alpha A\gamma t:q_0\to s\) is a viable prefix; since
-\(\gamma\Rightarrow_{P'}^*\varepsilon\), a rightmost derivation realizing this
-prefix may erase \(\gamma\) and leave \(t\) as the symbol immediately following
-\(A\), giving \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz\) with
-\(\alpha:q_0\to p\).  This inclusion is exactly the rule \(\mathrm{Read}\).
-
-Second, the occurrence of \(A\) can appear in a production
-\([B\to\beta A\gamma]\) whose suffix \(\gamma\) is nullable.  If
-\([B\to\beta\cdot A\gamma]\in p\), \(\beta:p'\to p\), and
-\(\gamma\Rightarrow_{P'}^*\varepsilon\), then every terminal that can follow the
-transition \((p',B)\) can also follow \((p,A)\): from a sentential form
-\(\alpha Btz\) with \(\alpha:q_0\to p'\), one rightmost expansion of \(B\) gives
-\(\alpha\beta A\gamma tz\), and then \(\gamma\Rightarrow^*\varepsilon\) gives a
-right-sentential form whose prefix \(\alpha\beta\) reaches \(p\) and in which
-\(t\) follows \(A\).  This is exactly the rule \(\mathrm{includes}\).
-
-Conversely, given
-\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz\) with
-\(\alpha:q_0\to p\), inspect the production occurrence in the rightmost
-derivation that produced the displayed occurrence of \(A\).  If the first
-terminal \(t\) after \(A\) lies inside the remaining suffix of that production
-after passing only through nullable nonterminals, then
-\(t\in\mathsf{Read}(p,A)\).  Otherwise the entire suffix to the right of \(A\)
-in that production is nullable, and the terminal \(t\) is inherited from the
-symbol on the left-hand side of that production; this gives an
-\(\mathrm{includes}\) edge from some \((p',B)\) to \((p,A)\).  Repeating this
-argument moves outward through the finite rightmost derivation until a
-\(\mathsf{Read}\)-case is reached.  Therefore \(\mathsf{Follow}\) is the least
-solution of the \(\mathrm{Read}\) and \(\mathrm{includes}\) clauses, and so
+so in the second case, with \(r=\delta(p,A)\), we have \((r,C)\in D\),
+\((p,A)\leadsto_{\mathrm{reads}}(r,C)\), and \(t\in\mathsf{Read}(r,C)\) via the
+shorter witness \(\gamma'\); the induction hypothesis gives
+\(t\in\mathbf{Read}\mathbin{!}(r,C)\), whence \(\mathrm{reads}\) yields
+\(t\in\mathbf{Read}\mathbin{!}(p,A)\). The reverse inclusion reads the same
+decomposition forwards (\(\mathrm{DR}\) realizes \(\gamma=\varepsilon\); each
+\(\mathrm{reads}\) edge prepends one nullable \(C\in N'\)). As \(D,T'\) are finite
+and both clauses are monotone, the two least fixed points coincide:
 \[
-\mathbf{Follow}\mathbin{!}(p,A)=\mathsf{Follow}(p,A)
-\quad\text{for all }(p,A)\in D.
+\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)\qquad((p,A)\in D),
+\]
+with \(\mathbf{Read}\mathbin{!}(r,C)=\emptyset\) when \((r,C)\notin D\), making
+the \(\mathrm{reads}\) clause vacuous there.
+
+\paragraph{Computation of \(\mathsf{Follow}\).}
+We show \(\mathsf{Follow}\) is the least solution of the clauses \(\mathrm{Read}\)
+and \(\mathrm{includes}\), whence \(\mathbf{Follow}\mathbin{!}=\mathsf{Follow}\) on
+\(D\).
+
+\emph{Soundness of the clauses for \(\mathsf{Follow}\).}
+\begin{itemize}
+\item[$(\mathrm{Read})$] \(\mathsf{Read}(p,A)\subseteq\mathsf{Follow}(p,A)\). Take
+\(t\in\mathsf{Read}(p,A)\) with witness \(\gamma\in N'^*\),
+\(\gamma\Rightarrow_{P'}^*\varepsilon\), \(\gamma t:\delta(p,A)\to s\). Choose
+\(\alpha:q_0\to p\) (possible since \(p\in Q\) is accessible); then
+\(\alpha A\gamma t:q_0\to s\) is a viable prefix, so some rightmost derivation
+reaches \(\alpha A\gamma t z\) (\(z\in T'^*\)). As \(\gamma\) stands immediately
+left of the terminals \(tz\), it is rightmost-erasable, giving
+\[
+S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A\gamma t z\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A t z,
+\qquad\alpha:q_0\to p,
+\]
+i.e. \(t\in\mathsf{Follow}(p,A)\).
+\item[$(\mathrm{includes})$] If \([B\to\beta\cdot A\gamma]\in p\),
+\(\beta:p'\to p\), \(\gamma\Rightarrow_{P'}^*\varepsilon\), then
+\(\mathsf{Follow}(p',B)\subseteq\mathsf{Follow}(p,A)\). For
+\(t\in\mathsf{Follow}(p',B)\), say \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha' B t z\)
+with \(\alpha':q_0\to p'\), expand \(B\) and erase \(\gamma\) rightmost:
+\[
+\alpha' B t z\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha'\beta A\gamma t z\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ \alpha'\beta A t z,
+\qquad \alpha'\beta:q_0\to p,
+\]
+where \(\alpha'\beta:q_0\to p\) follows from \(\alpha':q_0\to p'\) and
+\(\beta:p'\to p\). With \(\alpha:=\alpha'\beta\) this gives
+\(t\in\mathsf{Follow}(p,A)\).
+\end{itemize}
+
+\emph{Minimality.} Let \(t\in\mathsf{Follow}(p,A)\), witnessed by
+\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A t z\), \(\alpha:q_0\to p\). Let
+\([B\to\beta A\gamma]\) be the production creating this occurrence of \(A\), so the
+derivation factors through
+\[
+S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha' B t' z'\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha'\beta A\gamma t' z'\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ \alpha A t z,
+\quad \alpha=\alpha'\beta,\ [B\to\beta\cdot A\gamma]\in p,\ \beta:p'\to p .
+\]
+Splitting on the residual \(\gamma\):
+\[
+\begin{cases}
+\gamma=\gamma_0\,t\cdots,\ \gamma_0\Rightarrow_{P'}^*\varepsilon
+& \Rightarrow\ \gamma_0 t:\delta(p,A)\to(\cdot),\ \text{so } t\in\mathsf{Read}(p,A)\ \ (\mathrm{Read}),\\[2pt]
+\gamma\Rightarrow_{P'}^*\varepsilon
+& \Rightarrow\ t\in\mathsf{Follow}(p',B)\ \text{via } (p,A)\leadsto_{\mathrm{includes}}(p',B).
+\end{cases}
+\]
+The second case strictly shortens the witnessing rightmost derivation, so
+iterating it terminates in the first case after finitely many steps; thus every
+\(t\in\mathsf{Follow}(p,A)\) is generated by the clauses. Hence \(\mathsf{Follow}\)
+is their least solution and
+\[
+\mathbf{Follow}\mathbin{!}(p,A)=\mathsf{Follow}(p,A)\qquad((p,A)\in D).
 \]
 
 It remains to translate this semantic follow set into the lookahead set of a
