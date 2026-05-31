@@ -104,9 +104,11 @@ computation backwards and ignoring the shift steps, we obtain
 \[
 S\$ \xRightarrow[\mathbf{rm}]{}_{P'}^* z\$.
 \]
-Since \(\$\notin T\) and the only role of the augmented production
-\([S'\to S\$]\) is to create the initial and final LR(0) states, this is
-equivalent to \(S\Rightarrow_P^* z\).  Hence
+Since \(S'\) occurs on no right-hand side of \(P'\), the production
+\([S'\to S\$]\) is never applicable in a derivation that starts from \(S\$\);
+hence every step of \(S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$\) uses a
+production of \(P\), and as the terminal \(\$\in T'\setminus T\) is carried
+unchanged at the right end, this is equivalent to \(S\Rightarrow_P^* z\).  Hence
 \(L(\mathrm{LRA}(G))\subseteq L(G)\).
 
 For completeness, assume \(S\Rightarrow_P^*z\).  Then
@@ -246,8 +248,15 @@ of \(A\) in a right-sentential form can arise in exactly two ways.
 
 First, it can be read inside the same local LR(0) context after the transition on
 \(A\), possibly after passing through nullable nonterminals.  These terminals
-are precisely \(\mathsf{Read}(p,A)\), and hence they are included in
-\(\mathsf{Follow}(p,A)\) by the rule \(\mathrm{Read}\).
+are precisely \(\mathsf{Read}(p,A)\), and indeed
+\(\mathsf{Read}(p,A)\subseteq\mathsf{Follow}(p,A)\): given \(t\in\mathsf{Read}(p,A)\),
+with nullable witness \(\gamma\in N'^*\) and path \(\gamma t:\delta(p,A)\to s\),
+choose \(\alpha:q_0\to p\) (possible because \(p\in Q\) is accessible), so that
+\(\alpha A\gamma t:q_0\to s\) is a viable prefix; since
+\(\gamma\Rightarrow_{P'}^*\varepsilon\), a rightmost derivation realizing this
+prefix may erase \(\gamma\) and leave \(t\) as the symbol immediately following
+\(A\), giving \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz\) with
+\(\alpha:q_0\to p\).  This inclusion is exactly the rule \(\mathrm{Read}\).
 
 Second, the occurrence of \(A\) can appear in a production
 \([B\to\beta A\gamma]\) whose suffix \(\gamma\) is nullable.  If
@@ -297,9 +306,18 @@ S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz
 \end{aligned}
 \]
 The middle equivalence just cuts the path \(\alpha\omega:q_0\to q\) at the point
-reached after \(\alpha\); conversely, concatenating \(\alpha:q_0\to p\) and
-\(\omega:p\to q\) recovers \(\alpha\omega:q_0\to q\).  This is precisely the
-formula claimed in the theorem.
+\(p\) reached after \(\alpha\); conversely, concatenating \(\alpha:q_0\to p\) and
+\(\omega:p\to q\) recovers \(\alpha\omega:q_0\to q\).  The side condition
+\(\delta(p,A)\ne\emptyset\) on the second line is automatic when \(A\ne S'\):
+from \(\omega:p\to q\) and \([A\to\omega\cdot\varepsilon]\in q\) one traces the dot
+back along \(\omega\) to obtain \([A\to\varepsilon\cdot\omega]\in p\), and this
+closure item is licensed by some \([B\to\beta\cdot A\delta]\in p\), whence
+\(\delta(p,A)\ne\emptyset\).  For \(A=S'\) both sides are empty: no item has a dot
+before \(S'\), so \(\delta(p,S')=\emptyset\) for every \(p\), and no rightmost
+derivation has the form \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha S' tz\) since
+\(S'\) occurs on no right-hand side; this matches the parser accepting by reaching
+\((S\$:q_0\to q_f,\varepsilon)\) rather than by reducing \([S'\to S\$]\).  This is
+precisely the formula claimed in the theorem.
 \end{proof}
 
 
