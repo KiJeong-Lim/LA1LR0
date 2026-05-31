@@ -59,7 +59,7 @@ Let \(G \triangleq ( N , T , P , S )\) be a context-free grammar{.}
 \item[$\mathrm{(x)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
 \item[$\mathrm{(xi)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
 \item[$\mathrm{(xii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
-\item[$\mathrm{(vii)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules:
+\item[$\mathrm{(xiii)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules:
 \begin{center}
 \( \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } \) 
 
@@ -102,7 +102,7 @@ with \([A\to\omega]\in P'\) changes the yield from \(\alpha\omega tz\) to
 because the suffix \(tz\) is terminal.  Therefore, reading the accepting
 computation backwards and ignoring the shift steps, we obtain
 \[
-S\$ \xRightarrow[\mathbf{rm}]{}_{P'}{}^* z\$.
+S\$ \xRightarrow[\mathbf{rm}]{}_{P'}^* z\$.
 \]
 Since \(\$\notin T\) and the only role of the augmented production
 \([S'\to S\$]\) is to create the initial and final LR(0) states, this is
@@ -110,7 +110,7 @@ equivalent to \(S\Rightarrow_P^* z\).  Hence
 \(L(\mathrm{LRA}(G))\subseteq L(G)\).
 
 For completeness, assume \(S\Rightarrow_P^*z\).  Then
-\(S\$\xRightarrow[\mathbf{rm}]{}_{P'}{}^*z\$\).  Choose such a rightmost
+\(S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$\).  Choose such a rightmost
 derivation and run it backwards.  Whenever the reverse derivation exposes a
 terminal as the next unread input symbol, use the Shift rule.  Whenever the
 reverse derivation replaces a handle \(\omega\) by its left-hand side \(A\), say
@@ -156,7 +156,7 @@ L(\vdash_{\mathbf{LA}})\subseteq L(\mathrm{LRA}(G))=L(G).
 Conversely, let \(z\in L(G)\).  In the completeness part of the proof of Fact 2
 we constructed an accepting computation by reversing a rightmost derivation
 \[
-S\$\xRightarrow[\mathbf{rm}]{}_{P'}{}^*z\$.
+S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*z\$.
 \]
 Consider any reduction used in that computation.  It is the inverse of a
 rightmost step
@@ -218,7 +218,7 @@ nonterminal transitions.  Second, let
 \[
 \mathsf{Follow}(p,A)=
 \set*{t\in T' \mid
-S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz,\
+S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz,\
 \alpha:q_0\to p,\ \alpha\in V'^*,\ z\in T'^* } .
 \]
 This is the semantic follow set of the nonterminal transition \((p,A)\).
@@ -260,7 +260,7 @@ right-sentential form whose prefix \(\alpha\beta\) reaches \(p\) and in which
 \(t\) follows \(A\).  This is exactly the rule \(\mathrm{includes}\).
 
 Conversely, given
-\(S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz\) with
+\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz\) with
 \(\alpha:q_0\to p\), inspect the production occurrence in the rightmost
 derivation that produced the displayed occurrence of \(A\).  If the first
 terminal \(t\) after \(A\) lies inside the remaining suffix of that production
@@ -284,16 +284,16 @@ completed item.  Let \(q\in Q\) and \([A\to\omega\cdot\varepsilon]\in q\).  Then
 &t\in\mathbf{LA}(q,[A\to\omega]) \\
 &\quad\Longleftrightarrow
 \exists\alpha,z\;.
-S'\xRightarrow[\mathbf{rm}]{}_{P'}{}^*\alpha A tz
-\text{ and }\alpha\omega:q_0\to q \\
+S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz
+\land \alpha\omega:q_0\to q \\
 &\quad\Longleftrightarrow
-\exists p\in Q\;.
-\omega:p\to q,\ \delta(p,A)\ne\emptyset,
-\text{ and }t\in\mathsf{Follow}(p,A) \\
+\exists p\in Q,
+\omega:p\to q \land \delta(p,A)\ne\emptyset
+\land t\in\mathsf{Follow}(p,A) \\
 &\quad\Longleftrightarrow
-\exists p\in Q\;.
-\omega:p\to q,\ \delta(p,A)\ne\emptyset,
-\text{ and }t\in\mathbf{Follow}\mathbin{!}(p,A).
+\exists p\in Q,
+\omega:p\to q \land \delta(p,A)\ne\emptyset
+\land t\in\mathbf{Follow}\mathbin{!}(p,A).
 \end{aligned}
 \]
 The middle equivalence just cuts the path \(\alpha\omega:q_0\to q\) at the point
@@ -340,9 +340,9 @@ Tarjan's depth-first-search algorithm.
 for every SCC \(C\).
 \item Process the SCCs in reverse topological order with respect to
 \(\leadsto\), so that every successor \(D\) of \(C\) has already been processed,
-and set
+and put
 \[
-  \mathrm{Val}(C):=\mathrm{Val}(C)\cup
+  \mathrm{Val}(C) \leftarrow \mathrm{Val}(C)\cup
   \bigcup_{C\leadsto D}\mathrm{Val}(D).
 \]
 \item Return \(F(x):=\mathrm{Val}(C_x)\), where \(C_x\) is the SCC containing
@@ -387,10 +387,9 @@ Define the reads dependency graph \(E_R\subseteq D\times D\) by
 \[
   (p,A)\leadsto_R(r,C)
   \quad\Longleftrightarrow\quad
-  \delta(p,A)=r,
-  \ C\in N',
-  \ \mathrm{Null}(C),
-  \ (r,C)\in D.
+  \delta(p,A)=r \land C\in N' \land
+  \mathrm{Null}(C) \land
+  (r,C)\in D.
 \]
 The last condition merely makes explicit the domain of Theorem 4.  If
 \((r,C)\notin D\), then \(\mathbf{Read}\mathbin{!}(r,C)=\emptyset\), so no edge is
@@ -411,14 +410,12 @@ The seed for follow propagation is the already computed read set:
 \]
 Define the includes dependency graph \(E_I\subseteq D\times D\) by
 \[
-\begin{aligned}
 (p,A)\leadsto_I(p',B)
 \quad\Longleftrightarrow\quad
-&[B\to\beta\cdot A\gamma]\in p,\\
-&\beta:p'\to p,\\
-&\mathrm{Null}(\gamma),\\
-&(p',B)\in D.
-\end{aligned}
+[B\to\beta\cdot A\gamma]\in p \land
+\beta:p'\to p \land
+\mathrm{Null}(\gamma) \land
+(p',B)\in D.
 \]
 The edge orientation again means that the right-hand node contributes to the
 left-hand node:
