@@ -419,7 +419,7 @@ Tarjan's depth-first-search algorithm.
 \(x\leadsto y\) and \(C\ne D\).
 \item Initialize
 \[
-  \mathrm{Val}(C):=\bigcup_{x\in C}\mathrm{Seed}(x)
+  \mathrm{Val}(C)\leftarrow\bigcup_{x\in C}\mathrm{Seed}(x)
 \]
 for every SCC \(C\).
 \item Process the SCCs in reverse topological order with respect to
