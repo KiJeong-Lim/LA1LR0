@@ -1,577 +1,933 @@
-\documentclass[12pt]{article}
+\documentclass[11pt,a4paper]{article}
 
-\usepackage{amsfonts}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-\usepackage{color}
-\usepackage[bottom]{footmisc}
-\usepackage[a4paper, left=10mm, right=10mm, top=10mm, bottom=10mm]{geometry}
-\usepackage{graphicx}
+\usepackage[a4paper,left=22mm,right=22mm,top=20mm,bottom=24mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{kotex}
-\usepackage{listings}
-\usepackage{setspace}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
 \usepackage{enumitem}
 \usepackage{proof}
-\usepackage{xparse}
-\usepackage[utf8]{inputenc}
-\usepackage{amssymb}
-\usepackage{lmodern}
-\usepackage{mathtools, nccmath}
-\usepackage{mathtools}
-\usepackage{indentfirst}
-\usepackage{nopageno}
-\allowdisplaybreaks
-\sloppy
+\usepackage{xcolor}
+\usepackage[bottom]{footmisc}
+\usepackage{hyperref}
 
+\allowdisplaybreaks
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.15em}
+\setlist[enumerate]{leftmargin=*,itemsep=0.35em,topsep=0.35em}
+
+\definecolor{ink}{HTML}{1F2937}
+\definecolor{softblue}{HTML}{2F6690}
+
+\hypersetup{
+  pdftitle={LA(1)LR(0)},
+  pdfauthor={임기정},
+  colorlinks=true,
+  linkcolor=softblue,
+  citecolor=softblue,
+  urlcolor=softblue
+}
+
+\newtheoremstyle{prettyplain}
+  {0.85em}{0.85em}{\itshape}{}{\sffamily\bfseries\color{ink}}{.}{0.55em}{}
+\newtheoremstyle{prettydef}
+  {0.85em}{0.85em}{\normalfont}{}{\sffamily\bfseries\color{ink}}{.}{0.55em}{}
+
+\theoremstyle{prettyplain}
 \newtheorem{theorem}{Theorem}
 \newtheorem{fact}[theorem]{Fact}
-\theoremstyle{definition}
+\theoremstyle{prettydef}
 \newtheorem{definition}[theorem]{Definition}
 
-\DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\mid{\;\delimsize\vert\;}#1}
+\DeclarePairedDelimiterX{\set}[1]\lbrace\rbrace{%
+  \def\mid{\;\delimsize\vert\;}#1%
+}
 
-\newenvironment{context}[1][]
-{ \noindent \textbf{{#1}.} }
-{ \hfill $ \dashv $ }
+\newcommand{\Pow}{\ensuremath{\mathcal P}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\LRA}{\mathrm{LRA}}
+\newcommand{\LRzero}{\mathrm{LR(0)}}
+\newcommand{\LALRone}{\mathrm{LALR(1)}}
+\newcommand{\RMP}{\xRightarrow[\mathbf{rm}]{}_{P^\prime}}
+\newcommand{\DerP}{\Rightarrow_P}
+\newcommand{\Path}[3]{#1:#2\to#3}
+\newcommand{\Item}[2]{[#1\to #2]}
+\newcommand{\Look}{\mathbf{LA}}
+\newcommand{\Read}{\mathbf{Read}}
+\newcommand{\Follow}{\mathbf{Follow}}
+\newcommand{\Config}{\mathbf{Config}}
+\newcommand{\Reduce}{\mathbf{reduce}}
+\newcommand{\proofpart}[1]{\par\medskip\noindent\textsc{#1.}}
 
-\newcommand{\powerset}{ \ensuremath{\mathcal{P}} }
-
-\title{LA{(1)}LR{(0)}}
+\title{\vspace{-2.5em}\sffamily\bfseries LA(1)LR(0)}
 \author{임기정}
+\date{}
 
 \begin{document}
 
-\thispagestyle{empty}
+\maketitle
 
-\begin{definition}[$\mathrm{LRA}(G)$]
-Let \(G \triangleq ( N , T , P , S )\) be a context-free grammar{.}
-\begin{enumerate} \setlength{\itemsep}{0.2pt} \setlength{\parskip}{0.2pt}
-\item[$\mathrm{(i)}$] $G^\prime := ( N^\prime , T^\prime , P^\prime , S^\prime ) \triangleq ( N \uplus \set*{ S^\prime } , T \uplus \set*{ \$ } , P \cup \set*{ [ S^\prime \to S \$ ] } , S^\prime )$.
-\item[$\mathrm{(ii)}$] $V \triangleq N \uplus T$. $V^\prime \triangleq N^\prime \uplus T^\prime$.
-\item[$\mathrm{(iii)}$] $\beta \xRightarrow[\mathbf{rm}]{}_{P^\prime} \gamma \xLeftrightarrow[]{\mathrm{def}} ( \beta , \gamma ) \in \set*{ ( \alpha A z , \alpha \omega z ) \mid [ A \to \omega ] \in P^\prime , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} }$.
-\item[$\mathrm{(iv)}$] $I_{\mathrm{LR(0)}} \triangleq \set*{ [ A \to \alpha \cdot \beta ] \mid [ A \to \alpha \beta ] \in P^\prime }$.
-\item[$\mathrm{(v)}$] $\mathrm{Cl} ( q ) =_\mu q \cup \set*{ [ A \to \varepsilon \cdot \omega ] \mid [ A \to \omega ] \in P^\prime , [ B \to \beta \cdot A \gamma ] \in \mathrm{Cl} ( q ) }$ for $ q \in \powerset ( I_{\mathrm{LR(0)}} ) $.
-\item[$\mathrm{(vi)}$] $q_0 := \mathrm{Cl} ( \set*{ [ S^\prime \to \varepsilon \cdot S \$ ] } )$.
-\item[$\mathrm{(vii)}$] $\mathrm{GOTO} ( q , X ) := \mathrm{Cl} ( \set*{ [ A \to \alpha X \cdot \beta ] \mid [ A \to \alpha \cdot X \beta ] \in q } )$ for $q \in \powerset ( I_{\mathrm{LR(0)}} )$ and $X \in V^\prime$.
-\item[$\mathrm{(viii)}$] $Q \triangleq \mathrm{PT} \setminus \set*{ \emptyset }$ where $\mathrm{PT} =_\mu \set*{ q_0 } \cup \set*{ \mathrm{GOTO} ( q , X ) \mid q \in \mathrm{PT} , X \in V^\prime }$.
-\item[$\mathrm{(ix)}$] $\varepsilon : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land p = q$. $X \alpha : p \to q \xLeftrightarrow[]{\mathrm{def}} p \in Q \land \alpha : \mathrm{GOTO} ( p , X ) \to q$.
-\item[$\mathrm{(x)}$] $\mathbf{Config} \triangleq \set*{ ( \alpha : p \to q , z ) \mid \alpha \in V^{\prime \ast}, p \in Q , q \in Q , z \in T^{\prime \ast} , \alpha : p \to q } $.
-\item[$\mathrm{(xi)}$] $\delta ( q , X ) := \mathrm{GOTO} ( q , X )$ for $q \in Q$ and $X \in V^\prime$.
-\item[$\mathrm{(xii)}$] $\mathbf{reduce} ( q , t ) := \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q }$ for $q \in Q$ and $t \in T^\prime$.
-\item[$\mathrm{(xiii)}$] Let $\vdash$ be a binary relation on the set $\mathbf{Config}$ with two introduction rules:
-\begin{center}
-\( \infer[\mathrm{Shift}]{ ( \alpha : q \to q^\prime , t z ) \vdash ( \alpha t : q \to q^{\prime \prime} , z ) }{ q^{\prime \prime} = \delta ( q^\prime , t ) } \) 
+\begin{abstract}
+\noindent
+This note fixes the LR(0) characteristic automaton, defines the one-symbol
+lookahead set attached to each completed LR(0) item, and derives the usual
+Read/Follow digraph computation.  The proofs are written so that the essential
+claims appear as inclusions, fixed-point equations, and derivation chains.
+\end{abstract}
 
-\hfil
+\section*{The LR(0) Automaton}
 
-\( \infer[\mathrm{Reduce} ( A \to \omega )]{ ( \alpha \omega : q \to q^\prime , t z ) \vdash ( \alpha A : q \to q^{\prime \prime} , t z ) }{ \alpha : q \to p & \omega : p \to q^\prime & [ A \to \omega ] \in \mathbf{reduce} ( q^\prime , t ) & q^{\prime\prime} = \delta (p , A) } \)
-\end{center}
-\item[$\mathrm{(xiv)}$] $q_f := \delta ( \delta ( q_0 , S ) , \$ )$.
-\item[$\mathrm{(xv)}$] The language accepted by $\mathrm{LRA}(G)$ is defined as follows: \[L ( \mathrm{LRA} ( G ) ) := \set*{ z \in { T }^\ast \mid ( \varepsilon : q_0 \to q_0 , z \$ ) \vdash^\ast ( S \$ : q_0 \to q_f , \varepsilon ) } .\]
+\begin{definition}[$\LRA(G)$]\label{def:lra}
+Let \(G \triangleq (N,T,P,S)\) be a context-free grammar.  Define:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item
+\[
+G^\prime=(N^\prime,T^\prime,P^\prime,S^\prime)
+\triangleq
+\bigl(N\uplus\set*{S^\prime},\,
+      T\uplus\set*{\$},\,
+      P\cup\set*{\Item{S^\prime}{S\$}},\,
+      S^\prime\bigr).
+\]
+
+\item
+\[
+V\triangleq N\uplus T,\qquad
+V^\prime\triangleq N^\prime\uplus T^\prime .
+\]
+
+\item
+\[
+\beta\RMP\gamma
+\quad\xLeftrightarrow{\mathrm{def}}\quad
+(\beta,\gamma)\in
+\set*{(\alpha A z,\alpha\omega z)
+\mid
+\Item{A}{\omega}\in P^\prime,\ \alpha\in V^{\prime *},\ z\in T^{\prime *}}.
+\]
+
+\item
+\[
+I_{\LRzero}
+\triangleq
+\set*{\Item{A}{\alpha\cdot\beta}
+\mid
+\Item{A}{\alpha\beta}\in P^\prime}.
+\]
+
+\item For \(q\subseteq I_{\LRzero}\),
+\[
+\mathrm{Cl}(q)
+=_\mu
+q\cup
+\set*{\Item{A}{\eps\cdot\omega}
+\mid
+\Item{A}{\omega}\in P^\prime,\
+\Item{B}{\beta\cdot A\gamma}\in \mathrm{Cl}(q)}.
+\]
+
+\item
+\[
+q_0\triangleq
+\mathrm{Cl}\bigl(\set*{\Item{S^\prime}{\eps\cdot S\$}}\bigr).
+\]
+
+\item For \(q\subseteq I_{\LRzero}\) and \(X\in V^\prime\),
+\[
+\mathrm{GOTO}(q,X)
+\triangleq
+\mathrm{Cl}\bigl(
+\set*{\Item{A}{\alpha X\cdot\beta}
+\mid
+\Item{A}{\alpha\cdot X\beta}\in q}
+\bigr).
+\]
+
+\item
+\[
+Q\triangleq \mathrm{PT}\setminus\set*{\emptyset},
+\qquad
+\mathrm{PT}
+=_\mu
+\set*{q_0}
+\cup
+\set*{\mathrm{GOTO}(q,X)\mid q\in\mathrm{PT},\ X\in V^\prime}.
+\]
+
+\item The path relation is the least relation satisfying
+\[
+\eps:p\to q \Longleftrightarrow p\in Q\land p=q,
+\qquad
+X\alpha:p\to q
+\Longleftrightarrow
+p\in Q\land \alpha:\mathrm{GOTO}(p,X)\to q .
+\]
+
+\item
+\[
+\Config
+\triangleq
+\set*{(\Path{\alpha}{p}{q},z)
+\mid
+\alpha\in V^{\prime *},\ p,q\in Q,\ z\in T^{\prime *},\
+\Path{\alpha}{p}{q}}.
+\]
+
+\item
+\[
+\delta(q,X)\triangleq \mathrm{GOTO}(q,X)
+\qquad(q\in Q,\ X\in V^\prime).
+\]
+
+\item
+\[
+\Reduce(q,t)
+\triangleq
+\set*{\Item{A}{\omega}
+\mid
+\Item{A}{\omega\cdot\eps}\in q}
+\qquad(q\in Q,\ t\in T^\prime).
+\]
+
+\item Let \(\vdash\subseteq\Config\times\Config\) be generated by:
+\[
+\infer[\mathrm{Shift}]
+  {(\Path{\alpha}{q}{q^\prime},tz)
+    \vdash
+   (\Path{\alpha t}{q}{q^{\prime\prime}},z)}
+  {q^{\prime\prime}=\delta(q^\prime,t)}
+\]
+\[
+\infer[\mathrm{Reduce}(A\to\omega)]
+  {(\Path{\alpha\omega}{q}{q^\prime},tz)
+    \vdash
+   (\Path{\alpha A}{q}{q^{\prime\prime}},tz)}
+  {\Path{\alpha}{q}{p}
+   &
+   \Path{\omega}{p}{q^\prime}
+   &
+   \Item{A}{\omega}\in\Reduce(q^\prime,t)
+   &
+   q^{\prime\prime}=\delta(p,A)}
+\]
+
+\item
+\[
+q_f\triangleq\delta(\delta(q_0,S),\$).
+\]
+
+\item The accepted language is
+\[
+L(\LRA(G))
+\triangleq
+\set*{z\in T^*
+\mid
+(\Path{\eps}{q_0}{q_0},z\$)
+\vdash^*
+(\Path{S\$}{q_0}{q_f},\eps)}.
+\]
 \end{enumerate}
 \end{definition}
 
-\begin{fact}
-It is known that $L ( G ) = L ( \mathrm{LRA} ( G ) )$, where \(L(G) \triangleq \set*{ z \in { T }^\ast \mid S \Rightarrow_{P}^\ast z }\).
+\begin{fact}[Correctness of \(\LRA(G)\)]\label{fact:lra-correct}
+\[
+L(G)=L(\LRA(G)),
+\qquad
+L(G)\triangleq\set*{z\in T^*\mid S\DerP^*z}.
+\]
 \end{fact}
 
 \begin{proof}
-For a configuration \(c=(\alpha:p\to q,u)\in\mathbf{Config}\) write
-\(\mathrm{Y}(c):=\alpha u\in V'^*\) for its \emph{yield}.
+For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
+\[
+\mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
+\]
 
-\paragraph{Viable-prefix lemma.}
-For \(\eta\in V'^*\):
-\begin{itemize}
-\item[$(\mathrm V1)$] \((\exists q\in Q)\ \eta:q_0\to q\) iff \(\eta\) is a viable
-prefix of \(G'\);
-\item[$(\mathrm V2)$] if \(\eta=\eta'\omega\) with \(\eta':q_0\to p\),
-\(\omega:p\to q\), and this occurrence of \(\omega\) is the handle of
-\([A\to\omega]\in P'\) (i.e.
-\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\eta' A y\xRightarrow[\mathbf{rm}]{}_{P'}\eta'\omega y\),
-\(y\in T'^*\)), then \([A\to\omega\cdot\varepsilon]\in q\), so
-\([A\to\omega]\in\mathbf{reduce}(q,t)\) for the first symbol \(t\) of \(y\).
-\end{itemize}
-Both are the standard correctness of the characteristic LR(0) automaton and
-follow by induction on the clauses \(\mathrm{Cl}\), \(\mathrm{GOTO}\) of
-Definition 1(v),(vii) and the path relation (ix).
+\proofpart{LR(0) path facts}
+For \(\eta\in V^{\prime *}\), the characteristic automaton satisfies
+\begin{align}
+(\exists q\in Q)\ \Path{\eta}{q_0}{q}
+&\Longleftrightarrow
+\eta\text{ is a viable prefix of }G^\prime, \label{eq:vp}\\
+\left.
+\begin{gathered}
+\eta=\eta^\prime\omega,\quad
+\Path{\eta^\prime}{q_0}{p},\quad
+\Path{\omega}{p}{q},\\
+S^\prime\RMP^*\eta^\prime A y
+\RMP
+\eta^\prime\omega y,\quad y=t z\in T^{\prime *}
+\end{gathered}
+\right\}
+&\Longrightarrow
+\Item{A}{\omega\cdot\eps}\in q
+\ \land\
+\Item{A}{\omega}\in\Reduce(q,t).
+\label{eq:handle}
+\end{align}
+These are the standard inductive invariants of \(\mathrm{Cl}\), \(\mathrm{GOTO}\),
+and the path relation in Definition~\ref{def:lra}.
 
-\paragraph{Step invariant.}
-For \(c\vdash c'\),
-\begin{equation}
-\mathrm{Y}(c')=\mathrm{Y}(c)\ \ (\text{Shift}),\qquad
-\mathrm{Y}(c')\xRightarrow[\mathbf{rm}]{}_{P'}\mathrm{Y}(c)\ \ (\text{Reduce}).
-\tag{$\ast$}
+\proofpart{Step invariant}
+Each parser step reverses zero or one rightmost grammar step:
+\begin{equation}\label{eq:one-step-yield}
+c\vdash c'
+\Longrightarrow
+\begin{cases}
+\mathrm{Y}(c')=\mathrm{Y}(c),
+  &\text{if the step is Shift},\\[2pt]
+\mathrm{Y}(c')\RMP\mathrm{Y}(c),
+  &\text{if the step is Reduce}.
+\end{cases}
 \end{equation}
-Indeed a Shift \((\alpha:q\to q',tz)\vdash(\alpha t:q\to q'',z)\) has
-\(\mathrm{Y}=\alpha tz\) on both sides, and a Reduce
-\((\alpha\omega:q\to q',tz)\vdash(\alpha A:q\to q'',tz)\), \([A\to\omega]\in P'\),
-has \(\mathrm{Y}(c)=\alpha\omega tz\), \(\mathrm{Y}(c')=\alpha A tz\) with
-\(\alpha\in V'^*\), \(tz\in T'^*\), so
-\(\alpha A tz\xRightarrow[\mathbf{rm}]{}_{P'}\alpha\omega tz\) by Definition 1(iii).
-Iterating \((\ast)\) along \(c\vdash^* c'\),
-\begin{equation}
-c\vdash^* c'\ \Longrightarrow\ \mathrm{Y}(c')\xRightarrow[\mathbf{rm}]{}_{P'}^*\mathrm{Y}(c).
-\tag{$\ast\ast$}
+Indeed,
+\[
+\begin{array}{rclcl}
+\mathrm{Shift}:&
+\mathrm{Y}(\Path{\alpha}{q}{q^\prime},tz)
+&=&\alpha tz
+&=\mathrm{Y}(\Path{\alpha t}{q}{q^{\prime\prime}},z),\\[2pt]
+\mathrm{Reduce}:&
+\mathrm{Y}(\Path{\alpha A}{q}{q^{\prime\prime}},tz)
+&=&\alpha A t z
+&\RMP \alpha\omega t z
+=\mathrm{Y}(\Path{\alpha\omega}{q}{q^\prime},tz).
+\end{array}
+\]
+Thus
+\begin{equation}\label{eq:star-yield}
+c\vdash^* c'
+\Longrightarrow
+\mathrm{Y}(c')\RMP^*\mathrm{Y}(c).
 \end{equation}
 
-\paragraph{Soundness, \(L(\mathrm{LRA}(G))\subseteq L(G)\).}
-Let \(z\in L(\mathrm{LRA}(G))\), so
-\((\varepsilon:q_0\to q_0,z\$)\vdash^*(S\$:q_0\to q_f,\varepsilon)\). The endpoints
-have yields \(z\$\) and \(S\$\), so \((\ast\ast)\) gives
+\proofpart{Soundness}
 \[
-S\$\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ z\$.
+\begin{aligned}
+z\in L(\LRA(G))
+&\Longrightarrow
+(\Path{\eps}{q_0}{q_0},z\$)
+\vdash^*
+(\Path{S\$}{q_0}{q_f},\eps)\\
+&\overset{\eqref{eq:star-yield}}{\Longrightarrow}
+S\$\RMP^*z\$\\
+&\Longrightarrow
+S\DerP^*z\\
+&\Longrightarrow
+z\in L(G).
+\end{aligned}
 \]
-Since \(S'\) occurs on no right-hand side of \(P'\), \([S'\to S\$]\) is applied at
-no step of a derivation from \(S\$\); thus every step uses a production of \(P\).
-As \(\$\in T'\setminus T\) is never rewritten and never matched by a production of
-\(P\), it rides unchanged at the right end, and deleting it gives
-\(S\Rightarrow_P^* z\), i.e. \(z\in L(G)\).
+The third implication deletes the endmarker: \(S^\prime\) never occurs on a
+right-hand side, so \(\Item{S^\prime}{S\$}\) is unused in a derivation from
+\(S\$\), and \(\$\) is never rewritten.
 
-\paragraph{Completeness, \(L(G)\subseteq L(\mathrm{LRA}(G))\).}
-Let \(z\in L(G)\) and fix a rightmost derivation
+\proofpart{Completeness}
+Assume \(S\DerP^*z\).  Choose a rightmost derivation in \(G^\prime\):
+\begin{equation}\label{eq:rightmost-chain}
+S\$=\gamma_0\RMP\gamma_1\RMP\cdots\RMP\gamma_N=z\$.
+\end{equation}
+Write its \(k\)-th step as
+\begin{equation}\label{eq:k-step}
+\gamma_k=\alpha_kA_k y_k
+\RMP
+\alpha_k\omega_k y_k=\gamma_{k+1},
+\qquad
+\Item{A_k}{\omega_k}\in P^\prime,\quad y_k=t_k z_k\in T^{\prime *}.
+\end{equation}
+By \eqref{eq:handle}, for each \(k\) there exist \(p_k,q_k\in Q\) such that
+\begin{equation}\label{eq:k-handle}
+\Path{\alpha_k}{q_0}{p_k},
+\qquad
+\Path{\omega_k}{p_k}{q_k},
+\qquad
+\Item{A_k}{\omega_k\cdot\eps}\in q_k,
+\qquad
+\Item{A_k}{\omega_k}\in\Reduce(q_k,t_k).
+\end{equation}
+Reading \eqref{eq:rightmost-chain} from right to left gives, for
+\(k=N-1,\ldots,0\),
+\begin{equation}\label{eq:inverse-reduce}
+(\Path{\alpha_k\omega_k}{q_0}{q_k},y_k)
+\vdash
+(\Path{\alpha_kA_k}{q_0}{\delta(p_k,A_k)},y_k),
+\end{equation}
+with any intervening terminal symbols consumed by Shift steps along the viable
+prefix path.  Iterating \eqref{eq:inverse-reduce} and then shifting the
+endmarker yields
 \[
-S\$=\gamma_0\xRightarrow[\mathbf{rm}]{}_{P'}\gamma_1\xRightarrow[\mathbf{rm}]{}_{P'}\cdots\xRightarrow[\mathbf{rm}]{}_{P'}\gamma_N=z\$,
+(\Path{\eps}{q_0}{q_0},z\$)
+\vdash^*
+(\Path{S\$}{q_0}{q_f},\eps),
+\qquad
+q_f=\delta(\delta(q_0,S),\$).
 \]
-which exists because \(S\Rightarrow_P^* z\). Write the \(k\)-th step as
-\[
-\gamma_k=\alpha_k A_k y_k\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha_k\omega_k y_k=\gamma_{k+1},
-\qquad [A_k\to\omega_k]\in P',\ \alpha_k\in V'^*,\ y_k\in T'^*,
-\]
-where \(y_k\) ends in \(\$\), hence is nonempty with first symbol \(t_k\). The
-suffix \(\omega_k\) of the viable prefix \(\alpha_k\omega_k\) is the handle of
-\([A_k\to\omega_k]\), so by \((\mathrm V2)\) there are \(p_k,q_k\in Q\) with
-\[
-\alpha_k:q_0\to p_k,\quad \omega_k:p_k\to q_k,\quad
-[A_k\to\omega_k\cdot\varepsilon]\in q_k,\quad
-[A_k\to\omega_k]\in\mathbf{reduce}(q_k,t_k).
-\]
-Read the derivation from \(\gamma_N=z\$\) down to \(\gamma_0=S\$\): starting at
-\((\varepsilon:q_0\to q_0,z\$)\), for \(k=N-1,\dots,0\) Shift the terminals lying
-between the current stack and the handle \(\omega_k\) (each legal by the Shift
-rule, as \(\delta\) is defined along the viable prefix \(\alpha_k\omega_k\)) until
-the configuration is \((\alpha_k\omega_k:q_0\to q_k,y_k)\), then apply
-\(\mathrm{Reduce}(A_k\to\omega_k)\), obtaining by the line above and
-Definition 1(xiii)
-\[
-(\alpha_k\omega_k:q_0\to q_k,\,y_k)\ \vdash\ (\alpha_k A_k:q_0\to\delta(p_k,A_k),\,y_k),
-\]
-the configuration associated with \(\gamma_k\). Each iteration inverts one
-\(\xRightarrow[\mathbf{rm}]{}_{P'}\) step; after all \(N\) of them and a final Shift of the
-endmarker \(\$\) the input is exhausted and the stack carries \(S\$\):
-\[
-(\varepsilon:q_0\to q_0,z\$)\ \vdash^*\ (S\$:q_0\to q_f,\varepsilon),
-\qquad q_f=\delta(\delta(q_0,S),\$),
-\]
-so \(z\in L(\mathrm{LRA}(G))\). With soundness, \(L(G)=L(\mathrm{LRA}(G))\).
+Hence \(z\in L(\LRA(G))\).  Together with soundness, this proves the claim.
 \end{proof}
 
+\section*{Lookahead Restriction}
 
-\begin{theorem}
-Define $\mathbf{LA} : \set*{ ( q , [ A \to \omega ] ) \mid q \in Q , [ A \to \omega \cdot \varepsilon ] \in q } \to \powerset ( T^\prime )$ by
-\begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) := \set*{ t \in T^\prime \mid S^\prime \xRightarrow[\mathbf{rm}]{}_{P^\prime}^\ast \alpha A t z , \alpha \omega : q_0 \to q , \alpha \in V^{\prime \ast}, z \in T^{\prime \ast} } .
-\end{align}
-Then, overriding $\mathbf{reduce} : Q \times T^\prime \to \powerset ( P^\prime )$ of the $\mathrm{LR(0)}$ parser $\mathrm{LRA} ( G )$ with
-\begin{align*}
-( q , t ) \mapsto \set*{ [ A \to \omega ] \mid [ A \to \omega \cdot \varepsilon ] \in q , t \in \mathbf{LA} ( q , [ A \to \omega ] ) }
-\end{align*}
-yields an $\mathrm{LALR(1)}$ parser if there are no conflicts, which accepts the same language.
+\begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
+Define
+\[
+\Look:
+\set*{(q,\Item{A}{\omega})
+\mid q\in Q,\ \Item{A}{\omega\cdot\eps}\in q}
+\longrightarrow \Pow(T^\prime)
+\]
+by
+\begin{equation}\label{eq:la-def}
+\Look(q,\Item{A}{\omega})
+\triangleq
+\set*{t\in T^\prime
+\mid
+S^\prime\RMP^*\alpha A t z,\
+\Path{\alpha\omega}{q_0}{q},\
+\alpha\in V^{\prime *},\
+z\in T^{\prime *}}.
+\end{equation}
+Replace the LR(0) reduction function by
+\begin{equation}\label{eq:la-reduce}
+\Reduce_{\Look}(q,t)
+\triangleq
+\set*{\Item{A}{\omega}
+\mid
+\Item{A}{\omega\cdot\eps}\in q,\
+t\in\Look(q,\Item{A}{\omega})}.
+\end{equation}
+If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
+\(\LALRone\) parser and accepts \(L(G)\).
 \end{theorem}
 
 \begin{proof}
-Let \(\vdash_{\mathbf{LA}}\) be \(\vdash\) with \(\mathbf{reduce}\) replaced by
+Let \(\vdash_{\Look}\) be the transition relation obtained from
+\(\vdash\) by replacing \(\Reduce\) with \(\Reduce_{\Look}\).
+From \eqref{eq:la-reduce},
 \[
-\mathbf{reduce}_{\mathbf{LA}}(q,t):=\set*{[A\to\omega]\mid [A\to\omega\cdot\varepsilon]\in q,\ t\in\mathbf{LA}(q,[A\to\omega])},
+\Reduce_{\Look}(q,t)\subseteq\Reduce(q,t)
+\quad\Longrightarrow\quad
+\vdash_{\Look}\subseteq\vdash
+\quad\Longrightarrow\quad
+\vdash_{\Look}^{\,*}\subseteq\vdash^*.
 \]
-and let \(L(\vdash_{\mathbf{LA}})\) be the language it accepts.
+Therefore
+\begin{equation}\label{eq:la-sound}
+L(\vdash_{\Look})
+\subseteq
+L(\LRA(G))
+=
+L(G)
+\qquad\text{by Fact~\ref{fact:lra-correct}.}
+\end{equation}
 
-\(\boldsymbol{(\subseteq)}\) Since
-\(\mathbf{reduce}_{\mathbf{LA}}(q,t)\subseteq\mathbf{reduce}(q,t)\) for every
-\((q,t)\), each Reduce instance of \(\vdash_{\mathbf{LA}}\) is one of \(\vdash\),
-and the Shift rule is shared; hence \(\vdash_{\mathbf{LA}}\subseteq\vdash\),
-\(\vdash_{\mathbf{LA}}^*\subseteq\vdash^*\), and
+Conversely, let \(z\in L(G)\).  In the completeness construction of
+Fact~\ref{fact:lra-correct}, every Reduce step has the form
 \[
-L(\vdash_{\mathbf{LA}})\subseteq L(\mathrm{LRA}(G))\overset{\text{Fact 2}}{=}L(G).
+(\Path{\alpha\omega}{q_0}{q},t z^\prime)
+\vdash
+(\Path{\alpha A}{q_0}{\delta(p,A)},t z^\prime),
 \]
+where
+\[
+S^\prime\RMP S\$\RMP^*\alpha A t z^\prime,
+\qquad
+\Path{\alpha\omega}{q_0}{q},
+\qquad
+\Item{A}{\omega\cdot\eps}\in q.
+\]
+By \eqref{eq:la-def},
+\[
+t\in\Look(q,\Item{A}{\omega})
+\quad\Longleftrightarrow\quad
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t).
+\]
+Thus every Reduce step used in that accepting LR(0) computation is also legal
+for \(\vdash_{\Look}\); Shift steps are unchanged.  Hence
+\[
+L(G)\subseteq L(\vdash_{\Look}).
+\]
+Combining this with \eqref{eq:la-sound} gives \(L(\vdash_{\Look})=L(G)\).
 
-\(\boldsymbol{(\supseteq)}\) Let \(z\in L(G)\). The completeness construction of
-Fact 2 yields a computation
-\[
-(\varepsilon:q_0\to q_0,z\$)\ \vdash^*\ (S\$:q_0\to q_f,\varepsilon)
-\]
-each of whose Reduce steps inverts a rightmost step
-\(\alpha A tz'\xRightarrow[\mathbf{rm}]{}_{P'}\alpha\omega tz'\) and is taken at a
-configuration \((\alpha\omega:q_0\to q,tz')\) with
-\([A\to\omega\cdot\varepsilon]\in q\) and \(\alpha\omega:q_0\to q\). As
-\(S'\xRightarrow[\mathbf{rm}]{}_{P'}S\$\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz'\), the
-witnesses \(\alpha,z'\) and the path \(\alpha\omega:q_0\to q\) meet the defining
-condition (1) of \(\mathbf{LA}\), so
-\[
-t\in\mathbf{LA}(q,[A\to\omega]),\qquad\text{i.e.}\qquad
-[A\to\omega]\in\mathbf{reduce}_{\mathbf{LA}}(q,t).
-\]
-Thus every step is also a \(\vdash_{\mathbf{LA}}\)-step and the same computation
-accepts \(z\); hence \(L(G)\subseteq L(\vdash_{\mathbf{LA}})\). Combining,
-\(L(\vdash_{\mathbf{LA}})=L(G)\).
-
-For the table, each pair \((q,t)\) carries the shift to \(\delta(q,t)\) when
-\(\delta(q,t)\ne\emptyset\) and the reduces \([A\to\omega]\) with
-\([A\to\omega\cdot\varepsilon]\in q\) and \(t\in\mathbf{LA}(q,[A\to\omega])\)~---
-exactly the LR(0) cores annotated with the LALR(1) lookahead sets \(\mathbf{LA}\).
-If no \((q,t)\) enables two distinct actions~--- no shift/reduce
-(\(\delta(q,t)\ne\emptyset\) together with an enabled reduce) and no
-reduce/reduce (two distinct enabled reduces)~--- then \(\vdash_{\mathbf{LA}}\) is
-deterministic with one symbol of lookahead, i.e. an \(\mathrm{LALR(1)}\) parser.
+Finally, the action at \((q,t)\) consists of the shift
+\(\delta(q,t)\) when it is nonempty and the reductions in
+\(\Reduce_{\Look}(q,t)\).  Absence of shift/reduce and reduce/reduce conflicts
+means that this action is single-valued under one-symbol lookahead, which is
+precisely the \(\LALRone\) table condition.
 \end{proof}
 
+\section*{Read and Follow Sets}
 
-\begin{theorem}
-Letting $ R \mathbin{!} x \triangleq \set*{ y \mid ( x , y ) \in R } $, define relations $\mathbf{Read}$ and $\mathbf{Follow}$ from the set \[ \set*{ ( p , A ) \mid p \in Q , A \in N^\prime , \delta ( p , A ) \ne \emptyset } \] to the set $T^\prime$ inductively as follows:
-\[
-\begin{matrix}
-\infer[\mathrm{DR}]{ t \in \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( \delta ( p , A ) , t ) \ne \emptyset } & & \infer[\mathrm{reads}]{ \mathbf{Read} \mathbin{!} ( r , C ) \subseteq \mathbf{Read} \mathbin{!} ( p , A ) }{ \delta ( p , A ) = r & C \Rightarrow_{P^\prime}^\ast \varepsilon } \\
-& & \\
-\infer[\mathrm{Read}]{ t \in \mathbf{Follow} \mathbin{!} ( p , A ) }{ t \in \mathbf{Read} \mathbin{!} ( p , A ) } & & \infer[\mathrm{includes}]{ \mathbf{Follow} \mathbin{!} ( p^\prime , B ) \subseteq \mathbf{Follow} \mathbin{!} ( p , A ) }{ [ B \to \beta \cdot A \gamma ] \in p & \beta : p^\prime \to p & \gamma \Rightarrow_{P^\prime}^\ast \varepsilon }
-\end{matrix}
-\]
-Then, whenever $q \in Q$ and $[ A \to \omega \cdot \varepsilon ] \in q$, we can compute $\mathbf{LA} (q , [ A \to \omega ])$ by
-\begin{align}
-\mathbf{LA} ( q , [ A \to \omega ] ) = \set*{ t \in T^\prime \mid p \in Q , \omega : p \to q , \delta ( p , A ) \ne \emptyset , t \in \mathbf{Follow} \mathbin{!} ( p , A ) } .
-\end{align}
-\end{theorem}
-
-\begin{proof}
+\begin{theorem}[Digraph computation of lookahead]\label{thm:read-follow}
 Let
 \[
-D=\set*{(p,A)\mid p\in Q,\ A\in N',\ \delta(p,A)\ne\emptyset}.
+D\triangleq
+\set*{(p,A)\mid p\in Q,\ A\in N^\prime,\ \delta(p,A)\ne\emptyset}.
 \]
-For the proof, define two semantic sets on \(D\).  First, let
+For a relation \(R\), write
 \[
-\mathsf{Read}(p,A)=
-\set*{t\in T' \mid
-\delta(p,A)=r,\ \gamma\Rightarrow_{P'}^*\varepsilon,\
-\gamma t:r\to s\text{ for some }\gamma\in N'^*,\ s\in Q } .
+R\mathbin{!}x\triangleq\set*{y\mid (x,y)\in R}.
 \]
-Thus \(t\in\mathsf{Read}(p,A)\) exactly when, after the transition on \(A\), one
-can reach a terminal transition on \(t\) through zero or more nullable
-nonterminal transitions.  Second, let
+Define \(\Read,\Follow\subseteq D\times T^\prime\) as the least relations
+generated by the rules
 \[
-\mathsf{Follow}(p,A)=
-\set*{t\in T' \mid
-S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz,\
-\alpha:q_0\to p,\ \alpha\in V'^*,\ z\in T'^* } .
+\begin{array}{cc}
+\infer[\mathrm{DR}]
+  {t\in\Read\mathbin{!}(p,A)}
+  {\delta(\delta(p,A),t)\ne\emptyset}
+&
+\infer[\mathrm{reads}]
+  {\Read\mathbin{!}(r,C)\subseteq\Read\mathbin{!}(p,A)}
+  {\delta(p,A)=r & C\Rightarrow_{P^\prime}^*\eps & (r,C)\in D}
+\\[4ex]
+\infer[\mathrm{Read}]
+  {t\in\Follow\mathbin{!}(p,A)}
+  {t\in\Read\mathbin{!}(p,A)}
+&
+\infer[\mathrm{includes}]
+  {\Follow\mathbin{!}(p^\prime,B)\subseteq\Follow\mathbin{!}(p,A)}
+  {\Item{B}{\beta\cdot A\gamma}\in p
+   & \Path{\beta}{p^\prime}{p}
+   & \gamma\Rightarrow_{P^\prime}^*\eps
+   & (p^\prime,B)\in D}
+\end{array}
 \]
-This is the semantic follow set of the nonterminal transition \((p,A)\).
+Then, whenever \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
+\begin{equation}\label{eq:la-follow-formula}
+\Look(q,\Item{A}{\omega})
+=
+\set*{t\in T^\prime
+\mid
+\exists p\in Q.\ 
+\Path{\omega}{p}{q}
+\land
+\delta(p,A)\ne\emptyset
+\land
+t\in\Follow\mathbin{!}(p,A)}.
+\end{equation}
+\end{theorem}
 
-\paragraph{Computation of \(\mathsf{Read}\).}
-We prove \(\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)\) on \(D\) by showing
-both are the least fixed point of \(\{\mathrm{DR},\mathrm{reads}\}\). For
-\(t\in\mathsf{Read}(p,A)\) fix a witness \(\gamma\in N'^*\) with
-\(\gamma\Rightarrow_{P'}^*\varepsilon\) and \(\gamma t:\delta(p,A)\to s\), and
-induct on \(|\gamma|\):
-\[
-\begin{aligned}
-|\gamma|=0:\quad& t:\delta(p,A)\to s
-\ \overset{\text{1(ix)}}{\Longleftrightarrow}\ s=\delta(\delta(p,A),t)\ne\emptyset
-\ \Longleftrightarrow\ t\in\mathrm{DR}(p,A);\\
-\gamma=C\gamma'\ (C\in N'):\quad& C\Rightarrow_{P'}^*\varepsilon,\
-\gamma'\Rightarrow_{P'}^*\varepsilon,\
-\gamma' t:\delta(\delta(p,A),C)\to s,
-\end{aligned}
-\]
-so in the second case, with \(r=\delta(p,A)\), we have \((r,C)\in D\),
-\((p,A)\leadsto_{\mathrm{reads}}(r,C)\), and \(t\in\mathsf{Read}(r,C)\) via the
-shorter witness \(\gamma'\); the induction hypothesis gives
-\(t\in\mathbf{Read}\mathbin{!}(r,C)\), whence \(\mathrm{reads}\) yields
-\(t\in\mathbf{Read}\mathbin{!}(p,A)\). The reverse inclusion reads the same
-decomposition forwards (\(\mathrm{DR}\) realizes \(\gamma=\varepsilon\); each
-\(\mathrm{reads}\) edge prepends one nullable \(C\in N'\)). As \(D,T'\) are finite
-and both clauses are monotone, the two least fixed points coincide:
-\[
-\mathbf{Read}\mathbin{!}(p,A)=\mathsf{Read}(p,A)\qquad((p,A)\in D),
-\]
-with \(\mathbf{Read}\mathbin{!}(r,C)=\emptyset\) when \((r,C)\notin D\), making
-the \(\mathrm{reads}\) clause vacuous there.
-
-\paragraph{Computation of \(\mathsf{Follow}\).}
-We show \(\mathsf{Follow}\) is the least solution of the clauses \(\mathrm{Read}\)
-and \(\mathrm{includes}\), whence \(\mathbf{Follow}\mathbin{!}=\mathsf{Follow}\) on
-\(D\).
-
-\emph{Soundness of the clauses for \(\mathsf{Follow}\).}
-\begin{itemize}
-\item[$(\mathrm{Read})$] \(\mathsf{Read}(p,A)\subseteq\mathsf{Follow}(p,A)\). Take
-\(t\in\mathsf{Read}(p,A)\) with witness \(\gamma\in N'^*\),
-\(\gamma\Rightarrow_{P'}^*\varepsilon\), \(\gamma t:\delta(p,A)\to s\). Choose
-\(\alpha:q_0\to p\) (possible since \(p\in Q\) is accessible); then
-\(\alpha A\gamma t:q_0\to s\) is a viable prefix, so some rightmost derivation
-reaches \(\alpha A\gamma t z\) (\(z\in T'^*\)). As \(\gamma\) stands immediately
-left of the terminals \(tz\), it is rightmost-erasable, giving
-\[
-S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A\gamma t z\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A t z,
-\qquad\alpha:q_0\to p,
-\]
-i.e. \(t\in\mathsf{Follow}(p,A)\).
-\item[$(\mathrm{includes})$] If \([B\to\beta\cdot A\gamma]\in p\),
-\(\beta:p'\to p\), \(\gamma\Rightarrow_{P'}^*\varepsilon\), then
-\(\mathsf{Follow}(p',B)\subseteq\mathsf{Follow}(p,A)\). For
-\(t\in\mathsf{Follow}(p',B)\), say \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha' B t z\)
-with \(\alpha':q_0\to p'\), expand \(B\) and erase \(\gamma\) rightmost:
-\[
-\alpha' B t z\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha'\beta A\gamma t z\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ \alpha'\beta A t z,
-\qquad \alpha'\beta:q_0\to p,
-\]
-where \(\alpha'\beta:q_0\to p\) follows from \(\alpha':q_0\to p'\) and
-\(\beta:p'\to p\). With \(\alpha:=\alpha'\beta\) this gives
-\(t\in\mathsf{Follow}(p,A)\).
-\end{itemize}
-
-\emph{Minimality.} Let \(t\in\mathsf{Follow}(p,A)\), witnessed by
-\(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A t z\), \(\alpha:q_0\to p\). Let
-\([B\to\beta A\gamma]\) be the production creating this occurrence of \(A\), so the
-derivation factors through
-\[
-S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha' B t' z'\ \xRightarrow[\mathbf{rm}]{}_{P'}\ \alpha'\beta A\gamma t' z'\ \xRightarrow[\mathbf{rm}]{}_{P'}^*\ \alpha A t z,
-\quad \alpha=\alpha'\beta,\ [B\to\beta\cdot A\gamma]\in p,\ \beta:p'\to p .
-\]
-Splitting on the residual \(\gamma\):
-\[
-\begin{cases}
-\gamma=\gamma_0\,t\cdots,\ \gamma_0\Rightarrow_{P'}^*\varepsilon
-& \Rightarrow\ \gamma_0 t:\delta(p,A)\to(\cdot),\ \text{so } t\in\mathsf{Read}(p,A)\ \ (\mathrm{Read}),\\[2pt]
-\gamma\Rightarrow_{P'}^*\varepsilon
-& \Rightarrow\ t\in\mathsf{Follow}(p',B)\ \text{via } (p,A)\leadsto_{\mathrm{includes}}(p',B).
-\end{cases}
-\]
-The second case strictly shortens the witnessing rightmost derivation, so
-iterating it terminates in the first case after finitely many steps; thus every
-\(t\in\mathsf{Follow}(p,A)\) is generated by the clauses. Hence \(\mathsf{Follow}\)
-is their least solution and
-\[
-\mathbf{Follow}\mathbin{!}(p,A)=\mathsf{Follow}(p,A)\qquad((p,A)\in D).
-\]
-
-It remains to translate this semantic follow set into the lookahead set of a
-completed item.  Let \(q\in Q\) and \([A\to\omega\cdot\varepsilon]\in q\).  Then
-\[
-\begin{aligned}
-&t\in\mathbf{LA}(q,[A\to\omega]) \\
-&\quad\Longleftrightarrow
-\exists\alpha,z\;.
-S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha A tz
-\land \alpha\omega:q_0\to q \\
-&\quad\Longleftrightarrow
-\exists p\in Q,
-\omega:p\to q \land \delta(p,A)\ne\emptyset
-\land t\in\mathsf{Follow}(p,A) \\
-&\quad\Longleftrightarrow
-\exists p\in Q,
-\omega:p\to q \land \delta(p,A)\ne\emptyset
-\land t\in\mathbf{Follow}\mathbin{!}(p,A).
-\end{aligned}
-\]
-The middle equivalence just cuts the path \(\alpha\omega:q_0\to q\) at the point
-\(p\) reached after \(\alpha\); conversely, concatenating \(\alpha:q_0\to p\) and
-\(\omega:p\to q\) recovers \(\alpha\omega:q_0\to q\).  The side condition
-\(\delta(p,A)\ne\emptyset\) on the second line is automatic when \(A\ne S'\):
-from \(\omega:p\to q\) and \([A\to\omega\cdot\varepsilon]\in q\) one traces the dot
-back along \(\omega\) to obtain \([A\to\varepsilon\cdot\omega]\in p\), and this
-closure item is licensed by some \([B\to\beta\cdot A\delta]\in p\), whence
-\(\delta(p,A)\ne\emptyset\).  For \(A=S'\) both sides are empty: no item has a dot
-before \(S'\), so \(\delta(p,S')=\emptyset\) for every \(p\), and no rightmost
-derivation has the form \(S'\xRightarrow[\mathbf{rm}]{}_{P'}^*\alpha S' tz\) since
-\(S'\) occurs on no right-hand side; this matches the parser accepting by reaching
-\((S\$:q_0\to q_f,\varepsilon)\) rather than by reducing \([S'\to S\$]\).  This is
-precisely the formula claimed in the theorem.
-\end{proof}
-
-
-\appendix
-\section*{Appendix A. Digraph algorithm and implementation specification}
-
-This appendix gives an executable specification for computing the sets used in
-Theorem 4.  The construction is the usual digraph view of LALR(1) lookahead
-computation: direct seed sets are placed on nodes, dependency edges describe set
-inclusions, and the least fixed point is obtained by collapsing strongly
-connected components and propagating set unions along the resulting DAG
-\cite{DeRemerPennello1982,Tarjan1972,Gallier2008}.
-
-\subsection*{A.1. General digraph fixed-point problem}
-Let \(X\) be a finite set of nodes, let \(E\subseteq X\times X\) be a directed
-edge relation, and let \(\mathrm{Seed}:X\to\powerset(T')\).  We use the edge
-orientation
-\[
-  x\leadsto y \quad\text{to mean}\quad F(y)\subseteq F(x).
-\]
-Thus the desired solution is the least function \(F:X\to\powerset(T')\)
-satisfying
+\begin{proof}
+Define the semantic read and follow sets on \(D\):
 \begin{align}
-F(x)=\mathrm{Seed}(x)\cup\bigcup_{x\leadsto y}F(y). \tag{DG}
+\mathsf{Read}(p,A)
+&\triangleq
+\set*{t\in T^\prime
+\mid
+\exists r,s,\gamma.\ 
+r=\delta(p,A)
+\land
+\gamma\Rightarrow_{P^\prime}^*\eps
+\land
+\gamma t:r\to s}, \label{eq:sem-read}\\
+\mathsf{Follow}(p,A)
+&\triangleq
+\set*{t\in T^\prime
+\mid
+\exists\alpha,z.\ 
+S^\prime\RMP^*\alpha A t z
+\land
+\Path{\alpha}{q_0}{p}
+\land
+z\in T^{\prime *}}. \label{eq:sem-follow}
 \end{align}
 
+\proofpart{\(\Read=\mathsf{Read}\)}
+For \(x=(p,A)\in D\), set
+\[
+\mathrm{DR}(p,A)
+\triangleq
+\set*{t\in T^\prime\mid \delta(\delta(p,A),t)\ne\emptyset}.
+\]
+The two \(\Read\)-rules define the least fixed point of the monotone operator
+\[
+\Phi_R(F)(p,A)
+=
+\mathrm{DR}(p,A)
+\cup
+\bigcup_{\substack{\delta(p,A)=r\\ C\Rightarrow_{P^\prime}^*\eps\\(r,C)\in D}}
+F(r,C).
+\]
+By \eqref{eq:sem-read}, \(t\in\mathsf{Read}(p,A)\) iff for some nullable
+\(\gamma=C_1\cdots C_n\in N^{\prime *}\),
+\[
+\delta(p,A)=r_0,\qquad
+\delta(r_{i-1},C_i)=r_i\ (1\le i\le n),\qquad
+\delta(r_n,t)\ne\emptyset .
+\]
+Equivalently,
+\[
+t\in
+\underbrace{\Phi_R^n(\emptyset)(p,A)}_{\text{\(n\) reads edges, then DR}},
+\]
+and hence
+\begin{equation}\label{eq:read-eq}
+\Read\mathbin{!}(p,A)
+=
+\mu\Phi_R(p,A)
+=
+\mathsf{Read}(p,A)
+\qquad((p,A)\in D).
+\end{equation}
+
+\proofpart{\(\Follow=\mathsf{Follow}\)}
+The two \(\Follow\)-rules define the least fixed point of
+\[
+\Phi_F(F)(p,A)
+=
+\mathsf{Read}(p,A)
+\cup
+\bigcup_{\substack{
+  \Item{B}{\beta\cdot A\gamma}\in p\\
+  \Path{\beta}{p^\prime}{p}\\
+  \gamma\Rightarrow_{P^\prime}^*\eps\\
+  (p^\prime,B)\in D}}
+F(p^\prime,B).
+\]
+First \(\mathsf{Follow}\) is closed under \(\Phi_F\).
+For the \(\mathsf{Read}\)-seed:
+\[
+\begin{aligned}
+t\in\mathsf{Read}(p,A)
+&\Longrightarrow
+\exists\alpha,\gamma,z.\ 
+\Path{\alpha}{q_0}{p}
+\land
+\gamma\Rightarrow_{P^\prime}^*\eps
+\land
+S^\prime\RMP^*\alpha A\gamma t z\\
+&\Longrightarrow
+S^\prime\RMP^*\alpha A\gamma t z
+\RMP^*
+\alpha A t z\\
+&\Longrightarrow
+t\in\mathsf{Follow}(p,A).
+\end{aligned}
+\]
+For an includes edge,
+\[
+\left.
+\begin{gathered}
+t\in\mathsf{Follow}(p^\prime,B),\quad
+\Item{B}{\beta\cdot A\gamma}\in p,\quad
+\Path{\beta}{p^\prime}{p},\quad
+\gamma\Rightarrow_{P^\prime}^*\eps
+\end{gathered}
+\right\}
+\Longrightarrow
+\begin{aligned}[t]
+S^\prime&\RMP^*\alpha^\prime B t z\\
+&\RMP \alpha^\prime\beta A\gamma t z\\
+&\RMP^*\alpha^\prime\beta A t z,
+\end{aligned}
+\]
+with \(\Path{\alpha^\prime\beta}{q_0}{p}\); hence
+\[
+\mathsf{Follow}(p^\prime,B)\subseteq\mathsf{Follow}(p,A).
+\]
+
+Conversely, let \(t\in\mathsf{Follow}(p,A)\), witnessed by
+\[
+S^\prime\RMP^*\alpha A t z,
+\qquad
+\Path{\alpha}{q_0}{p}.
+\]
+Looking at the production that created this occurrence of \(A\) gives a factor
+\[
+S^\prime\RMP^*
+\alpha^\prime B t^\prime z^\prime
+\RMP
+\alpha^\prime\beta A\gamma t^\prime z^\prime
+\RMP^*
+\alpha A t z,
+\qquad
+\alpha=\alpha^\prime\beta .
+\]
+Thus exactly one of the following alternatives holds:
+\[
+\begin{cases}
+\gamma=\gamma_0 t\gamma_1,\quad
+\gamma_0\Rightarrow_{P^\prime}^*\eps,
+&
+t\in\mathsf{Read}(p,A),\\[2pt]
+\gamma\Rightarrow_{P^\prime}^*\eps,
+&
+t\in\mathsf{Follow}(p^\prime,B)
+\text{ and }
+(p,A)\leadsto_{\mathrm{includes}}(p^\prime,B).
+\end{cases}
+\]
+In the second case the witnessing rightmost derivation is strictly shorter.
+Induction on that length gives
+\[
+\mathsf{Follow}(p,A)
+\subseteq
+\mu\Phi_F(p,A).
+\]
+Together with closure,
+\begin{equation}\label{eq:follow-eq}
+\Follow\mathbin{!}(p,A)
+=
+\mu\Phi_F(p,A)
+=
+\mathsf{Follow}(p,A)
+\qquad((p,A)\in D).
+\end{equation}
+
+\proofpart{Lookahead}
+For \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
+\[
+\begin{aligned}
+t\in\Look(q,\Item{A}{\omega})
+&\Longleftrightarrow
+\exists\alpha,z.\ 
+S^\prime\RMP^*\alpha A t z
+\land
+\Path{\alpha\omega}{q_0}{q}\\
+&\Longleftrightarrow
+\exists p,\alpha,z.\ 
+S^\prime\RMP^*\alpha A t z
+\land
+\Path{\alpha}{q_0}{p}
+\land
+\Path{\omega}{p}{q}\\
+&\Longleftrightarrow
+\exists p.\ 
+\Path{\omega}{p}{q}
+\land
+\delta(p,A)\ne\emptyset
+\land
+t\in\mathsf{Follow}(p,A)\\
+&\overset{\eqref{eq:follow-eq}}{\Longleftrightarrow}
+\exists p.\ 
+\Path{\omega}{p}{q}
+\land
+\delta(p,A)\ne\emptyset
+\land
+t\in\Follow\mathbin{!}(p,A).
+\end{aligned}
+\]
+The side condition \(\delta(p,A)\ne\emptyset\) is automatic for \(A\ne S^\prime\):
+tracing \(\Item{A}{\omega\cdot\eps}\in q\) backward along
+\(\Path{\omega}{p}{q}\) gives \(\Item{A}{\eps\cdot\omega}\in p\), which is
+introduced by an item with the dot before \(A\).  For \(A=S^\prime\), both sides
+are empty because \(S^\prime\) occurs on no right-hand side and the parser does
+not reduce \(\Item{S^\prime}{S\$}\).  This is \eqref{eq:la-follow-formula}.
+\end{proof}
+
+\appendix
+\section{Digraph Algorithm and Implementation Specification}
+
+This appendix gives an executable specification for computing the sets used in
+Theorem~\ref{thm:read-follow}.  The construction is the usual digraph view of
+\(\LALRone\) lookahead computation: direct seed sets are placed on nodes,
+dependency edges describe set inclusions, and the least fixed point is obtained
+by collapsing strongly connected components and propagating set unions along the
+resulting DAG
+\cite{DeRemerPennello1982,Tarjan1972,Gallier2008}.
+
+\subsection{General Digraph Fixed-Point Problem}
+
+Let \(X\) be a finite set of nodes, let \(E\subseteq X\times X\) be a directed
+edge relation, and let \(\mathrm{Seed}:X\to\Pow(T^\prime)\).  We use the edge
+orientation
+\[
+x\leadsto y
+\qquad\text{to mean}\qquad
+F(y)\subseteq F(x).
+\]
+Thus the desired solution is the least function \(F:X\to\Pow(T^\prime)\)
+satisfying
+\begin{equation}\label{eq:digraph}
+F(x)=\mathrm{Seed}(x)\cup\bigcup_{x\leadsto y}F(y).
+\end{equation}
+
 \paragraph{Algorithm \(\mathrm{DIGRAPH}(X,E,\mathrm{Seed})\).}
-\begin{enumerate}[leftmargin=7mm]
+\begin{enumerate}
 \item Compute the strongly connected components of \((X,E)\), for example by
 Tarjan's depth-first-search algorithm.
 \item Build the condensation DAG \(\mathcal C\).  Its nodes are SCCs, and
 \(C\leadsto D\) is an edge when some \(x\in C\) and \(y\in D\) satisfy
-\(x\leadsto y\) and \(C\ne D\).
-\item Initialize
+\(x\leadsto y\), with \(C\ne D\).
+\item Initialize, for every SCC \(C\),
 \[
-  \mathrm{Val}(C)\leftarrow\bigcup_{x\in C}\mathrm{Seed}(x)
+\mathrm{Val}(C)\leftarrow
+\bigcup_{x\in C}\mathrm{Seed}(x).
 \]
-for every SCC \(C\).
 \item Process the SCCs in reverse topological order with respect to
-\(\leadsto\), so that every successor \(D\) of \(C\) has already been processed,
-and put
+\(\leadsto\), so every successor \(D\) of \(C\) has already been processed, and
+put
 \[
-  \mathrm{Val}(C) \leftarrow \mathrm{Val}(C)\cup
-  \bigcup_{C\leadsto D}\mathrm{Val}(D).
+\mathrm{Val}(C)
+\leftarrow
+\mathrm{Val}(C)\cup
+\bigcup_{C\leadsto D}\mathrm{Val}(D).
 \]
-\item Return \(F(x):=\mathrm{Val}(C_x)\), where \(C_x\) is the SCC containing
-\(x\).
+\item Return \(F(x)\triangleq\mathrm{Val}(C_x)\), where \(C_x\) is the SCC
+containing \(x\).
 \end{enumerate}
 
 \paragraph{Correctness condition.}
 For every SCC \(C\), after step 4,
 \[
-  \mathrm{Val}(C)=\bigcup\{\mathrm{Seed}(y)\mid
-  \text{some }x\in C\text{ reaches }y\text{ in }(X,E)\}.
+\mathrm{Val}(C)=
+\bigcup
+\set*{\mathrm{Seed}(y)
+\mid
+\text{some }x\in C\text{ reaches }y\text{ in }(X,E)}.
 \]
-Therefore the returned \(F\) is exactly the least solution of \((\mathrm{DG})\).
-This is the only property of the graph algorithm needed by Theorem 4.
+Therefore the returned \(F\) is exactly the least solution of
+\eqref{eq:digraph}.  This is the only property of the graph algorithm needed by
+Theorem~\ref{thm:read-follow}.
 
 \paragraph{Complexity.}
-Let \(b=\lceil |T'|/w\rceil\), where \(w\) is the machine word size used for
-bitsets.  SCC construction is \(O(|X|+|E|)\), and the set propagation is
-\(O((|X|+|E|)b)\).  A simple work-list implementation that repeatedly applies
-\(F(x):=F(x)\cup F(y)\) for \(x\leadsto y\) is also correct, but the SCC version
-avoids repeated propagation inside cycles.
-
-\subsection*{A.2. Instance for \(\mathbf{Read}\)}
-Let
+Let \(b=\lceil |T^\prime|/w\rceil\), where \(w\) is the machine word size used
+for bitsets.  SCC construction is \(O(|X|+|E|)\), and set propagation is
 \[
-D=\set*{(p,A)\mid p\in Q,\ A\in N',\ \delta(p,A)\ne\emptyset}.
+O\bigl((|X|+|E|)b\bigr).
 \]
+A simple work-list implementation that repeatedly applies
+\[
+F(x):=F(x)\cup F(y)\qquad(x\leadsto y)
+\]
+is also correct, but the SCC version avoids repeated propagation inside cycles.
+
+\subsection{\texorpdfstring{Instance for \(\Read\)}{Instance for Read}}
+
 First compute nullable nonterminals by the least fixed point
 \[
-  \mathrm{Null}(A) \Longleftrightarrow
-  \exists [A\to X_1\cdots X_k]\in P'\text{ such that every }X_i
-  \text{ is nullable},
+\mathrm{Null}(A)
+\Longleftrightarrow
+\exists \Item{A}{X_1\cdots X_k}\in P^\prime
+\text{ such that every }X_i\text{ is nullable},
 \]
 where terminals are never nullable and \(k=0\) is allowed.  Extend this to
-strings by \(\mathrm{Null}(X_1\cdots X_k)\) iff every \(X_i\) is nullable.
-
-For each node \(x=(p,A)\in D\), define the direct-read seed
+strings by
 \[
-  \mathrm{DR}(p,A)=\set*{t\in T'\mid \delta(\delta(p,A),t)\ne\emptyset}.
+\mathrm{Null}(X_1\cdots X_k)
+\Longleftrightarrow
+\bigwedge_{i=1}^k \mathrm{Null}(X_i).
 \]
-Define the reads dependency graph \(E_R\subseteq D\times D\) by
-\[
-  (p,A)\leadsto_R(r,C)
-  \quad\Longleftrightarrow\quad
-  \delta(p,A)=r \land C\in N' \land
-  \mathrm{Null}(C) \land
-  (r,C)\in D.
-\]
-The last condition merely makes explicit the domain of Theorem 4.  If
-\((r,C)\notin D\), then \(\mathbf{Read}\mathbin{!}(r,C)=\emptyset\), so no edge is
-needed.
 
-Then compute
+For \(x=(p,A)\in D\), define the direct-read seed
 \[
-  \mathbf{Read}\mathbin{!}(p,A)
-  :=\mathrm{DIGRAPH}(D,E_R,\mathrm{DR})(p,A).
+\mathrm{DR}(p,A)
+\triangleq
+\set*{t\in T^\prime\mid \delta(\delta(p,A),t)\ne\emptyset}.
 \]
-This is the least relation satisfying the \(\mathrm{DR}\) and
-\(\mathrm{reads}\) rules of Theorem 4.
+Define \(E_R\subseteq D\times D\) by
+\[
+(p,A)\leadsto_R(r,C)
+\Longleftrightarrow
+\delta(p,A)=r
+\land C\in N^\prime
+\land \mathrm{Null}(C)
+\land (r,C)\in D.
+\]
+If \((r,C)\notin D\), then \(\Read\mathbin{!}(r,C)=\emptyset\), so no edge is
+needed.  Compute
+\[
+\Read\mathbin{!}(p,A)
+\triangleq
+\mathrm{DIGRAPH}(D,E_R,\mathrm{DR})(p,A).
+\]
 
-\subsection*{A.3. Instance for \(\mathbf{Follow}\)}
+\subsection{\texorpdfstring{Instance for \(\Follow\)}{Instance for Follow}}
+
 The seed for follow propagation is the already computed read set:
 \[
-  \mathrm{Seed}_F(p,A):=\mathbf{Read}\mathbin{!}(p,A).
+\mathrm{Seed}_F(p,A)\triangleq\Read\mathbin{!}(p,A).
 \]
-Define the includes dependency graph \(E_I\subseteq D\times D\) by
+Define \(E_I\subseteq D\times D\) by
 \[
-(p,A)\leadsto_I(p',B)
-\quad\Longleftrightarrow\quad
-[B\to\beta\cdot A\gamma]\in p \land
-\beta:p'\to p \land
-\mathrm{Null}(\gamma) \land
-(p',B)\in D.
+(p,A)\leadsto_I(p^\prime,B)
+\Longleftrightarrow
+\Item{B}{\beta\cdot A\gamma}\in p
+\land
+\Path{\beta}{p^\prime}{p}
+\land
+\mathrm{Null}(\gamma)
+\land
+(p^\prime,B)\in D.
 \]
-The edge orientation again means that the right-hand node contributes to the
-left-hand node:
+The orientation means
 \[
-  \mathbf{Follow}\mathbin{!}(p',B)
-  \subseteq
-  \mathbf{Follow}\mathbin{!}(p,A).
+\Follow\mathbin{!}(p^\prime,B)\subseteq\Follow\mathbin{!}(p,A).
 \]
-Then compute
+Compute
 \[
-  \mathbf{Follow}\mathbin{!}(p,A)
-  :=\mathrm{DIGRAPH}(D,E_I,\mathrm{Seed}_F)(p,A).
+\Follow\mathbin{!}(p,A)
+\triangleq
+\mathrm{DIGRAPH}(D,E_I,\mathrm{Seed}_F)(p,A).
 \]
-This is the least relation satisfying the \(\mathrm{Read}\) and
-\(\mathrm{includes}\) rules of Theorem 4.
 
-\subsection*{A.4. Lookback relation and lookahead construction}
-For every completed item \([A\to\omega\cdot\varepsilon]\in q\), define its
-lookback set by
+\subsection{Lookback Relation and Lookahead Construction}
+
+For every completed item \(\Item{A}{\omega\cdot\eps}\in q\), define
 \[
-  \mathrm{LB}(q,A\to\omega)
-  :=\set*{(p,A)\in D\mid \omega:p\to q}.
+\mathrm{LB}(q,A\to\omega)
+\triangleq
+\set*{(p,A)\in D\mid \Path{\omega}{p}{q}}.
 \]
-The lookahead set is then computed by
+Then
 \[
-  \mathbf{LA}(q,[A\to\omega])
-  :=\bigcup_{(p,A)\in\mathrm{LB}(q,A\to\omega)}
-  \mathbf{Follow}\mathbin{!}(p,A).
+\Look(q,\Item{A}{\omega})
+\triangleq
+\bigcup_{(p,A)\in\mathrm{LB}(q,A\to\omega)}
+\Follow\mathbin{!}(p,A),
 \]
-This is the formula of Theorem 4 written as an implementation step.
+which is \eqref{eq:la-follow-formula} written as an implementation step.
 
 \paragraph{Implementation note.}
-The query \(\omega:p\to q\) can be implemented by following \(\delta\)-edges from
-\(p\) along \(\omega\).  The query \(\beta:p'\to p\) in \(E_I\) can be implemented
-by caching reverse-path queries keyed by \((\beta,p)\), or by storing predecessor
-edges during construction of the LR(0) automaton.
+The query \(\Path{\omega}{p}{q}\) can be implemented by following
+\(\delta\)-edges from \(p\) along \(\omega\).  The query
+\(\Path{\beta}{p^\prime}{p}\) in \(E_I\) can be implemented by caching
+reverse-path queries keyed by \((\beta,p)\), or by storing predecessor edges
+during construction of the LR(0) automaton.
 
-\subsection*{A.5. Parser-table and conflict specification}
-After \(\mathbf{LA}\) has been computed, construct actions as follows.
-\begin{enumerate}[leftmargin=7mm]
-\item If \(\delta(q,t)\ne\emptyset\) for \(t\in T'\), add the shift action
-\(q\xrightarrow{t}\delta(q,t)\).
-\item For each \([A\to\omega\cdot\varepsilon]\in q\) and each
-\(t\in\mathbf{LA}(q,[A\to\omega])\), add the reduce action
-\(A\to\omega\) under lookahead \(t\).
+\subsection{Parser-Table and Conflict Specification}
+
+After \(\Look\) has been computed, construct actions as follows.
+\begin{enumerate}
+\item If \(\delta(q,t)\ne\emptyset\) for \(t\in T^\prime\), add the shift action
+\[
+q\xrightarrow{t}\delta(q,t).
+\]
+\item For each \(\Item{A}{\omega\cdot\eps}\in q\) and each
+\(t\in\Look(q,\Item{A}{\omega})\), add the reduce action \(A\to\omega\) under
+lookahead \(t\).
 \item Report a shift/reduce conflict when both a shift action and a reduce
 action are present for the same pair \((q,t)\).
 \item Report a reduce/reduce conflict when two distinct reduce productions are
 present for the same pair \((q,t)\).
 \end{enumerate}
-The accepting condition remains the one in Definition 1: the parser accepts when
-it reaches \((S\$:q_0\to q_f,\varepsilon)\).  Equivalently, in a conventional
-ACTION/GOTO table, \(q_f\) may be treated as the accepting state after the input
-marker has been consumed.
+The accepting condition remains the one in Definition~\ref{def:lra}: the parser
+accepts when it reaches
+\[
+(\Path{S\$}{q_0}{q_f},\eps).
+\]
+Equivalently, in a conventional ACTION/GOTO table, \(q_f\) may be treated as the
+accepting state after the input marker has been consumed.
 
-\subsection*{A.6. Summary specification}
-The complete computation required by Theorem 4 is:
-\begin{enumerate}[leftmargin=7mm]
-\item Build \(G'\), \(Q\), and \(\delta\) as in Definition 1.
+\subsection{Summary Specification}
+
+The complete computation required by Theorem~\ref{thm:read-follow} is:
+\begin{enumerate}
+\item Build \(G^\prime\), \(Q\), and \(\delta\) as in
+Definition~\ref{def:lra}.
 \item Compute nullable nonterminals and nullable strings.
-\item Build \(D\), \(\mathrm{DR}\), and \(E_R\); compute \(\mathbf{Read}\) by
+\item Build \(D\), \(\mathrm{DR}\), and \(E_R\); compute \(\Read\) by
 \(\mathrm{DIGRAPH}(D,E_R,\mathrm{DR})\).
-\item Build \(E_I\); compute \(\mathbf{Follow}\) by
-\(\mathrm{DIGRAPH}(D,E_I,\mathbf{Read})\).
-\item Build \(\mathrm{LB}\) and compute each \(\mathbf{LA}(q,[A\to\omega])\) by
-unioning the appropriate \(\mathbf{Follow}\)-sets.
+\item Build \(E_I\); compute \(\Follow\) by
+\(\mathrm{DIGRAPH}(D,E_I,\Read)\).
+\item Build \(\mathrm{LB}\) and compute each
+\(\Look(q,\Item{A}{\omega})\) by unioning the appropriate
+\(\Follow\)-sets.
 \item Construct the guarded reduce actions and check conflicts.
 \end{enumerate}
-The postcondition is that the computed \(\mathbf{Read}\), \(\mathbf{Follow}\),
-and \(\mathbf{LA}\) are the least sets satisfying Theorem 4, and hence the
-lookahead-restricted parser of Theorem 3 uses exactly the LALR(1) lookahead sets
-determined by the LR(0) automaton.
+The postcondition is that the computed \(\Read\), \(\Follow\), and \(\Look\) are
+the least sets satisfying Theorem~\ref{thm:read-follow}, and hence the
+lookahead-restricted parser of Theorem~\ref{thm:lookahead-guard} uses exactly
+the \(\LALRone\) lookahead sets determined by the LR(0) automaton.
 
 \begin{thebibliography}{9}
 \bibitem{DeRemerPennello1982}
