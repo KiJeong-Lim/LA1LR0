@@ -76,7 +76,10 @@ Read/Follow digraph computation.  The proofs are written so that the essential
 claims appear as inclusions, fixed-point equations, and derivation chains.
 \end{abstract}
 
-\section*{The LR(0) Automaton}
+\tableofcontents
+\newpage
+
+\section{The LR(0) Automaton}
 
 \begin{definition}[$\LRA(G)$]\label{def:lra}
 Let \(G \triangleq (N,T,P,S)\) be a context-free grammar.  Define:
@@ -365,7 +368,7 @@ q_f=\delta(\delta(q_0,S),\$).
 Hence \(z\in L(\LRA(G))\).  Together with soundness, this proves the claim.
 \end{proof}
 
-\section*{Lookahead Restriction}
+\section{Lookahead Restriction}
 
 \begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
 Define
@@ -455,7 +458,7 @@ means that this action is single-valued under one-symbol lookahead, which is
 precisely the \(\LALRone\) table condition.
 \end{proof}
 
-\section*{Read and Follow Sets}
+\section{Read and Follow Sets}
 
 \begin{theorem}[Digraph computation of lookahead]\label{thm:read-follow}
 Let
