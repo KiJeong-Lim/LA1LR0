@@ -36,7 +36,9 @@
 
 \theoremstyle{prettyplain}
 \newtheorem{theorem}{Theorem}
-\newtheorem{fact}[theorem]{Fact}
+\newtheorem{coro}[theorem]{coro}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{prettydef}
 \newtheorem{definition}[theorem]{Definition}
 
@@ -233,21 +235,12 @@ L(\LRA(G))
 \end{enumerate}
 \end{definition}
 
-\begin{fact}[Correctness of \(\LRA(G)\)]\label{fact:lra-correct}
-\[
-L(G)=L(\LRA(G)),
-\qquad
-L(G)\triangleq\set*{z\in T^*\mid S\DerP^*z}.
-\]
-\end{fact}
-
-\begin{proof}
 For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
 \[
 \mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
 \]
 
-\proofpart{LR(0) path facts}
+\begin{lemma}[LR(0) path invariants]\label{lem:lra-path-invariants}
 For \(\eta\in V^{\prime *}\), the characteristic automaton satisfies
 \begin{align}
 (\exists q\in Q)\ \Path{\eta}{q_0}{q}
@@ -269,10 +262,14 @@ S^\prime\RMP^*\eta^\prime A y
 \Item{A}{\omega}\in\Reduce(q,t).
 \label{eq:handle}
 \end{align}
+\end{lemma}
+
+\begin{proof}
 These are the standard inductive invariants of \(\mathrm{Cl}\), \(\mathrm{GOTO}\),
 and the path relation in Definition~\ref{def:lra}.
+\end{proof}
 
-\proofpart{Step invariant}
+\begin{lemma}[One-step yield invariant]\label{lem:lra-one-step-yield}
 Each parser step reverses zero or one rightmost grammar step:
 \begin{equation}\label{eq:one-step-yield}
 c\vdash c'
@@ -284,6 +281,9 @@ c\vdash c'
   &\text{if the step is Reduce}.
 \end{cases}
 \end{equation}
+\end{lemma}
+
+\begin{proof}
 Indeed,
 \[
 \begin{array}{rclcl}
@@ -298,14 +298,29 @@ Indeed,
 =\mathrm{Y}(\Path{\alpha\omega}{q}{q^\prime},tz).
 \end{array}
 \]
-Thus
+\end{proof}
+
+\begin{corollary}[Multi-step yield invariant]\label{cor:lra-star-yield}
+For \(c,c'\in\Config\),
 \begin{equation}\label{eq:star-yield}
 c\vdash^* c'
 \Longrightarrow
 \mathrm{Y}(c')\RMP^*\mathrm{Y}(c).
 \end{equation}
+\end{corollary}
 
-\proofpart{Soundness}
+\begin{proof}
+Induct on the length of \(c\vdash^*c'\) and use
+Lemma~\ref{lem:lra-one-step-yield} at each parser step.
+\end{proof}
+
+\begin{corollary}[LR(0) soundness]\label{cor:lra-sound}
+\[
+L(\LRA(G))\subseteq L(G).
+\]
+\end{corollary}
+
+\begin{proof}
 \[
 \begin{aligned}
 z\in L(\LRA(G))
@@ -324,9 +339,16 @@ z\in L(G).
 The third implication deletes the endmarker: \(S^\prime\) never occurs on a
 right-hand side, so \(\Item{S^\prime}{S\$}\) is unused in a derivation from
 \(S\$\), and \(\$\) is never rewritten.
+\end{proof}
 
-\proofpart{Completeness}
-Assume \(S\DerP^*z\).  Choose a rightmost derivation in \(G^\prime\):
+\begin{lemma}[LR(0) completeness]\label{lem:lra-complete}
+\[
+L(G)\subseteq L(\LRA(G)).
+\]
+\end{lemma}
+
+\begin{proof}
+Let \(z\in L(G)\), so \(S\DerP^*z\).  Choose a rightmost derivation in \(G^\prime\):
 \begin{equation}\label{eq:rightmost-chain}
 S\$=\gamma_0\RMP\gamma_1\RMP\cdots\RMP\gamma_N=z\$.
 \end{equation}
@@ -365,12 +387,28 @@ endmarker yields
 \qquad
 q_f=\delta(\delta(q_0,S),\$).
 \]
-Hence \(z\in L(\LRA(G))\).  Together with soundness, this proves the claim.
+Hence \(z\in L(\LRA(G))\).
+\end{proof}
+
+\begin{corollary}[Correctness of \(\LRA(G)\)]\label{coro:lra-correct}
+\[
+L(G)=L(\LRA(G)),
+\qquad
+L(G)\triangleq\set*{z\in T^*\mid S\DerP^*z}.
+\]
+\end{corollary}
+
+\begin{proof}
+Corollary~\ref{cor:lra-sound} and Lemma~\ref{lem:lra-complete} give
+\[
+L(\LRA(G))\subseteq L(G),
+\qquad
+L(G)\subseteq L(\LRA(G)).
+\]
 \end{proof}
 
 \section{Lookahead Restriction}
 
-\begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
 Define
 \[
 \Look:
@@ -398,13 +436,18 @@ Replace the LR(0) reduction function by
 \Item{A}{\omega\cdot\eps}\in q,\
 t\in\Look(q,\Item{A}{\omega})}.
 \end{equation}
-If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
-\(\LALRone\) parser and accepts \(L(G)\).
-\end{theorem}
+
+Let \(\vdash_{\Look}\) be the transition relation obtained from
+\(\vdash\) by replacing \(\Reduce\) with \(\Reduce_{\Look}\), and let
+\(L(\vdash_{\Look})\) be its accepted language.
+
+\begin{lemma}[Guarded soundness]\label{lem:lookahead-sound}
+\[
+L(\vdash_{\Look})\subseteq L(G).
+\]
+\end{lemma}
 
 \begin{proof}
-Let \(\vdash_{\Look}\) be the transition relation obtained from
-\(\vdash\) by replacing \(\Reduce\) with \(\Reduce_{\Look}\).
 From \eqref{eq:la-reduce},
 \[
 \Reduce_{\Look}(q,t)\subseteq\Reduce(q,t)
@@ -420,11 +463,19 @@ L(\vdash_{\Look})
 L(\LRA(G))
 =
 L(G)
-\qquad\text{by Fact~\ref{fact:lra-correct}.}
+\qquad\text{by coro~\ref{coro:lra-correct}.}
 \end{equation}
+\end{proof}
 
-Conversely, let \(z\in L(G)\).  In the completeness construction of
-Fact~\ref{fact:lra-correct}, every Reduce step has the form
+\begin{lemma}[Guarded completeness]\label{lem:lookahead-complete}
+\[
+L(G)\subseteq L(\vdash_{\Look}).
+\]
+\end{lemma}
+
+\begin{proof}
+Let \(z\in L(G)\).  In the completeness construction of
+coro~\ref{coro:lra-correct}, every Reduce step has the form
 \[
 (\Path{\alpha\omega}{q_0}{q},t z^\prime)
 \vdash
@@ -449,18 +500,46 @@ for \(\vdash_{\Look}\); Shift steps are unchanged.  Hence
 \[
 L(G)\subseteq L(\vdash_{\Look}).
 \]
-Combining this with \eqref{eq:la-sound} gives \(L(\vdash_{\Look})=L(G)\).
+\end{proof}
 
-Finally, the action at \((q,t)\) consists of the shift
+\begin{corollary}[Language preservation]\label{cor:lookahead-language}
+\[
+L(\vdash_{\Look})=L(G).
+\]
+\end{corollary}
+
+\begin{proof}
+Combine Lemmas~\ref{lem:lookahead-sound} and~\ref{lem:lookahead-complete}.
+\end{proof}
+
+\begin{lemma}[Conflict-free table condition]\label{lem:lookahead-table}
+If the resulting table has no shift/reduce or reduce/reduce conflict, its
+action is single-valued under one-symbol lookahead, hence it is an
+\(\LALRone\) table.
+\end{lemma}
+
+\begin{proof}
+The action at \((q,t)\) consists of the shift
 \(\delta(q,t)\) when it is nonempty and the reductions in
 \(\Reduce_{\Look}(q,t)\).  Absence of shift/reduce and reduce/reduce conflicts
 means that this action is single-valued under one-symbol lookahead, which is
 precisely the \(\LALRone\) table condition.
 \end{proof}
 
+\begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
+\leavevmode\par\noindent
+If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
+\(\LALRone\) parser and accepts \(L(G)\).
+\end{theorem}
+
+\begin{proof}
+Corollary~\ref{cor:lookahead-language} gives acceptance of \(L(G)\), and
+Lemma~\ref{lem:lookahead-table} gives the \(\LALRone\) table condition under the
+stated absence of conflicts.
+\end{proof}
+
 \section{Read and Follow Sets}
 
-\begin{theorem}[Digraph computation of lookahead]\label{thm:read-follow}
 Let
 \[
 D\triangleq
@@ -494,22 +573,7 @@ generated by the rules
    & (p^\prime,B)\in D}
 \end{array}
 \]
-Then, whenever \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
-\begin{equation}\label{eq:la-follow-formula}
-\Look(q,\Item{A}{\omega})
-=
-\set*{t\in T^\prime
-\mid
-\exists p\in Q.\ 
-\Path{\omega}{p}{q}
-\land
-\delta(p,A)\ne\emptyset
-\land
-t\in\Follow\mathbin{!}(p,A)}.
-\end{equation}
-\end{theorem}
 
-\begin{proof}
 Define the semantic read and follow sets on \(D\):
 \begin{align}
 \mathsf{Read}(p,A)
@@ -534,14 +598,13 @@ S^\prime\RMP^*\alpha A t z
 z\in T^{\prime *}}. \label{eq:sem-follow}
 \end{align}
 
-\proofpart{\(\Read=\mathsf{Read}\)}
-For \(x=(p,A)\in D\), set
+For \((p,A)\in D\), set
 \[
 \mathrm{DR}(p,A)
 \triangleq
 \set*{t\in T^\prime\mid \delta(\delta(p,A),t)\ne\emptyset}.
 \]
-The two \(\Read\)-rules define the least fixed point of the monotone operator
+Let
 \[
 \Phi_R(F)(p,A)
 =
@@ -550,6 +613,21 @@ The two \(\Read\)-rules define the least fixed point of the monotone operator
 \bigcup_{\substack{\delta(p,A)=r\\ C\Rightarrow_{P^\prime}^*\eps\\(r,C)\in D}}
 F(r,C).
 \]
+
+\begin{lemma}[Semantic Read fixed point]\label{lem:read-fixed-point}
+For \((p,A)\in D\),
+\begin{equation}\label{eq:read-eq}
+\Read\mathbin{!}(p,A)
+=
+\mu\Phi_R(p,A)
+=
+\mathsf{Read}(p,A).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The two \(\Read\)-rules define the least fixed point of the monotone operator
+\(\Phi_R\).
 By \eqref{eq:sem-read}, \(t\in\mathsf{Read}(p,A)\) iff for some nullable
 \(\gamma=C_1\cdots C_n\in N^{\prime *}\),
 \[
@@ -562,18 +640,10 @@ Equivalently,
 t\in
 \underbrace{\Phi_R^n(\emptyset)(p,A)}_{\text{\(n\) reads edges, then DR}},
 \]
-and hence
-\begin{equation}\label{eq:read-eq}
-\Read\mathbin{!}(p,A)
-=
-\mu\Phi_R(p,A)
-=
-\mathsf{Read}(p,A)
-\qquad((p,A)\in D).
-\end{equation}
+and hence \eqref{eq:read-eq}.
+\end{proof}
 
-\proofpart{\(\Follow=\mathsf{Follow}\)}
-The two \(\Follow\)-rules define the least fixed point of
+Let
 \[
 \Phi_F(F)(p,A)
 =
@@ -586,6 +656,21 @@ The two \(\Follow\)-rules define the least fixed point of
   (p^\prime,B)\in D}}
 F(p^\prime,B).
 \]
+
+\begin{lemma}[Semantic Follow fixed point]\label{lem:follow-fixed-point}
+For \((p,A)\in D\),
+\begin{equation}\label{eq:follow-eq}
+\Follow\mathbin{!}(p,A)
+=
+\mu\Phi_F(p,A)
+=
+\mathsf{Follow}(p,A).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:read-fixed-point}, the two \(\Follow\)-rules define the least
+fixed point of \(\Phi_F\).
 First \(\mathsf{Follow}\) is closed under \(\Phi_F\).
 For the \(\mathsf{Read}\)-seed:
 \[
@@ -634,7 +719,7 @@ S^\prime\RMP^*\alpha A t z,
 \qquad
 \Path{\alpha}{q_0}{p}.
 \]
-Looking at the production that created this occurrence of \(A\) gives a factor
+Looking at the production that created this occurrence of \(A\) gives a coroor
 \[
 S^\prime\RMP^*
 \alpha^\prime B t^\prime z^\prime
@@ -666,17 +751,26 @@ Induction on that length gives
 \subseteq
 \mu\Phi_F(p,A).
 \]
-Together with closure,
-\begin{equation}\label{eq:follow-eq}
-\Follow\mathbin{!}(p,A)
-=
-\mu\Phi_F(p,A)
-=
-\mathsf{Follow}(p,A)
-\qquad((p,A)\in D).
-\end{equation}
+Together with closure, this proves \eqref{eq:follow-eq}.
+\end{proof}
 
-\proofpart{Lookahead}
+\begin{corollary}[Lookahead by Follow]\label{cor:lookahead-follow}
+Whenever \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
+\begin{equation}\label{eq:la-follow-formula}
+\Look(q,\Item{A}{\omega})
+=
+\set*{t\in T^\prime
+\mid
+\exists p\in Q.\ 
+\Path{\omega}{p}{q}
+\land
+\delta(p,A)\ne\emptyset
+\land
+t\in\Follow\mathbin{!}(p,A)}.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
 For \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
 \[
 \begin{aligned}
@@ -715,6 +809,18 @@ tracing \(\Item{A}{\omega\cdot\eps}\in q\) backward along
 introduced by an item with the dot before \(A\).  For \(A=S^\prime\), both sides
 are empty because \(S^\prime\) occurs on no right-hand side and the parser does
 not reduce \(\Item{S^\prime}{S\$}\).  This is \eqref{eq:la-follow-formula}.
+\end{proof}
+
+\begin{theorem}[Digraph computation of lookahead]\label{thm:read-follow}
+The least relations \(\Read,\Follow\) generated above compute every lookahead
+set by the formula \eqref{eq:la-follow-formula}.
+\end{theorem}
+
+\begin{proof}
+The Read and Follow fixed-point claims are Lemmas~\ref{lem:read-fixed-point}
+and~\ref{lem:follow-fixed-point}; applying them to the semantic definition of
+\(\Look\) gives Corollary~\ref{cor:lookahead-follow}, which is the displayed
+formula of the theorem.
 \end{proof}
 
 \appendix
