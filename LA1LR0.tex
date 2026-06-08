@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 
 \usepackage[a4paper,left=22mm,right=22mm,top=20mm,bottom=24mm]{geometry}
 \usepackage[T1]{fontenc}
@@ -37,12 +37,11 @@
 
 \theoremstyle{prettyplain}
 \newtheorem{theorem}{Theorem}
-\newtheorem{coro}[theorem]{coro}
+\newtheorem{fact}[theorem]{Fact}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{prettydef}
 \newtheorem{definition}[theorem]{Definition}
-\newtheorem{fact}[theorem]{Fact}
 
 \DeclarePairedDelimiterX{\set}[1]\lbrace\rbrace{%
   \def\mid{\;\delimsize\vert\;}#1%
@@ -240,6 +239,98 @@ L(\LRA(G))
 \end{enumerate}
 \end{definition}
 
+For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
+\[
+\mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
+\]
+
+\begin{lemma}[One-step yield invariant]\label{lem:lra-one-step-yield}
+Each parser step reverses zero or one rightmost grammar step:
+\begin{equation}\label{eq:one-step-yield}
+c\vdash c'
+\Longrightarrow
+\begin{cases}
+\mathrm{Y}(c')=\mathrm{Y}(c),
+  &\text{if the step is Shift},\\[2pt]
+\mathrm{Y}(c')\RMP\mathrm{Y}(c),
+  &\text{if the step is Reduce}.
+\end{cases}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Indeed,
+\[
+\begin{array}{rclcl}
+\mathrm{Shift}:&
+\mathrm{Y}(\Path{\alpha}{q}{q^\prime},tz)
+&=&\alpha tz
+&=\mathrm{Y}(\Path{\alpha t}{q}{q^{\prime\prime}},z),\\[2pt]
+\mathrm{Reduce}:&
+\mathrm{Y}(\Path{\alpha A}{q}{q^{\prime\prime}},tz)
+&=&\alpha A t z
+&\RMP \alpha\omega t z
+=\mathrm{Y}(\Path{\alpha\omega}{q}{q^\prime},tz).
+\end{array}
+\]
+\end{proof}
+
+\begin{corollary}[Multi-step yield invariant]\label{cor:lra-star-yield}
+For \(c,c'\in\Config\),
+\begin{equation}\label{eq:star-yield}
+c\vdash^* c'
+\Longrightarrow
+\mathrm{Y}(c')\RMP^*\mathrm{Y}(c).
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Induct on the length of \(c\vdash^*c'\) and use
+Lemma~\ref{lem:lra-one-step-yield} at each parser step.
+\end{proof}
+
+\begin{corollary}[LR(0) soundness]\label{cor:lra-sound}
+\[
+L(\LRA(G))\subseteq L(G).
+\]
+\end{corollary}
+
+\begin{proof}
+\[
+\begin{aligned}
+z\in L(\LRA(G))
+&\Longrightarrow
+(\Path{\eps}{q_0}{q_0},z\$)
+\vdash^*
+(\Path{S\$}{q_0}{q_f},\eps)\\
+&\overset{\eqref{eq:star-yield}}{\Longrightarrow}
+S\$\RMP^*z\$\\
+&\Longrightarrow
+S\DerP^*z\\
+&\Longrightarrow
+z\in L(G).
+\end{aligned}
+\]
+The third implication deletes the endmarker.  Write the rightmost derivation
+witnessing \(S\$\RMP^*z\$\) as
+\[
+S\$=\gamma_0\RMP\gamma_1\RMP\cdots\RMP\gamma_M=z\$ .
+\]
+Since \(S^\prime\) occurs on no right-hand side of \(P^\prime\), the only
+production mentioning \(S^\prime\), namely \(\Item{S^\prime}{S\$}\), is never
+applicable to a form derived from \(S\$\); hence every step uses a production of
+\(P\subseteq P^\prime\).  Moreover \(\$\notin V\) occurs on no right-hand side of
+\(P\), and no production of \(P\) rewrites a terminal, so the rightmost symbol
+\(\$\) of \(\gamma_0\) is never touched:
+\[
+\gamma_k=\delta_k\$,\qquad \delta_k\in V^{*}\quad(0\le k\le M),
+\qquad \delta_0=S,\quad \delta_M=z,
+\qquad \delta_k\DerP\delta_{k+1}.
+\]
+Stripping the common trailing \(\$\) therefore yields
+\(S=\delta_0\DerP\delta_1\DerP\cdots\DerP\delta_M=z\), i.e.\ \(S\DerP^*z\).
+\end{proof}
+
 \begin{fact}[Elimination of non-productive nonterminals]\label{fact:productive}
 Call \(A\in N^\prime\) \emph{productive} if \(A\Rightarrow_{P^\prime}^*w\) for some
 \(w\in T^{\prime *}\), and \emph{non-productive} otherwise.  Removing every
@@ -344,11 +435,6 @@ Corollary~\ref{cor:lra-sound} gives \(L(\LRA(G))\subseteq L(G)=\emptyset\)
 directly.
 \end{proof}
 
-For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
-\[
-\mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
-\]
-
 The path relation factors through the state reached after any prefix: induction
 on \(|\alpha|\) using Definition~\ref{def:lra}(ix) gives, for all
 \(\alpha,\omega\in V^{\prime *}\) and \(r\in Q\),
@@ -357,8 +443,9 @@ on \(|\alpha|\) using Definition~\ref{def:lra}(ix) gives, for all
 \iff
 \exists!\,p\in Q.\ \Path{\alpha}{r}{p}\ \land\ \Path{\omega}{p}{q},
 \end{equation}
-the intermediate state being \(p=\delta(\cdots\delta(\delta(r,\alpha_1),\alpha_2)\cdots,\alpha_{|\alpha|})\)
-since each \(\delta(\cdot,X)=\mathrm{GOTO}(\cdot,X)\) is single-valued.
+the intermediate state being the unique state obtained by following \(\alpha\)
+from \(r\), since each \(\delta(\cdot,X)=\mathrm{GOTO}(\cdot,X)\) is
+single-valued.
 
 \begin{lemma}[LR(0) path invariants]\label{lem:lra-path-invariants}
 For \(\eta\in V^{\prime *}\), the characteristic automaton satisfies
@@ -493,93 +580,6 @@ S^\prime\RMP^*\eta^\prime Ay,\ \ y\in T^{\prime *}
 which is \eqref{eq:handle}.
 \end{proof}
 
-\begin{lemma}[One-step yield invariant]\label{lem:lra-one-step-yield}
-Each parser step reverses zero or one rightmost grammar step:
-\begin{equation}\label{eq:one-step-yield}
-c\vdash c'
-\Longrightarrow
-\begin{cases}
-\mathrm{Y}(c')=\mathrm{Y}(c),
-  &\text{if the step is Shift},\\[2pt]
-\mathrm{Y}(c')\RMP\mathrm{Y}(c),
-  &\text{if the step is Reduce}.
-\end{cases}
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-Indeed,
-\[
-\begin{array}{rclcl}
-\mathrm{Shift}:&
-\mathrm{Y}(\Path{\alpha}{q}{q^\prime},tz)
-&=&\alpha tz
-&=\mathrm{Y}(\Path{\alpha t}{q}{q^{\prime\prime}},z),\\[2pt]
-\mathrm{Reduce}:&
-\mathrm{Y}(\Path{\alpha A}{q}{q^{\prime\prime}},tz)
-&=&\alpha A t z
-&\RMP \alpha\omega t z
-=\mathrm{Y}(\Path{\alpha\omega}{q}{q^\prime},tz).
-\end{array}
-\]
-\end{proof}
-
-\begin{corollary}[Multi-step yield invariant]\label{cor:lra-star-yield}
-For \(c,c'\in\Config\),
-\begin{equation}\label{eq:star-yield}
-c\vdash^* c'
-\Longrightarrow
-\mathrm{Y}(c')\RMP^*\mathrm{Y}(c).
-\end{equation}
-\end{corollary}
-
-\begin{proof}
-Induct on the length of \(c\vdash^*c'\) and use
-Lemma~\ref{lem:lra-one-step-yield} at each parser step.
-\end{proof}
-
-\begin{corollary}[LR(0) soundness]\label{cor:lra-sound}
-\[
-L(\LRA(G))\subseteq L(G).
-\]
-\end{corollary}
-
-\begin{proof}
-\[
-\begin{aligned}
-z\in L(\LRA(G))
-&\Longrightarrow
-(\Path{\eps}{q_0}{q_0},z\$)
-\vdash^*
-(\Path{S\$}{q_0}{q_f},\eps)\\
-&\overset{\eqref{eq:star-yield}}{\Longrightarrow}
-S\$\RMP^*z\$\\
-&\Longrightarrow
-S\DerP^*z\\
-&\Longrightarrow
-z\in L(G).
-\end{aligned}
-\]
-The third implication deletes the endmarker.  Write the rightmost derivation
-witnessing \(S\$\RMP^*z\$\) as
-\[
-S\$=\gamma_0\RMP\gamma_1\RMP\cdots\RMP\gamma_M=z\$ .
-\]
-Since \(S^\prime\) occurs on no right-hand side of \(P^\prime\), the only
-production mentioning \(S^\prime\), namely \(\Item{S^\prime}{S\$}\), is never
-applicable to a form derived from \(S\$\); hence every step uses a production of
-\(P\subseteq P^\prime\).  Moreover \(\$\notin V\) occurs on no right-hand side of
-\(P\), and no production of \(P\) rewrites a terminal, so the rightmost symbol
-\(\$\) of \(\gamma_0\) is never touched:
-\[
-\gamma_k=\delta_k\$,\qquad \delta_k\in V^{*}\quad(0\le k\le M),
-\qquad \delta_0=S,\quad \delta_M=z,
-\qquad \delta_k\DerP\delta_{k+1}.
-\]
-Stripping the common trailing \(\$\) therefore yields
-\(S=\delta_0\DerP\delta_1\DerP\cdots\DerP\delta_M=z\), i.e.\ \(S\DerP^*z\).
-\end{proof}
-
 \begin{lemma}[LR(0) completeness]\label{lem:lra-complete}
 \[
 L(G)\subseteq L(\LRA(G)).
@@ -667,7 +667,7 @@ Concatenating the Shift blocks with \eqref{eq:inverse-reduce} for
 hence \(z\in L(\LRA(G))\).
 \end{proof}
 
-\begin{corollary}[Correctness of \(\LRA(G)\)]\label{coro:lra-correct}
+\begin{corollary}[Correctness of \(\LRA(G)\)]\label{cor:lra-correct}
 \[
 L(G)=L(\LRA(G)),
 \qquad
@@ -687,12 +687,12 @@ L(G)\subseteq L(\LRA(G)).
 \section{Read and Follow Sets}
 
 Define
-\[
+\(
 \Look:
 \set*{(q,\Item{A}{\omega})
 \mid q\in Q,\ \Item{A}{\omega\cdot\eps}\in q}
 \longrightarrow \Pow(T^\prime)
-\]
+\)
 by
 \begin{equation}\label{eq:la-def}
 \Look(q,\Item{A}{\omega})
@@ -705,7 +705,8 @@ S^\prime\RMP^*\alpha A t z,\
 z\in T^{\prime *}}.
 \end{equation}
 
-The remainder of this section computes \(\Look(q,\Item{A}{\omega})\) from the LR(0) automaton, as the least fixed point of a Read/Follow digraph.
+The remainder of this section computes \(\Look(q,\Item{A}{\omega})\) from the
+LR(0) automaton, as the least fixed point of a Read/Follow digraph.
 
 Let
 \[
@@ -816,8 +817,8 @@ r_0=\delta(p,A),\qquad
 r_i=\delta(r_{i-1},C_i)\ (1\le i\le n),\qquad
 \delta(r_n,t)\ne\emptyset ,
 \]
-which is precisely an \(n\)-edge reads-path ending at a \(\mathrm{DR}\)-seed
-holding \(t\):
+If \(n=0\), this says exactly that \(t\in\mathrm{DR}(p,A)\).  If \(n>0\), it is
+an \(n\)-edge reads-path ending at a \(\mathrm{DR}\)-seed holding \(t\):
 \[
 (p,A)\rightsquigarrow_R(r_0,C_1)\rightsquigarrow_R\cdots\rightsquigarrow_R
 (r_{n-1},C_n),
@@ -825,10 +826,10 @@ holding \(t\):
 t\in\mathrm{DR}(r_{n-1},C_n)
 \quad\bigl(\delta(\delta(r_{n-1},C_n),t)=\delta(r_n,t)\ne\emptyset\bigr).
 \]
-By \eqref{eq:read-unfold} this is equivalent to
-\(t\in\Phi_R^{\,n+1}(\emptyset)(p,A)\subseteq\mu\Phi_R(p,A)\), and conversely each
-member of the union \eqref{eq:read-unfold} reads back as such a nullable
-\(\delta\)-chain.  Hence \eqref{eq:read-eq}.
+In both cases \eqref{eq:read-unfold} puts
+\(t\) in \(\mu\Phi_R(p,A)\), and every member of the union
+\eqref{eq:read-unfold} reads back as such a nullable \(\delta\)-chain.  Hence
+\eqref{eq:read-eq}.
 \end{proof}
 
 Let
@@ -886,17 +887,8 @@ S^\prime\RMP^*\alpha A\gamma t z
 t\in\mathsf{Follow}(p,A).
 \end{aligned}
 \]
-For an includes edge,
+For an includes edge, since $t\in\mathsf{Follow}(p^\prime,B), \Item{B}{\beta\cdot A\gamma}\in p, \Path{\beta}{p^\prime}{p}, \text{ and } \gamma\Rightarrow_{P^\prime}^*\eps$,
 \[
-\left.
-\begin{gathered}
-t\in\mathsf{Follow}(p^\prime,B),\quad
-\Item{B}{\beta\cdot A\gamma}\in p,\quad
-\Path{\beta}{p^\prime}{p},\quad
-\gamma\Rightarrow_{P^\prime}^*\eps
-\end{gathered}
-\right\}
-\Longrightarrow
 \begin{aligned}[t]
 S^\prime&\RMP^*\alpha^\prime B t z\\
 &\RMP \alpha^\prime\beta A\gamma t z\\
@@ -1038,7 +1030,8 @@ formula of the theorem.
 
 \section{Lookahead Restriction}
 
-Recall the lookahead set \(\Look\) of \eqref{eq:la-def}.  Replace the LR(0) reduction function by
+Recall the lookahead set \(\Look\) of \eqref{eq:la-def}.  Replace the LR(0)
+reduction function by
 \begin{equation}\label{eq:la-reduce}
 \Reduce_{\Look}(q,t)
 \triangleq
@@ -1059,13 +1052,13 @@ L(\vdash_{\Look})\subseteq L(G).
 \end{lemma}
 
 \begin{proof}
-From \eqref{eq:la-reduce},
+From~\eqref{eq:la-reduce},
 \[
 \Reduce_{\Look}(q,t)\subseteq\Reduce(q,t)
 \quad\Longrightarrow\quad
-\vdash_{\Look}\subseteq\vdash
+{\vdash_{\Look}}\subseteq{\vdash}
 \quad\Longrightarrow\quad
-\vdash_{\Look}^{\,*}\subseteq\vdash^*.
+{\vdash_{\Look}}^{\,*}\subseteq{\vdash}^*.
 \]
 Therefore
 \begin{equation}\label{eq:la-sound}
@@ -1074,7 +1067,7 @@ L(\vdash_{\Look})
 L(\LRA(G))
 =
 L(G)
-\qquad\text{by coro~\ref{coro:lra-correct}.}
+\qquad\text{by Corollary~\ref{cor:lra-correct}.}
 \end{equation}
 \end{proof}
 
@@ -1085,8 +1078,8 @@ L(G)\subseteq L(\vdash_{\Look}).
 \end{lemma}
 
 \begin{proof}
-Let \(z\in L(G)\).  In the completeness construction of
-coro~\ref{coro:lra-correct}, every Reduce step has the form
+Let \(z\in L(G)\).  In the accepting computation constructed in
+Lemma~\ref{lem:lra-complete}, every Reduce step has the form
 \[
 (\Path{\alpha\omega}{q_0}{q},t z^\prime)
 \vdash
@@ -1130,17 +1123,20 @@ action is single-valued under one-symbol lookahead, hence it is an
 \end{lemma}
 
 \begin{proof}
-The action at \((q,t)\) consists of the shift
-\(\delta(q,t)\) when it is nonempty and the reductions in
-\(\Reduce_{\Look}(q,t)\).  Absence of shift/reduce and reduce/reduce conflicts
-means that this action is single-valued under one-symbol lookahead, which is
-precisely the \(\LALRone\) table condition.
+At \((q,t)\), the possible actions are
+\[
+\delta(q,t)\quad\text{when this shift target is nonempty},
+\qquad
+\Reduce_{\Look}(q,t).
+\]
+Absence of shift/reduce and reduce/reduce conflicts means that this action is
+single-valued under one-symbol lookahead, which is precisely the \(\LALRone\)
+table condition.
 \end{proof}
 
 \begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
-\leavevmode\par\noindent
-If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
-\(\LALRone\) parser and accepts \(L(G)\).
+If the guarded table is conflict-free, it is an \(\LALRone\) parser accepting
+\(L(G)\).
 \end{theorem}
 
 \begin{proof}
