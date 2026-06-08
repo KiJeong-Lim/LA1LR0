@@ -41,6 +41,7 @@
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{prettydef}
 \newtheorem{definition}[theorem]{Definition}
+\newtheorem{fact}[theorem]{Fact}
 
 \DeclarePairedDelimiterX{\set}[1]\lbrace\rbrace{%
   \def\mid{\;\delimsize\vert\;}#1%
@@ -235,6 +236,26 @@ L(\LRA(G))
 \end{enumerate}
 \end{definition}
 
+\begin{fact}[Elimination of non-productive nonterminals]\label{fact:productive}
+Call \(A\in N^\prime\) \emph{productive} if \(A\Rightarrow_{P^\prime}^*w\) for some
+\(w\in T^{\prime *}\); equivalently \(A\in\mathrm{Gen}\), the least set with
+\[
+A\in\mathrm{Gen}
+\iff
+\exists\,\Item{A}{X_1\cdots X_k}\in P^\prime.\
+\forall i\in\set*{1,\ldots,k}.\ X_i\in T^\prime\cup\mathrm{Gen}
+\qquad(k=0\text{ allowed}).
+\]
+Otherwise \(A\) is \emph{non-productive}.  A production that mentions a
+non-productive nonterminal can never occur in a derivation of a terminal string,
+so deleting every non-productive nonterminal together with all productions that
+mention one preserves the generated language.  Hence, whenever
+\(L(G)\ne\emptyset\), we may assume without loss of generality that every
+nonterminal of \(G^\prime\) is productive; when \(L(G)=\emptyset\) the identity
+\(L(\LRA(G))=L(G)=\emptyset\) already follows from soundness
+(Corollary~\ref{cor:lra-sound}).
+\end{fact}
+
 For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
 \[
 \mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
@@ -276,8 +297,113 @@ S^\prime\RMP^*\eta^\prime A y
 \end{lemma}
 
 \begin{proof}
-These are the standard inductive invariants of \(\mathrm{Cl}\), \(\mathrm{GOTO}\),
-and the path relation in Definition~\ref{def:lra}.
+By Fact~\ref{fact:productive} we may assume every nonterminal of \(G^\prime\) is
+productive: \(C\Rightarrow_{P^\prime}^*x\) for some \(x\in T^{\prime *}\).  Write
+\(\sqsubseteq\) for the prefix order on
+\(V^{\prime *}\).  Call an item \emph{valid} for \(\eta\in V^{\prime *}\) when
+\begin{equation}\label{eq:valid-def}
+\Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)
+\ \overset{\mathrm{def}}{\iff}\
+\exists\,\delta\in V^{\prime *},\,w\in T^{\prime *}.\
+\eta=\delta\alpha\ \land\ S^\prime\RMP^*\delta Aw
+\end{equation}
+(then \(\Item{A}{\alpha\beta}\in P^\prime\) and \(w\in T^{\prime *}\) make
+\(\delta Aw\RMP\delta\alpha\beta w\) a rightmost step).  Validity captures
+viability:
+\begin{equation}\label{eq:valid-vp}
+\mathsf{Valid}(\eta)\ne\emptyset
+\iff
+\eta\text{ is a viable prefix of }G^\prime,
+\end{equation}
+since \(\Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)\) yields
+\(S^\prime\RMP^*\delta Aw\RMP\delta\alpha\beta w\) with
+\(\eta=\delta\alpha\sqsubseteq\delta\alpha\beta\), while a viable prefix
+\(\eta\sqsubseteq\delta\alpha\beta\) (from
+\(S^\prime\RMP^*\delta Aw\RMP\delta\alpha\beta w\)) factors as
+\(\eta=\delta\alpha\beta_1\), \(\beta=\beta_1\beta_2\), giving
+\(\Item{A}{\alpha\beta_1\cdot\beta_2}\in\mathsf{Valid}(\eta)\).
+
+\proofpart{Closure computes the valid items at a fixed \(\eta\)}
+If \(q\subseteq\mathsf{Valid}(\eta)\) contains every valid item with nonempty
+left part (and the seed \(\Item{S^\prime}{\eps\cdot S\$}\) when \(\eta=\eps\)),
+then \(\mathrm{Cl}(q)=\mathsf{Valid}(\eta)\).  For \(\subseteq\), the closure rule
+adds \(\Item{A}{\eps\cdot\omega}\) only from some
+\(\Item{B}{\beta_1\cdot A\beta_2}\in\mathrm{Cl}(q)\subseteq\mathsf{Valid}(\eta)\),
+and productivity \(\beta_2\RMP^*x\in T^{\prime *}\) gives
+\[
+S^\prime\RMP^*\delta Bw\RMP\delta\beta_1A\beta_2w\RMP^*\delta\beta_1Axw,
+\qquad
+\eta=\delta\beta_1,\ \ xw\in T^{\prime *}
+\ \Longrightarrow\
+\Item{A}{\eps\cdot\omega}\in\mathsf{Valid}(\eta).
+\]
+For \(\supseteq\), take \(\Item{A}{\eps\cdot\omega}\in\mathsf{Valid}(\eta)\) with a
+witness \(S^\prime\RMP^*\eta Aw\) and induct on its length.  Length \(0\) forces
+\(\eta Aw=S^\prime\), i.e.\ \(\eta=\eps\), \(A=S^\prime\), the seed.  Otherwise the
+step first introducing this occurrence of \(A\) reads
+\[
+S^\prime\RMP^*\mu C\rho\RMP\mu\sigma_1A\sigma_2\rho,
+\qquad
+\Item{C}{\sigma_1A\sigma_2}\in P^\prime,\quad
+\eta=\mu\sigma_1,\quad \rho\in T^{\prime *},
+\]
+so \(\Item{C}{\sigma_1\cdot A\sigma_2}\in\mathsf{Valid}(\eta)\) by the shorter
+witness \(S^\prime\RMP^*\mu C\rho\).  This item lies in \(q\) (if
+\(\sigma_1\ne\eps\)) or in \(\mathrm{Cl}(q)\) (induction hypothesis, if
+\(\sigma_1=\eps\)); its dot precedes \(A\), so the closure rule appends
+\(\Item{A}{\eps\cdot\omega}\in\mathrm{Cl}(q)\).
+
+\proofpart{\(\mathrm{GOTO}\) shifts the prefix}
+By \eqref{eq:valid-def}, for every \(X\in V^\prime\),
+\[
+\Item{A}{\alpha\cdot X\beta}\in\mathsf{Valid}(\eta)
+\iff
+\Item{A}{\alpha X\cdot\beta}\in\mathsf{Valid}(\eta X)
+\qquad(\text{same }\delta,w;\ \eta=\delta\alpha\iff\eta X=\delta\alpha X),
+\]
+and every nonempty-left-part valid item for \(\eta X\) ends in \(X\), hence has
+this form.  So the kernel of \(\mathrm{GOTO}(\mathsf{Valid}(\eta),X)\) is exactly
+those items, and closing it gives
+\begin{equation}\label{eq:goto-valid}
+q=\mathsf{Valid}(\eta)\ \Longrightarrow\ \mathrm{GOTO}(q,X)=\mathsf{Valid}(\eta X).
+\end{equation}
+
+\proofpart{Induction on \(|\eta|\)}
+No valid item for \(\eps\) has a nonempty left part, so
+\(q_0=\mathrm{Cl}\bigl(\set*{\Item{S^\prime}{\eps\cdot S\$}}\bigr)
+=\mathsf{Valid}(\eps)\).  Inductively, \(\Path{\eta X}{q_0}{q^\prime}\) means
+\(\Path{\eta}{q_0}{q}\) with \(q=\mathsf{Valid}(\eta)\) and
+\(q^\prime=\delta(q,X)=\mathrm{GOTO}(q,X)\overset{\eqref{eq:goto-valid}}{=}\mathsf{Valid}(\eta X)\).
+Hence
+\begin{equation}\label{eq:state-eq-valid}
+\Path{\eta}{q_0}{q}\ \Longrightarrow\ q=\mathsf{Valid}(\eta).
+\end{equation}
+Because every state on a path lies in \(Q=\mathrm{PT}\setminus\set*{\emptyset}\),
+and prefixes of a viable prefix are viable (so a run never blocks),
+\[
+(\exists q\in Q)\,\Path{\eta}{q_0}{q}
+\overset{\eqref{eq:state-eq-valid}}{\iff}
+\mathsf{Valid}(\eta)\ne\emptyset
+\overset{\eqref{eq:valid-vp}}{\iff}
+\eta\text{ is a viable prefix of }G^\prime,
+\]
+which is \eqref{eq:vp}.
+
+\proofpart{Handle invariant}
+With \(\eta=\eta^\prime\omega\), \(\Path{\eta^\prime}{q_0}{p}\),
+\(\Path{\omega}{p}{q}\), and \(S^\prime\RMP^*\eta^\prime Ay\RMP\eta^\prime\omega y\),
+\(y=tz\in T^{\prime *}\): \eqref{eq:path-concat} gives
+\(\Path{\eta^\prime\omega}{q_0}{q}\), so
+\(q=\mathsf{Valid}(\eta^\prime\omega)\) by \eqref{eq:state-eq-valid}.  Taking
+\(\delta=\eta^\prime\), \(w=y\) in \eqref{eq:valid-def},
+\[
+S^\prime\RMP^*\eta^\prime Ay,\ \ y\in T^{\prime *}
+\ \Longrightarrow\
+\Item{A}{\omega\cdot\eps}\in\mathsf{Valid}(\eta^\prime\omega)=q
+\ \overset{\text{Def.\,\ref{def:lra}(xii)}}{\Longrightarrow}\
+\Item{A}{\omega}\in\Reduce(q,t),
+\]
+which is \eqref{eq:handle}.
 \end{proof}
 
 \begin{lemma}[One-step yield invariant]\label{lem:lra-one-step-yield}
