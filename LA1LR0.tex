@@ -10,6 +10,7 @@
 \usepackage{proof}
 \usepackage{xcolor}
 \usepackage[bottom]{footmisc}
+\usepackage[normalem]{ulem}
 \usepackage{hyperref}
 
 \allowdisplaybreaks
@@ -61,7 +62,7 @@
 \newcommand{\Follow}{\mathbf{Follow}}
 \newcommand{\Config}{\mathbf{Config}}
 \newcommand{\Reduce}{\mathbf{reduce}}
-\newcommand{\proofpart}[1]{\par\medskip\noindent\textsc{#1.}}
+\newcommand{\proofpart}[1]{\par\medskip\noindent\uline{\textsc{#1}}.}
 
 \title{\vspace{-2.5em}\sffamily\bfseries LA(1)LR(0)}
 \author{임기정}
@@ -597,7 +598,7 @@ L(G)\subseteq L(\LRA(G)).
 \]
 \end{proof}
 
-\section{Lookahead Restriction}
+\section{Read and Follow Sets}
 
 Define
 \[
@@ -617,118 +618,8 @@ S^\prime\RMP^*\alpha A t z,\
 \alpha\in V^{\prime *},\
 z\in T^{\prime *}}.
 \end{equation}
-Replace the LR(0) reduction function by
-\begin{equation}\label{eq:la-reduce}
-\Reduce_{\Look}(q,t)
-\triangleq
-\set*{\Item{A}{\omega}
-\mid
-\Item{A}{\omega\cdot\eps}\in q,\
-t\in\Look(q,\Item{A}{\omega})}.
-\end{equation}
 
-Let \(\vdash_{\Look}\) be the transition relation obtained from
-\(\vdash\) by replacing \(\Reduce\) with \(\Reduce_{\Look}\), and let
-\(L(\vdash_{\Look})\) be its accepted language.
-
-\begin{lemma}[Guarded soundness]\label{lem:lookahead-sound}
-\[
-L(\vdash_{\Look})\subseteq L(G).
-\]
-\end{lemma}
-
-\begin{proof}
-From \eqref{eq:la-reduce},
-\[
-\Reduce_{\Look}(q,t)\subseteq\Reduce(q,t)
-\quad\Longrightarrow\quad
-\vdash_{\Look}\subseteq\vdash
-\quad\Longrightarrow\quad
-\vdash_{\Look}^{\,*}\subseteq\vdash^*.
-\]
-Therefore
-\begin{equation}\label{eq:la-sound}
-L(\vdash_{\Look})
-\subseteq
-L(\LRA(G))
-=
-L(G)
-\qquad\text{by coro~\ref{coro:lra-correct}.}
-\end{equation}
-\end{proof}
-
-\begin{lemma}[Guarded completeness]\label{lem:lookahead-complete}
-\[
-L(G)\subseteq L(\vdash_{\Look}).
-\]
-\end{lemma}
-
-\begin{proof}
-Let \(z\in L(G)\).  In the completeness construction of
-coro~\ref{coro:lra-correct}, every Reduce step has the form
-\[
-(\Path{\alpha\omega}{q_0}{q},t z^\prime)
-\vdash
-(\Path{\alpha A}{q_0}{\delta(p,A)},t z^\prime),
-\]
-where
-\[
-S^\prime\RMP S\$\RMP^*\alpha A t z^\prime,
-\qquad
-\Path{\alpha\omega}{q_0}{q},
-\qquad
-\Item{A}{\omega\cdot\eps}\in q.
-\]
-By \eqref{eq:la-def},
-\[
-t\in\Look(q,\Item{A}{\omega})
-\quad\Longleftrightarrow\quad
-\Item{A}{\omega}\in\Reduce_{\Look}(q,t).
-\]
-Thus every Reduce step used in that accepting LR(0) computation is also legal
-for \(\vdash_{\Look}\); Shift steps are unchanged.  Hence
-\[
-L(G)\subseteq L(\vdash_{\Look}).
-\]
-\end{proof}
-
-\begin{corollary}[Language preservation]\label{cor:lookahead-language}
-\[
-L(\vdash_{\Look})=L(G).
-\]
-\end{corollary}
-
-\begin{proof}
-Combine Lemmas~\ref{lem:lookahead-sound} and~\ref{lem:lookahead-complete}.
-\end{proof}
-
-\begin{lemma}[Conflict-free table condition]\label{lem:lookahead-table}
-If the resulting table has no shift/reduce or reduce/reduce conflict, its
-action is single-valued under one-symbol lookahead, hence it is an
-\(\LALRone\) table.
-\end{lemma}
-
-\begin{proof}
-The action at \((q,t)\) consists of the shift
-\(\delta(q,t)\) when it is nonempty and the reductions in
-\(\Reduce_{\Look}(q,t)\).  Absence of shift/reduce and reduce/reduce conflicts
-means that this action is single-valued under one-symbol lookahead, which is
-precisely the \(\LALRone\) table condition.
-\end{proof}
-
-\begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
-\leavevmode\par\noindent
-If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
-\(\LALRone\) parser and accepts \(L(G)\).
-\end{theorem}
-
-\begin{proof}
-Corollary~\ref{cor:lookahead-language} gives acceptance of \(L(G)\), and
-Lemma~\ref{lem:lookahead-table} gives the \(\LALRone\) table condition under the
-stated absence of conflicts.
-\end{proof}
-
-\section{Read and Follow Sets}
+The remainder of this section computes \(\Look(q,\Item{A}{\omega})\) from the LR(0) automaton, as the least fixed point of a Read/Follow digraph.
 
 Let
 \[
@@ -1057,6 +948,119 @@ The Read and Follow fixed-point claims are Lemmas~\ref{lem:read-fixed-point}
 and~\ref{lem:follow-fixed-point}; applying them to the semantic definition of
 \(\Look\) gives Corollary~\ref{cor:lookahead-follow}, which is the displayed
 formula of the theorem.
+\end{proof}
+
+\section{Lookahead Restriction}
+
+Recall the lookahead set \(\Look\) of \eqref{eq:la-def}.  Replace the LR(0) reduction function by
+\begin{equation}\label{eq:la-reduce}
+\Reduce_{\Look}(q,t)
+\triangleq
+\set*{\Item{A}{\omega}
+\mid
+\Item{A}{\omega\cdot\eps}\in q,\
+t\in\Look(q,\Item{A}{\omega})}.
+\end{equation}
+
+Let \(\vdash_{\Look}\) be the transition relation obtained from
+\(\vdash\) by replacing \(\Reduce\) with \(\Reduce_{\Look}\), and let
+\(L(\vdash_{\Look})\) be its accepted language.
+
+\begin{lemma}[Guarded soundness]\label{lem:lookahead-sound}
+\[
+L(\vdash_{\Look})\subseteq L(G).
+\]
+\end{lemma}
+
+\begin{proof}
+From \eqref{eq:la-reduce},
+\[
+\Reduce_{\Look}(q,t)\subseteq\Reduce(q,t)
+\quad\Longrightarrow\quad
+\vdash_{\Look}\subseteq\vdash
+\quad\Longrightarrow\quad
+\vdash_{\Look}^{\,*}\subseteq\vdash^*.
+\]
+Therefore
+\begin{equation}\label{eq:la-sound}
+L(\vdash_{\Look})
+\subseteq
+L(\LRA(G))
+=
+L(G)
+\qquad\text{by coro~\ref{coro:lra-correct}.}
+\end{equation}
+\end{proof}
+
+\begin{lemma}[Guarded completeness]\label{lem:lookahead-complete}
+\[
+L(G)\subseteq L(\vdash_{\Look}).
+\]
+\end{lemma}
+
+\begin{proof}
+Let \(z\in L(G)\).  In the completeness construction of
+coro~\ref{coro:lra-correct}, every Reduce step has the form
+\[
+(\Path{\alpha\omega}{q_0}{q},t z^\prime)
+\vdash
+(\Path{\alpha A}{q_0}{\delta(p,A)},t z^\prime),
+\]
+where
+\[
+S^\prime\RMP S\$\RMP^*\alpha A t z^\prime,
+\qquad
+\Path{\alpha\omega}{q_0}{q},
+\qquad
+\Item{A}{\omega\cdot\eps}\in q.
+\]
+By \eqref{eq:la-def},
+\[
+t\in\Look(q,\Item{A}{\omega})
+\quad\Longleftrightarrow\quad
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t).
+\]
+Thus every Reduce step used in that accepting LR(0) computation is also legal
+for \(\vdash_{\Look}\); Shift steps are unchanged.  Hence
+\[
+L(G)\subseteq L(\vdash_{\Look}).
+\]
+\end{proof}
+
+\begin{corollary}[Language preservation]\label{cor:lookahead-language}
+\[
+L(\vdash_{\Look})=L(G).
+\]
+\end{corollary}
+
+\begin{proof}
+Combine Lemmas~\ref{lem:lookahead-sound} and~\ref{lem:lookahead-complete}.
+\end{proof}
+
+\begin{lemma}[Conflict-free table condition]\label{lem:lookahead-table}
+If the resulting table has no shift/reduce or reduce/reduce conflict, its
+action is single-valued under one-symbol lookahead, hence it is an
+\(\LALRone\) table.
+\end{lemma}
+
+\begin{proof}
+The action at \((q,t)\) consists of the shift
+\(\delta(q,t)\) when it is nonempty and the reductions in
+\(\Reduce_{\Look}(q,t)\).  Absence of shift/reduce and reduce/reduce conflicts
+means that this action is single-valued under one-symbol lookahead, which is
+precisely the \(\LALRone\) table condition.
+\end{proof}
+
+\begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
+\leavevmode\par\noindent
+If the resulting table has no shift/reduce or reduce/reduce conflict, it is an
+\(\LALRone\) parser and accepts \(L(G)\).
+\end{theorem}
+
+\begin{proof}
+Corollary~\ref{cor:lookahead-language} gives acceptance of \(L(G)\), and
+Lemma~\ref{lem:lookahead-table} gives the \(\LALRone\) table condition under the
+stated absence of conflicts.
 \end{proof}
 
 \appendix
