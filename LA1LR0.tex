@@ -42,6 +42,7 @@
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{prettydef}
 \newtheorem{definition}[theorem]{Definition}
+\newtheorem*{remark}{Remark}
 
 \DeclarePairedDelimiterX{\set}[1]\lbrace\rbrace{%
   \def\mid{\;\delimsize\vert\;}#1%
@@ -958,6 +959,51 @@ induction on the length gives
 \]
 Together with closure, this proves \eqref{eq:follow-eq}.
 \end{proof}
+
+\begin{remark}[toward a Coq formalization of the converse]
+Every part of Lemma~\ref{lem:follow-fixed-point} except the converse inclusion
+transcribes to a proof assistant essentially verbatim: the closure direction
+exhibits explicit derivations and paths, so its existential witnesses are exactly
+the objects just constructed.  The converse is the single step that does not, and
+it carries most of the formalization cost of this section.
+
+The obstruction is the phrase ``the production \(B\to\beta A\gamma\) that created
+this occurrence of \(A\)'', together with the factorization
+\[
+S^\prime\RMP^*\alpha^\prime B t^\prime z^\prime
+\RMP\alpha^\prime\beta A\gamma t^\prime z^\prime
+\RMP^*\alpha A t z
+\]
+that must leave \emph{this} \(A\) untouched.  On paper the occurrence is read off
+the displayed string; once formalized, a right-sentential form is a bare list of
+symbols in which \(A\) may occur many times, and \(\RMP\) records nothing about
+which occurrence is meant.  The tracked occurrence must be promoted to
+first-class data, for which two encodings suffice.
+\begin{enumerate}
+\item \uline{\emph{Marked derivations.}}  Refine \(\RMP\) to a relation
+\verb|marked_derives| $\lambda$ $A$ $\rho$ on a sentential form presented as
+\(\lambda\,A\,\rho\) around a distinguished \(A\), with one constructor per
+rewrite position: strictly inside the left context \(\lambda\), strictly inside
+the right context \(\rho\), or the introducing step \(B\to\beta A\gamma\) that
+first plants the mark.  The converse becomes structural induction on this
+relation; the right-context constructors yield the \(\mathsf{Read}\) case, and the
+introducing constructor yields the includes edge together with the strictly
+shorter derivation that the induction consumes.
+\item \uline{\emph{Zipper sentential forms.}}  Represent the right-sentential form as a
+zipper \((\lambda,A,\rho)\) --- a left list, the focused symbol, a right list ---
+and case-analyse each \(\RMP\) step by where it fires relative to the focus:
+strictly left, strictly right, or at the focused symbol.  Then ``leaves this
+\(A\) untouched'' is precisely the side condition that the step fires off the
+focus, and the same trichotomy reappears as the three rewrite positions.
+\end{enumerate}
+Under either encoding the informal split on whether \(\gamma\) is nullable
+(\(\mathsf{Read}\) seed versus includes edge) becomes a decidable case analysis on
+the focused step, and the well-founded induction runs on the length of the marked
+or zippered derivation rather than on an unmarked \(S^\prime\RMP^*\cdots\).  By
+contrast Lemma~\ref{lem:read-fixed-point}, Corollary~\ref{cor:lookahead-follow},
+and Theorem~\ref{thm:read-follow} are first-order least-fixed-point manipulations
+over finite sets and need no such occurrence tracking.
+\end{remark}
 
 \begin{corollary}[Lookahead by Follow]\label{cor:lookahead-follow}
 Whenever \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
