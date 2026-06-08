@@ -226,7 +226,7 @@ p\in Q\land \alpha:\mathrm{GOTO}(p,X)\to q .
 q_f\triangleq\delta(\delta(q_0,S),\$).
 \]
 
-\item The accepted language is
+\item The accepted language is defined as
 \[
 L(\LRA(G))
 \triangleq
@@ -239,9 +239,9 @@ L(\LRA(G))
 \end{enumerate}
 \end{definition}
 
-For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
+For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), set $\mathrm{Y}(c) \in V^{\prime *}$ as
 \[
-\mathrm{Y}(c)\triangleq\alpha u\in V^{\prime *}.
+\mathrm{Y}(c)\triangleq\alpha u.
 \]
 
 \begin{lemma}[One-step yield invariant]\label{lem:lra-one-step-yield}
