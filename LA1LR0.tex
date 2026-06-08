@@ -242,23 +242,107 @@ L(\LRA(G))
 
 \begin{fact}[Elimination of non-productive nonterminals]\label{fact:productive}
 Call \(A\in N^\prime\) \emph{productive} if \(A\Rightarrow_{P^\prime}^*w\) for some
-\(w\in T^{\prime *}\); equivalently \(A\in\mathrm{Gen}\), the least set with
-\[
-A\in\mathrm{Gen}
-\iff
-\exists\,\Item{A}{X_1\cdots X_k}\in P^\prime.\
-\forall i\in\set*{1,\ldots,k}.\ X_i\in T^\prime\cup\mathrm{Gen}
-\qquad(k=0\text{ allowed}).
-\]
-Otherwise \(A\) is \emph{non-productive}.  A production that mentions a
-non-productive nonterminal can never occur in a derivation of a terminal string,
-so deleting every non-productive nonterminal together with all productions that
-mention one preserves the generated language.  Hence, whenever
-\(L(G)\ne\emptyset\), we may assume without loss of generality that every
-nonterminal of \(G^\prime\) is productive; when \(L(G)=\emptyset\) the identity
-\(L(\LRA(G))=L(G)=\emptyset\) already follows from soundness
-(Corollary~\ref{cor:lra-sound}).
+\(w\in T^{\prime *}\), and \emph{non-productive} otherwise.  Removing every
+non-productive nonterminal together with all productions that mention one
+preserves the generated language.  Hence, whenever \(L(G)\ne\emptyset\), we may
+assume without loss of generality that every nonterminal of \(G^\prime\) is
+productive; when \(L(G)=\emptyset\) the identity \(L(\LRA(G))=L(G)=\emptyset\)
+already follows from soundness (Corollary~\ref{cor:lra-sound}).
 \end{fact}
+
+\begin{proof}
+Extend productivity to strings: \(\sigma\in V^{\prime *}\) is productive if
+\(\sigma\Rightarrow_{P^\prime}^*x\) for some \(x\in T^{\prime *}\).  A terminal
+derives only itself and a derivation of a string is the concatenation of
+derivations of its symbols, so
+\begin{equation}\label{eq:prod-string}
+Y_1\cdots Y_m\text{ productive}
+\iff
+\forall i.\ Y_i\text{ productive}
+\qquad(t\in T^\prime\text{ productive}).
+\end{equation}
+
+\proofpart{Fixed-point characterization}
+Let \(\mathrm{Gen}\subseteq N^\prime\) be the least fixed point
+\[
+\mathrm{Gen}=\bigcup_{n\ge 0}\mathrm{Gen}_n,
+\quad
+\mathrm{Gen}_0=\emptyset,
+\quad
+\mathrm{Gen}_{n+1}
+=\set*{A\in N^\prime\mid
+\exists\,\Item{A}{X_1\cdots X_k}\in P^\prime.\
+\forall i.\ X_i\in T^\prime\cup\mathrm{Gen}_n}
+\]
+(with \(k=0\), i.e.\ \(\Item{A}{\eps}\in P^\prime\), permitted).  Then \(A\) is
+productive iff \(A\in\mathrm{Gen}\):
+\[
+\begin{aligned}
+A\in\mathrm{Gen}_{n+1}
+&\Longrightarrow
+\Item{A}{X_1\cdots X_k}\in P^\prime\ \text{with}\ X_i\in T^\prime\cup\mathrm{Gen}_n\\
+&\overset{\mathrm{IH}_n}{\Longrightarrow}
+A\Rightarrow_{P^\prime}X_1\cdots X_k\Rightarrow_{P^\prime}^*x_1\cdots x_k\in T^{\prime *};\\[2pt]
+A\Rightarrow_{P^\prime}^{\,\ell}w\in T^{\prime *}\ (\ell\ge1)
+&\Longrightarrow
+A\Rightarrow_{P^\prime}X_1\cdots X_k\Rightarrow_{P^\prime}^{\,\ell-1}w,\
+X_i\Rightarrow_{P^\prime}^{\,\ell_i}w_i,\ \ell_i<\ell\\
+&\overset{\mathrm{IH}_\ell}{\Longrightarrow}
+X_i\in T^\prime\cup\mathrm{Gen}\Longrightarrow A\in\mathrm{Gen}.
+\end{aligned}
+\]
+Thus the non-productive nonterminals are exactly \(N^\prime\setminus\mathrm{Gen}\),
+a least fixed point.
+
+\proofpart{Language preservation}
+Let \(\widehat G\) delete \(N^\prime\setminus\mathrm{Gen}\) and every production
+mentioning it; since terminals are productive, its productions are
+\[
+\widehat P
+\triangleq
+\set*{\Item{A}{X_1\cdots X_k}\in P^\prime\mid
+A,X_1,\ldots,X_k\ \text{all productive}}
+\subseteq P^\prime .
+\]
+As \(\widehat P\subseteq P^\prime\), \(S^\prime\Rightarrow_{\widehat P}^*z\) implies
+\(S^\prime\Rightarrow_{P^\prime}^*z\).  For the converse, induct on the length
+\(\ell\) of \(\sigma\Rightarrow_{P^\prime}^{\,\ell}x\in T^{\prime *}\):
+\[
+\sigma\Rightarrow_{P^\prime}^{\,\ell}x\in T^{\prime *}
+\ \Longrightarrow\
+\sigma\text{ productive}\ \land\ \sigma\Rightarrow_{\widehat P}^*x .
+\]
+For \(\ell=0\), \(\sigma=x\in T^{\prime *}\).  For \(\ell\ge1\), split off the
+first step \(\sigma=\sigma_1C\sigma_2\), \(\Item{C}{\gamma}\in P^\prime\),
+\(\sigma_1,\sigma_2\in V^{\prime *}\):
+\[
+\sigma=\sigma_1C\sigma_2
+\Rightarrow_{P^\prime}
+\sigma_1\gamma\sigma_2
+\Rightarrow_{P^\prime}^{\,\ell-1}x
+\ \overset{\mathrm{IH}}{\Longrightarrow}\
+\sigma_1\gamma\sigma_2\ \text{productive}\ \land\
+\sigma_1\gamma\sigma_2\Rightarrow_{\widehat P}^*x .
+\]
+By \eqref{eq:prod-string}, \(\gamma\) is productive, hence so is \(C\)
+(via \(\Item{C}{\gamma}\)), so \(\Item{C}{\gamma}\in\widehat P\) and
+\[
+\sigma=\sigma_1C\sigma_2
+\Rightarrow_{\widehat P}
+\sigma_1\gamma\sigma_2
+\Rightarrow_{\widehat P}^*x .
+\]
+Taking \(\sigma=S^\prime\) gives \(L(G^\prime)\subseteq L(\widehat G)\), so
+\(L(\widehat G)=L(G^\prime)\) and every nonterminal of \(\widehat G\) is
+productive.
+
+When \(L(G)\ne\emptyset\), \(S\) is productive, hence \(S^\prime\) is productive
+(\(\Item{S^\prime}{S\$}\)) and \(\widehat G\) keeps the start symbol with the same
+language; replacing \(G^\prime\) by \(\widehat G\) loses no generality.  When
+\(L(G)=\emptyset\), \(S\notin\mathrm{Gen}\) and
+Corollary~\ref{cor:lra-sound} gives \(L(\LRA(G))\subseteq L(G)=\emptyset\)
+directly.
+\end{proof}
 
 For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), put
 \[
@@ -366,8 +450,7 @@ By \eqref{eq:valid-def}, for every \(X\in V^\prime\),
 \qquad(\text{same }\delta,w;\ \eta=\delta\alpha\iff\eta X=\delta\alpha X),
 \]
 and every nonempty-left-part valid item for \(\eta X\) ends in \(X\), hence has
-this form.  So the kernel of \(\mathrm{GOTO}(\mathsf{Valid}(\eta),X)\) is exactly
-those items, and closing it gives
+this form.  These items are the \(\mathrm{GOTO}\)-kernel; closing it gives
 \begin{equation}\label{eq:goto-valid}
 q=\mathsf{Valid}(\eta)\ \Longrightarrow\ \mathrm{GOTO}(q,X)=\mathsf{Valid}(\eta X).
 \end{equation}
