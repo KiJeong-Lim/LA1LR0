@@ -1433,97 +1433,10 @@ Concretely:
 \end{enumerate}
 \end{definition}
 
-\begin{definition}[Reduce-only summary graph]\label{def:reduce-summary-graph}
-Let
-\[
-M\triangleq
-\max\set*{|\omega|\mid \Item{A}{\omega}\in P^\prime},
-\qquad
-m\triangleq M+1.
-\]
-Erase parse trees from the parser stack and retain only the control frames
-(states and grammar symbols).  Let \(\Pi\) be the finite set of such control
-frames and let
-\[
-\mathrm{suf}_m:\Pi^*\to\Pi^{\le m}
-\]
-take the last \(m\) frames.  This suffix is enough for one Reduce step: reducing
-\(A\to\omega\) pops at most \(M\) frames and consults the exposed predecessor
-state before pushing \(A\).
-
-For each lookahead \(t\in T^\prime\), define the finite reduce-only summary
-graph
-\[
-R_t^\#\subseteq \Pi^{\le m}\times\Pi^{\le m}
-\]
-by \(s\,R_t^\#\,s'\) when there exist run configurations \(c,c'\) such that
-\(\mathrm{input}(c)=tz\), the guarded table performs one Reduce step
-\(c\to c'\), and
-\[
-s=\mathrm{suf}_m(\mathrm{ctl}(c)),
-\qquad
-s'=\mathrm{suf}_m(\mathrm{ctl}(c')).
-\]
-A summary-rank certificate is a family of functions
-\[
-r_t:\Pi^{\le m}\to\mathbb N
-\qquad(t\in T^\prime)
-\]
-such that
-\[
-s\,R_t^\#\,s'
-\quad\Longrightarrow\quad
-r_t(s')<r_t(s).
-\]
-Equivalently, since \(R_t^\#\) is finite, it is enough to check that each
-\(R_t^\#\) is acyclic and put
-\[
-r_t(s)\triangleq
-\max\set*{n\mid
-s=s_0\,R_t^\#\,s_1\,R_t^\#\cdots R_t^\#\,s_n}.
-\]
-\end{definition}
-
-\begin{lemma}[Constructing the parser rank]\label{lem:construct-parser-rank}
-Given a summary-rank certificate, define
-\[
-\rho(c)\triangleq
-\begin{cases}
-r_t(\mathrm{suf}_m(\mathrm{ctl}(c))),
-  &\text{if }\mathrm{input}(c)=tz,\\
-0, &\text{if }\mathrm{input}(c)=\eps.
-\end{cases}
-\]
-Then every Reduce step \(c\to c'\) satisfies
-\[
-\rho(c')<\rho(c).
-\]
-Thus \(\rho\) is the rank required in
-Definition~\ref{def:termination-cert}.
-\end{lemma}
-
-\begin{proof}
-A Reduce step does not consume input, so if \(\mathrm{input}(c)=tz\), then
-\(\mathrm{input}(c')=tz\) as well.  By the definition of \(R_t^\#\), the two
-control suffixes form an edge
-\[
-\mathrm{suf}_m(\mathrm{ctl}(c))
-\,R_t^\#\,
-\mathrm{suf}_m(\mathrm{ctl}(c')).
-\]
-The summary-rank certificate therefore gives
-\[
-r_t(\mathrm{suf}_m(\mathrm{ctl}(c')))
-<
-r_t(\mathrm{suf}_m(\mathrm{ctl}(c))),
-\]
-which is exactly \(\rho(c')<\rho(c)\).  Shift steps are handled by the first
-component \(|\mathrm{input}(c)|\) of \(\mu\), and Accept/Error configurations
-make no recursive call.
-\end{proof}
-
-The point is that this certificate is a property of the generated table, not a
-user-supplied timeout budget.
+This appendix does not prescribe how the rank \(\rho\) is constructed.  It
+records only the proof obligation that a generated table must discharge in
+order to obtain a fuel-free parser.  Thus the certificate is a property of the
+generated table, not a user-supplied timeout budget.
 
 \begin{lemma}[Accessibility of parser configurations]\label{lem:parser-acc}
 If a guarded table has a termination certificate, then every initial run
