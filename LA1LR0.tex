@@ -1412,9 +1412,56 @@ The table specification above is relational.  An executable parser can be
 obtained without adding a fuel argument if the table construction also returns a
 termination certificate for reduce-only phases.
 
-\begin{definition}[Termination certificate]\label{def:termination-cert}
+\begin{definition}[Reduce-control rank]\label{def:reduce-control-rank}
 For a conflict-free guarded table, let a run configuration be a stack together
-with the unread input.  A termination certificate is a rank function
+with the unread input.  Write \(\mathrm{top}(c)\in Q\) for the state on top of
+the stack and \(\mathrm{input}(c)\) for the unread input.
+
+Define the reduce-control graph of the table by the finite relation
+\[
+(q,t)\leadsto_{\mathrm{red}}(q',t)
+\]
+on \(Q\times T^\prime\), where
+\[
+(q,t)\leadsto_{\mathrm{red}}(q',t)
+\Longleftrightarrow
+\exists A\in N^\prime,\ \omega\in V^{\prime *},\ p\in Q.\,
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t)
+\land
+\Path{\omega}{p}{q}
+\land
+q'=\delta(p,A).
+\]
+The table is \emph{reduce-terminating} when this graph is acyclic.
+
+Assume now that the table is reduce-terminating.  Define the height of a
+control vertex by
+\[
+h(q,t)
+\triangleq
+\max\set*{n\in\mathbb N
+\mid
+\exists q_0,\ldots,q_n\in Q.\,
+q_0=q\land
+\bigwedge_{0\le i<n}
+  (q_i,t)\leadsto_{\mathrm{red}}(q_{i+1},t)}.
+\]
+The missing rank is this height, read at the current top state and current
+lookahead:
+\[
+\rho(c)
+\triangleq
+\begin{cases}
+ h(\mathrm{top}(c),t),
+   & \mathrm{input}(c)=t u
+     \text{ for }t\in T^\prime,\ u\in T^{\prime *},\\[2pt]
+ 0, & \mathrm{input}(c)=\eps.
+\end{cases}
+\]
+\end{definition}
+
+\begin{definition}[Termination certificate]\label{def:termination-cert}
+A termination certificate for a conflict-free guarded table is a rank function
 \[
 \rho:\Config_{\mathrm{run}}\to\mathbb N
 \]
@@ -1423,7 +1470,7 @@ measure
 \[
 \mu(c)\triangleq(|\mathrm{input}(c)|,\rho(c))\in\mathbb N\times\mathbb N .
 \]
-Concretely:
+Equivalently:
 \begin{enumerate}
 \item a Shift step consumes one terminal, so
   \(|\mathrm{input}(c')|<|\mathrm{input}(c)|\);
@@ -1433,10 +1480,59 @@ Concretely:
 \end{enumerate}
 \end{definition}
 
-This appendix does not prescribe how the rank \(\rho\) is constructed.  It
-records only the proof obligation that a generated table must discharge in
-order to obtain a fuel-free parser.  Thus the certificate is a property of the
+\begin{theorem}[Correctness of the reduce-control rank]\label{thm:rho-cert}
+If a conflict-free guarded table is reduce-terminating, then the rank \(\rho\) of
+Definition~\ref{def:reduce-control-rank} is a termination certificate in the
+sense of Definition~\ref{def:termination-cert}.
+\end{theorem}
+
+\begin{proof}
+Because \(Q\times T^\prime\) is finite and \(\leadsto_{\mathrm{red}}\) is acyclic,
+every reduce-control path has length at most \(|Q|\,|T^\prime|-1\).  Hence the
+maximum defining \(h(q,t)\) exists for every \((q,t)\).
+
+First observe that every reduce edge strictly lowers height.  If
+\((q,t)\leadsto_{\mathrm{red}}(q',t)\), then any reduce-control path of length
+\(n\) from \((q',t)\) can be prefixed by this edge to obtain a path of length
+\(n+1\) from \((q,t)\).  By maximality of \(h\),
+\[
+h(q,t)\ge h(q',t)+1,
+\]
+and therefore \(h(q',t)<h(q,t)\).
+
+Now inspect one recursive parser step from \(c\) to \(c'\).  If the step is a
+Shift and \(\mathrm{input}(c)=t u\), then \(\mathrm{input}(c')=u\), so
+\(|\mathrm{input}(c')|<|\mathrm{input}(c)|\).  Thus
+\(\mu(c')<_{\mathrm{lex}}\mu(c)\), regardless of the second component.
+
+If the step is a Reduce, then the unread input is unchanged.  Write
+\(\mathrm{input}(c)=t u\), let \(q=\mathrm{top}(c)\), and let
+\(q'=\mathrm{top}(c')\).  By the reduce rule, there exist
+\(A\in N^\prime\), \(\omega\in V^{\prime *}\), and \(p\in Q\) such that
+\[
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t),
+\qquad
+\Path{\omega}{p}{q},
+\qquad
+q'=\delta(p,A).
+\]
+Hence \((q,t)\leadsto_{\mathrm{red}}(q',t)\), and the height decrease above gives
+\[
+\rho(c')=h(q',t)<h(q,t)=\rho(c).
+\]
+Since \(|\mathrm{input}(c')|=|\mathrm{input}(c)|\), this again implies
+\(\mu(c')<_{\mathrm{lex}}\mu(c)\).
+
+Accept and Error configurations make no recursive call, so there is no decrease
+condition to prove.  Therefore every recursive call strictly decreases \(\mu\),
+and \(\rho\) is a termination certificate.
+\end{proof}
+
+Thus the certificate is computable from the generated table: build the finite
+reduce-control graph, check that it is acyclic, compute \(h\) in reverse
+topological order, and use the resulting \(\rho\).  It is a property of the
 generated table, not a user-supplied timeout budget.
+
 
 \begin{lemma}[Accessibility of parser configurations]\label{lem:parser-acc}
 If a guarded table has a termination certificate, then every initial run
