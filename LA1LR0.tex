@@ -1406,6 +1406,180 @@ the least sets satisfying Theorem~\ref{thm:read-follow}, and hence the
 lookahead-restricted parser of Theorem~\ref{thm:lookahead-guard} uses exactly
 the \(\LALRone\) lookahead sets determined by the LR(0) automaton.
 
+\section{Fuel-Free Parser Execution}\label{sec:fuel-free-parser}
+
+The table specification above is relational.  An executable parser can be
+obtained without adding a fuel argument if the table construction also returns a
+termination certificate for reduce-only phases.
+
+\begin{definition}[Termination certificate]\label{def:termination-cert}
+For a conflict-free guarded table, let a run configuration be a stack together
+with the unread input.  A termination certificate is a rank function
+\[
+\rho:\Config_{\mathrm{run}}\to\mathbb N
+\]
+such that every recursive parser step strictly decreases the lexicographic
+measure
+\[
+\mu(c)\triangleq(|\mathrm{input}(c)|,\rho(c))\in\mathbb N\times\mathbb N .
+\]
+Concretely:
+\begin{enumerate}
+\item a Shift step consumes one terminal, so
+  \(|\mathrm{input}(c')|<|\mathrm{input}(c)|\);
+\item a Reduce step consumes no input, but satisfies
+  \(\rho(c')<\rho(c)\);
+\item Accept and Error configurations make no recursive call.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Reduce-only summary graph]\label{def:reduce-summary-graph}
+Let
+\[
+M\triangleq
+\max\set*{|\omega|\mid \Item{A}{\omega}\in P^\prime},
+\qquad
+m\triangleq M+1.
+\]
+Erase parse trees from the parser stack and retain only the control frames
+(states and grammar symbols).  Let \(\Pi\) be the finite set of such control
+frames and let
+\[
+\mathrm{suf}_m:\Pi^*\to\Pi^{\le m}
+\]
+take the last \(m\) frames.  This suffix is enough for one Reduce step: reducing
+\(A\to\omega\) pops at most \(M\) frames and consults the exposed predecessor
+state before pushing \(A\).
+
+For each lookahead \(t\in T^\prime\), define the finite reduce-only summary
+graph
+\[
+R_t^\#\subseteq \Pi^{\le m}\times\Pi^{\le m}
+\]
+by \(s\,R_t^\#\,s'\) when there exist run configurations \(c,c'\) such that
+\(\mathrm{input}(c)=tz\), the guarded table performs one Reduce step
+\(c\to c'\), and
+\[
+s=\mathrm{suf}_m(\mathrm{ctl}(c)),
+\qquad
+s'=\mathrm{suf}_m(\mathrm{ctl}(c')).
+\]
+A summary-rank certificate is a family of functions
+\[
+r_t:\Pi^{\le m}\to\mathbb N
+\qquad(t\in T^\prime)
+\]
+such that
+\[
+s\,R_t^\#\,s'
+\quad\Longrightarrow\quad
+r_t(s')<r_t(s).
+\]
+Equivalently, since \(R_t^\#\) is finite, it is enough to check that each
+\(R_t^\#\) is acyclic and put
+\[
+r_t(s)\triangleq
+\max\set*{n\mid
+s=s_0\,R_t^\#\,s_1\,R_t^\#\cdots R_t^\#\,s_n}.
+\]
+\end{definition}
+
+\begin{lemma}[Constructing the parser rank]\label{lem:construct-parser-rank}
+Given a summary-rank certificate, define
+\[
+\rho(c)\triangleq
+\begin{cases}
+r_t(\mathrm{suf}_m(\mathrm{ctl}(c))),
+  &\text{if }\mathrm{input}(c)=tz,\\
+0, &\text{if }\mathrm{input}(c)=\eps.
+\end{cases}
+\]
+Then every Reduce step \(c\to c'\) satisfies
+\[
+\rho(c')<\rho(c).
+\]
+Thus \(\rho\) is the rank required in
+Definition~\ref{def:termination-cert}.
+\end{lemma}
+
+\begin{proof}
+A Reduce step does not consume input, so if \(\mathrm{input}(c)=tz\), then
+\(\mathrm{input}(c')=tz\) as well.  By the definition of \(R_t^\#\), the two
+control suffixes form an edge
+\[
+\mathrm{suf}_m(\mathrm{ctl}(c))
+\,R_t^\#\,
+\mathrm{suf}_m(\mathrm{ctl}(c')).
+\]
+The summary-rank certificate therefore gives
+\[
+r_t(\mathrm{suf}_m(\mathrm{ctl}(c')))
+<
+r_t(\mathrm{suf}_m(\mathrm{ctl}(c))),
+\]
+which is exactly \(\rho(c')<\rho(c)\).  Shift steps are handled by the first
+component \(|\mathrm{input}(c)|\) of \(\mu\), and Accept/Error configurations
+make no recursive call.
+\end{proof}
+
+The point is that this certificate is a property of the generated table, not a
+user-supplied timeout budget.
+
+\begin{lemma}[Accessibility of parser configurations]\label{lem:parser-acc}
+If a guarded table has a termination certificate, then every initial run
+configuration is accessible for the strict parser-step order
+\[
+c'\prec c
+\quad\Longleftrightarrow\quad
+\mu(c')<_{\mathrm{lex}}\mu(c).
+\]
+\end{lemma}
+
+\begin{proof}
+The strict order \(<\) on \(\mathbb N\) is well-founded, hence so is the
+lexicographic order on \(\mathbb N\times\mathbb N\).  By
+Definition~\ref{def:termination-cert}, every recursive call of the parser moves
+from \(c\) to a configuration \(c'\) with \(c'\prec c\).  Therefore the inverse
+image of the well-founded lexicographic order along \(\mu\) is well-founded on
+run configurations.  Equivalently, every initial configuration has an
+\(\mathsf{Acc}\,\prec\) proof.
+\end{proof}
+
+\begin{corollary}[Fuel-free recursive parser]\label{cor:fuel-free-parser}
+Under the same certificate assumption, the parser can be defined as a total
+recursive function
+\[
+\mathrm{run}_{\mathsf{Acc}}
+  : \prod_{c:\Config_{\mathrm{run}}}
+    \mathsf{Acc}\,\prec\,c \to
+    \mathrm{option}\ \mathrm{ParseTree},
+\]
+and the public parser has no fuel parameter:
+\[
+\mathrm{run\_parser}(w)
+\triangleq
+\mathrm{run}_{\mathsf{Acc}}
+  (c_0(w))
+  (\text{Lemma~\ref{lem:parser-acc} applied to }c_0(w)).
+\]
+\end{corollary}
+
+\begin{proof}
+Define \(\mathrm{run}_{\mathsf{Acc}}\) by structural recursion on the
+\(\mathsf{Acc}\,\prec\,c\) proof.  In Shift and Reduce cases,
+Definition~\ref{def:termination-cert} supplies the strict decrease needed to
+use the accessibility predecessor proof.  In Accept and Error cases, return the
+corresponding result immediately.  Lemma~\ref{lem:parser-acc} supplies the
+accessibility proof for the initial configuration, hiding it from the public
+interface.
+\end{proof}
+
+Thus the public parser interface is
+\[
+T^*\to\mathrm{option}\ \mathrm{ParseTree},
+\]
+with no fuel argument and no timeout result.
+
 \begin{thebibliography}{9}
 \bibitem{DeRemerPennello1982}
 F. DeRemer and T. J. Pennello.
