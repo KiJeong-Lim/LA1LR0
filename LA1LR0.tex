@@ -1480,6 +1480,87 @@ Equivalently:
 \end{enumerate}
 \end{definition}
 
+\begin{lemma}[Heights for finite acyclic relations]\label{lem:finite-acyclic-heights}
+Let \(X\) be a finite set and let \(R\subseteq X\times X\) be acyclic.
+For \(x\in X\), define
+\[
+H_R(x)
+\triangleq
+\max\set*{n\in\mathbb N
+\mid
+\exists x_0,\ldots,x_n\in X.\,
+x_0=x\land
+\bigwedge_{0\le i<n}(x_i,x_{i+1})\in R}.
+\]
+Then \(H_R(x)\) is well-defined for every \(x\in X\).  More precisely,
+the set whose maximum is taken is nonempty and every element of it is at most
+\(|X|-1\).  Moreover, whenever \((x,y)\in R\), one has
+\[
+H_R(y)<H_R(x).
+\]
+\end{lemma}
+
+\begin{proof}
+Fix \(x\in X\), and let
+\[
+S_x
+\triangleq
+\set*{n\in\mathbb N
+\mid
+\exists x_0,\ldots,x_n\in X.\,
+x_0=x\land
+\bigwedge_{0\le i<n}(x_i,x_{i+1})\in R}.
+\]
+The set \(S_x\) is nonempty: \(0\in S_x\), witnessed by the length-zero path
+\(x_0=x\).
+
+We claim that \(S_x\) is bounded by \(|X|-1\).  Take any \(n\in S_x\), with
+witnessing path
+\[
+x_0,x_1,\ldots,x_n.
+\]
+If \(n\ge |X|\), then the path contains \(n+1>|X|\) vertices, all lying in the
+finite set \(X\).  By the pigeonhole principle, there are indices
+\(0\le i<j\le n\) such that \(x_i=x_j\).  Choose such a pair with \(j-i\)
+minimal.  Then the vertices
+\[
+x_i,x_{i+1},\ldots,x_{j-1}
+\]
+are pairwise distinct: if \(x_a=x_b\) for some \(i\le a<b\le j-1\), then
+\(b-a<j-i\), contradicting the minimality of \(j-i\).  Since
+\(x_j=x_i\) and \((x_k,x_{k+1})\in R\) for all \(i\le k<j\), the segment
+\[
+x_i,x_{i+1},\ldots,x_{j-1},x_i
+\]
+is a directed cycle of positive length.  This contradicts the assumption that
+\(R\) is acyclic.  Hence \(n<|X|\), equivalently \(n\le |X|-1\).
+
+Thus
+\[
+S_x\subseteq \set*{0,1,\ldots,|X|-1}.
+\]
+The right-hand set is finite and \(S_x\) is nonempty, so \(S_x\) has a greatest
+element.  Therefore \(H_R(x)=\max S_x\) is well-defined.
+
+It remains to prove strict decrease along an edge.  Assume \((x,y)\in R\), and
+put \(m=H_R(y)\).  Since \(m\) is the maximum of \(S_y\), there is a witnessing
+path
+\[
+y_0,y_1,\ldots,y_m
+\]
+with \(y_0=y\) and \((y_i,y_{i+1})\in R\) for all \(0\le i<m\).  Prefix this
+path by the edge \((x,y)\in R\).  This gives a path of length \(m+1\) from
+\(x\):
+\[
+x,y_0,y_1,\ldots,y_m.
+\]
+Hence \(m+1\in S_x\), and therefore
+\[
+H_R(x)\ge m+1>m=H_R(y).
+\]
+So \(H_R(y)<H_R(x)\), as required.
+\end{proof}
+
 \begin{theorem}[Correctness of the reduce-control rank]\label{thm:rho-cert}
 If a conflict-free guarded table is reduce-terminating, then the rank \(\rho\) of
 Definition~\ref{def:reduce-control-rank} is a termination certificate in the
@@ -1487,23 +1568,45 @@ sense of Definition~\ref{def:termination-cert}.
 \end{theorem}
 
 \begin{proof}
-Because \(Q\times T^\prime\) is finite and \(\leadsto_{\mathrm{red}}\) is acyclic,
-every reduce-control path has length at most \(|Q|\,|T^\prime|-1\).  Hence the
-maximum defining \(h(q,t)\) exists for every \((q,t)\).
-
-First observe that every reduce edge strictly lowers height.  If
-\((q,t)\leadsto_{\mathrm{red}}(q',t)\), then any reduce-control path of length
-\(n\) from \((q',t)\) can be prefixed by this edge to obtain a path of length
-\(n+1\) from \((q,t)\).  By maximality of \(h\),
+Apply Lemma~\ref{lem:finite-acyclic-heights} to
 \[
-h(q,t)\ge h(q',t)+1,
+X=Q\times T^\prime
+\qquad\text{and}\qquad
+R={\leadsto_{\mathrm{red}}}.
 \]
-and therefore \(h(q',t)<h(q,t)\).
+The set \(X\) is finite, and reduce-termination says exactly that
+\(\leadsto_{\mathrm{red}}\) is acyclic on \(Q\times T^\prime\).  Therefore the
+height used in Definition~\ref{def:reduce-control-rank} is well-defined.  Indeed,
+the path
+\[
+q_0,q_1,\ldots,q_n
+\]
+appearing in the definition of \(h(q,t)\) is the same thing as the
+\(\leadsto_{\mathrm{red}}\)-path
+\[
+(q_0,t),(q_1,t),\ldots,(q_n,t)
+\]
+in \(Q\times T^\prime\).  Thus \(h(q,t)\) is the instance of
+\(H_R((q,t))\) supplied by the lemma.  In particular, every reduce-control edge
+strictly lowers this height: if
+\[
+(q,t)\leadsto_{\mathrm{red}}(q',t),
+\]
+then
+\[
+h(q',t)<h(q,t).
+\]
 
 Now inspect one recursive parser step from \(c\) to \(c'\).  If the step is a
 Shift and \(\mathrm{input}(c)=t u\), then \(\mathrm{input}(c')=u\), so
-\(|\mathrm{input}(c')|<|\mathrm{input}(c)|\).  Thus
-\(\mu(c')<_{\mathrm{lex}}\mu(c)\), regardless of the second component.
+\[
+|\mathrm{input}(c')|<|\mathrm{input}(c)|.
+\]
+Consequently
+\[
+\mu(c')<_{\mathrm{lex}}\mu(c),
+\]
+regardless of the value of the second component.
 
 If the step is a Reduce, then the unread input is unchanged.  Write
 \(\mathrm{input}(c)=t u\), let \(q=\mathrm{top}(c)\), and let
@@ -1516,16 +1619,27 @@ If the step is a Reduce, then the unread input is unchanged.  Write
 \qquad
 q'=\delta(p,A).
 \]
-Hence \((q,t)\leadsto_{\mathrm{red}}(q',t)\), and the height decrease above gives
+By the definition of the reduce-control relation, this is precisely the statement
+that
+\[
+(q,t)\leadsto_{\mathrm{red}}(q',t).
+\]
+The height decrease proved above therefore gives
 \[
 \rho(c')=h(q',t)<h(q,t)=\rho(c).
 \]
-Since \(|\mathrm{input}(c')|=|\mathrm{input}(c)|\), this again implies
-\(\mu(c')<_{\mathrm{lex}}\mu(c)\).
+Since a Reduce step does not consume input,
+\[
+|\mathrm{input}(c')|=|\mathrm{input}(c)|,
+\]
+and hence again
+\[
+\mu(c')<_{\mathrm{lex}}\mu(c).
+\]
 
 Accept and Error configurations make no recursive call, so there is no decrease
-condition to prove.  Therefore every recursive call strictly decreases \(\mu\),
-and \(\rho\) is a termination certificate.
+condition to prove for them.  Therefore every recursive call strictly decreases
+\(\mu\), and \(\rho\) is a termination certificate.
 \end{proof}
 
 Thus the certificate is computable from the generated table: build the finite
@@ -1583,7 +1697,7 @@ accessibility proof for the initial configuration, hiding it from the public
 interface.
 \end{proof}
 
-Therefore, the public parser interface is
+Thus the public parser interface is
 \[
 T^*\to\mathrm{option}\ \mathrm{ParseTree},
 \]
