@@ -1617,6 +1617,46 @@ in lexicographic order.  Concretely, whenever \(\mathsf{Reach}(c)\) and
 Accept and Error configurations make no recursive call.
 \end{definition}
 
+\begin{definition}[Recursive-call relation]\label{def:recursive-call-relation}
+Let \(\mathsf{Call}\subseteq\Config_{\mathrm{run}}\times\Config_{\mathrm{run}}\) be the relation
+\[
+c^\prime\mathrel{\mathsf{Call}}c
+\]
+iff \(\mathsf{Reach}(c)\), \(c\vdash_{\Look}c^\prime\), and that one parser step is either
+Shift or Reduce.  Accept and Error configurations have no \(\mathsf{Call}\)
+successors.
+\end{definition}
+
+\begin{lemma}[Certificate gives accessibility]\label{lem:termination-cert-acc}
+If a termination certificate \(\rho\) exists, then every reachable run
+configuration \(c\) satisfies
+\[
+\mathrm{Acc}_{\mathsf{Call}}(c).
+\]
+Equivalently, the recursive parser may make recursive calls only to
+\(\mathsf{Call}\)-smaller configurations.
+\end{lemma}
+
+\begin{proof}
+Put \(\mu(c)=(|\mathrm{input}(c)|,\rho(c))\).  By
+Definition~\ref{def:termination-cert}, every \(\mathsf{Call}\)-edge
+\(c^\prime\mathrel{\mathsf{Call}}c\) satisfies
+\[
+\mu(c^\prime)<_{\mathrm{lex}}\mu(c).
+\]
+The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and
+well-foundedness is preserved by inverse image along \(\mu\).  Hence the
+measure order
+\[
+c^\prime\prec_\rho c
+\quad\Longleftrightarrow\quad
+\mu(c^\prime)<_{\mathrm{lex}}\mu(c)
+\]
+is well-founded on run configurations.  Since \(\mathsf{Call}\) is a
+subrelation of \(\prec_\rho\) on reachable configurations, every reachable
+configuration is accessible for \(\mathsf{Call}\).
+\end{proof}
+
 \begin{definition}[Canonical exact rank]\label{def:canonical-exact-rank}
 Assume the guarded table is phase-terminating.  For \(s\in\mathbf{Stack}\) and
 \(t\in T^\prime\), define
