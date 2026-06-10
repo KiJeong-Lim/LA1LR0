@@ -1480,7 +1480,7 @@ Let \(G^\circ\) be the unaugmented productive core obtained by deleting from
 \(P\) every production whose left-hand side or right-hand side mentions a
 nonproductive nonterminal of \(G^\prime\).  Since \(L(G)\ne\emptyset\), the start
 symbol \(S\) is productive.  Fact~\ref{fact:productive}, with the trailing
-endmarker stripped as in Corollary~\ref{cor:lra-correct}, gives
+endmarker stripped as in the proof of Corollary~\ref{cor:lra-sound}, gives
 \[
 L(G^\circ)=L(G).
 \]
@@ -1537,10 +1537,13 @@ Let \(\pi\) erase state annotations:
 \pi(\langle p,A,r\rangle)=A,
 \qquad
 \pi(t)=t\quad(t\in T^\prime),
+\qquad
+\pi(S_H^\prime)=S_G^\prime,
 \]
 and extend \(\pi\) homomorphically to strings, productions, derivations, and
 parse trees.  Every production of \(G^\bullet\) erases to a production of the core
-\(G^\circ\).  Hence every terminal derivation of \(G^\bullet\), and therefore of
+\(G^\circ\), and the augmented production \(S_H^\prime\to S^\bullet\$\) erases to
+the original augmented production \(S_G^\prime\to S\$\).  Hence every terminal derivation of \(G^\bullet\), and therefore of
 \(H\), erases to a terminal derivation of \(G^\circ\).  Thus
 \[
 L(H)\subseteq L(G^\circ).
@@ -1582,7 +1585,17 @@ spurious LALR merging.  For an item of \(H^\prime\)
 define its \emph{current original state} \(\rho\) to be the state obtained by
 following \(\pi(\Theta_1\cdots\Theta_i)\) from \(p_0\) in the original automaton
 \(Q_G\).  This state is defined because the production was added only from a
-valid state sequence.  Then every reachable LR(0) state \(\bar q\) of \(H^\prime\)
+valid state sequence.  The items of the augmented production
+\(S_H^\prime\to S^\bullet\$\) have no split left-hand side; assign them the
+current original states \(q_0\), \(\delta_G(q_0,S)\), and \(q_f\) at the three dot
+positions.  This assignment is consistent with the reading below, since the dot
+before \(S^\bullet=\langle q_0,S,\delta_G(q_0,S)\rangle\) has current state
+\(q_0\); under \(\pi(S_H^\prime)=S_G^\prime\) the three augmented items erase to
+\(\Item{S_G^\prime}{\eps\cdot S\$}\), \(\Item{S_G^\prime}{S\cdot\$}\), and
+\(\Item{S_G^\prime}{S\$\cdot\eps}\), which lie in \(q_0\), \(\delta_G(q_0,S)\), and
+\(q_f\) respectively.  In particular the shift of \(\$\) in the split automaton
+erases to the original shift of \(\$\), so the conflict analysis below also
+covers the augmented items.  Then every reachable LR(0) state \(\bar q\) of \(H^\prime\)
 has a unique state \(\rho(\bar q)\in Q_G\) such that every item of \(\bar q\) has
 current original state \(\rho(\bar q)\), and erasing annotations sends items of
 \(\bar q\) to items of the original state \(\rho(\bar q)\).
@@ -1599,11 +1612,29 @@ then closing is exactly a subset of the corresponding original closure, since
 
 A useful consequence is uniqueness of split reductions inside one split state:
 if two completed split items in the same \(\bar q\) erase to the same original
-production \(A\to\omega\), then the split items are identical.  Indeed, a
-backward induction over \(\omega\) recovers the same encoded state sequence from
-the common current state \(\rho(\bar q)\) and the common erased production; the
-source state at the beginning and all nonterminal target annotations are forced
-by the invariant and by the determinism of \(\delta_G\).
+production \(A\to\omega\), then the split items are identical.  First note that a
+split production is determined by its erasure together with its source state:
+the encoded state sequence is computed forward by
+\(p_i=\delta_G(p_{i-1},X_i)\), and the left-hand side is
+\(\langle p_0,A,\delta_G(p_0,A)\rangle\).  It therefore suffices to show that the
+two completed items carry the same source state \(p_0\).  If \(\omega=\eps\),
+both items have the dot at the left end; an item with the dot at the left end
+has current original state equal to its source state, so the invariant forces
+\(p_0=\rho(\bar q)\) for both.  If \(|\omega|=m\ge 1\), both are kernel items of
+\(\bar q\).  Retreating the dot by one position is injective on items, and
+whenever \(\mathrm{GOTO}(\bar q_1,\Theta)=\bar q\), every kernel item of
+\(\bar q\) ends in \(\Theta\) and its retreated item lies in \(\bar q_1\); so both
+retreated items lie in every predecessor state of \(\bar q\).  Fix one access
+path of \(\bar q\) from \(\bar q_0\) and walk it backward \(m\) steps; this is
+possible because every item of \(\bar q_0\) has the dot at the left end, so an
+access path of a state holding a kernel item at dot position \(m\) has at least
+\(m\) edges.  After \(m\) retreats the two items lie, with the dot at the left
+end, in one common state \(\bar q_{-m}\) on this path, and as in the
+\(\omega=\eps\) case the invariant gives \(p_0=\rho(\bar q_{-m})\) for both.
+Hence the two split items are identical.  Backward determinism of \(\delta_G\)
+is neither available nor used here: distinct source states may reach a common
+target under \(\delta_G\), and the forcing comes from the state invariant at a
+common predecessor state, not from inverting \(\delta_G\).
 
 \proofpart{5. Semantic lookahead also erases}
 Let \(\bar I\) be a completed item of \(H^\prime\) in a split state \(\bar q\), and
