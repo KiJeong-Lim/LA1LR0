@@ -165,14 +165,17 @@ Q\triangleq \mathrm{PT}\setminus\set*{\emptyset},
 \set*{\mathrm{GOTO}(q,X)\mid q\in\mathrm{PT},\ X\in V^\prime}.
 \]
 
-\item The path relation is the least relation satisfying
+\item The path relation is defined by structural recursion on the input word:
 \[
-\eps:p\to q \Longleftrightarrow p\in Q\land p=q,
+\Path{\eps}{p}{q} \Longleftrightarrow p\in Q\land p=q,
 \qquad
-X\alpha:p\to q
+\Path{X\alpha}{p}{q}
 \Longleftrightarrow
-p\in Q\land \alpha:\mathrm{GOTO}(p,X)\to q .
+p\in Q\land \mathrm{GOTO}(p,X)\in Q
+\land \Path{\alpha}{\mathrm{GOTO}(p,X)}{q} .
 \]
+Thus a path blocks exactly when the next \(\mathrm{GOTO}\)-state is empty; the
+relation is deterministic, not an additional least fixed point.
 
 \item
 \[
@@ -206,7 +209,7 @@ p\in Q\land \alpha:\mathrm{GOTO}(p,X)\to q .
   {(\Path{\alpha}{q}{q^\prime},tz)
     \vdash
    (\Path{\alpha t}{q}{q^{\prime\prime}},z)}
-  {q^{\prime\prime}=\delta(q^\prime,t)}
+  {q^{\prime\prime}=\delta(q^\prime,t) & q^{\prime\prime}\in Q}
 \]
 \[
 \infer[\mathrm{Reduce}(A\to\omega)]
@@ -219,7 +222,9 @@ p\in Q\land \alpha:\mathrm{GOTO}(p,X)\to q .
    &
    \Item{A}{\omega}\in\Reduce(q^\prime,t)
    &
-   q^{\prime\prime}=\delta(p,A)}
+   q^{\prime\prime}=\delta(p,A)
+   &
+   q^{\prime\prime}\in Q}
 \]
 
 \item
@@ -239,6 +244,22 @@ L(\LRA(G))
 \]
 \end{enumerate}
 \end{definition}
+
+For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), define the unread input by
+\[
+\mathrm{input}(c)\triangleq u .
+\]
+The accepting configurations are exactly
+\[
+\mathsf{Accept}(c)
+\Longleftrightarrow
+c=(\Path{S\$}{q_0}{q_f},\eps),
+\]
+and an error configuration is a non-accepting run configuration with no Shift or
+Reduce successor under the table being executed.  In a mechanized definition,
+the displayed stack path is proof-carrying: the constructors for Shift and
+Reduce above include the side conditions that their target states lie in \(Q\),
+so their conclusions are again elements of \(\Config\).
 
 For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), set $\mathrm{Y}(c) \in V^{\prime *}$ as
 \[
@@ -336,10 +357,7 @@ Stripping the common trailing \(\$\) therefore yields
 Call \(A\in N^\prime\) \emph{productive} if \(A\Rightarrow_{P^\prime}^*w\) for some
 \(w\in T^{\prime *}\), and \emph{non-productive} otherwise.  Removing every
 non-productive nonterminal together with all productions that mention one
-preserves the generated language.  Hence, whenever \(L(G)\ne\emptyset\), we may
-assume without loss of generality that every nonterminal of \(G^\prime\) is
-productive; when \(L(G)=\emptyset\) the identity \(L(\LRA(G))=L(G)=\emptyset\)
-already follows from soundness (Corollary~\ref{cor:lra-sound}).
+preserves the generated language.
 \end{fact}
 
 \begin{proof}
@@ -430,10 +448,11 @@ productive.
 
 When \(L(G)\ne\emptyset\), \(S\) is productive, hence \(S^\prime\) is productive
 (\(\Item{S^\prime}{S\$}\)) and \(\widehat G\) keeps the start symbol with the same
-language; replacing \(G^\prime\) by \(\widehat G\) loses no generality.  When
-\(L(G)=\emptyset\), \(S\notin\mathrm{Gen}\) and
-Corollary~\ref{cor:lra-sound} gives \(L(\LRA(G))\subseteq L(G)=\emptyset\)
-directly.
+language.  This is a language-level replacement only.  It must not be used as a
+``without loss of generality'' step for statements about the LR(0) automaton
+itself, because \(\mathrm{Cl}\), \(\mathrm{GOTO}\), \(Q\), and all lookahead
+relations are rebuilt from the production set.  Any theorem below that needs
+productivity states that hypothesis explicitly.
 \end{proof}
 
 The path relation factors through the state reached after any prefix: induction
@@ -448,138 +467,265 @@ the intermediate state being the unique state obtained by following \(\alpha\)
 from \(r\), since each \(\delta(\cdot,X)=\mathrm{GOTO}(\cdot,X)\) is
 single-valued.
 
-\begin{lemma}[LR(0) path invariants]\label{lem:lra-path-invariants}
-For \(\eta\in V^{\prime *}\), the characteristic automaton satisfies
-\begin{align}
-(\exists q\in Q)\ \Path{\eta}{q_0}{q}
-&\Longleftrightarrow
-\eta\text{ is a viable prefix of }G^\prime, \label{eq:vp}\\
-\left.
-\begin{gathered}
-\eta=\eta^\prime\omega,\quad
-\Path{\eta^\prime}{q_0}{p},\quad
-\Path{\omega}{p}{q},\\
-S^\prime\RMP^*\eta^\prime A y
-\RMP
-\eta^\prime\omega y,\quad y=t z\in T^{\prime *}
-\end{gathered}
-\right\}
-&\Longrightarrow
-\Item{A}{\omega\cdot\eps}\in q
-\ \land\
-\Item{A}{\omega}\in\Reduce(q,t).
-\label{eq:handle}
-\end{align}
+\begin{lemma}[Finite closed LR(0) states]\label{lem:state-finiteness}
+The LR(0) construction satisfies the following structural invariants.
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item \(I_{\LRzero}\) is finite, every \(q\in Q\) is a subset of
+      \(I_{\LRzero}\), and \(Q\) is finite.
+\item Every \(q\in Q\) is \(\mathrm{Cl}\)-closed: if
+      \(\Item{B}{\beta\cdot A\gamma}\in q\) and
+      \(\Item{A}{\omega}\in P^\prime\), then
+      \(\Item{A}{\eps\cdot\omega}\in q\).
+\item If \(q\in Q\), \(X\in V^\prime\), and \(\delta(q,X)\ne\emptyset\), then
+      \(\delta(q,X)\in Q\).  Equivalently, a nonempty target produced during the
+      closure construction is one of the states of \(Q\).
+\end{enumerate}
 \end{lemma}
 
 \begin{proof}
-By Fact~\ref{fact:productive} we may assume every nonterminal of \(G^\prime\) is
-productive: \(C\Rightarrow_{P^\prime}^*x\) for some \(x\in T^{\prime *}\).  Write
-\(\sqsubseteq\) for the prefix order on
-\(V^{\prime *}\).  Call an item \emph{valid} for \(\eta\in V^{\prime *}\) when
+The item set \(I_{\LRzero}\) is finite because \(P^\prime\) is finite and each
+production has finitely many dot positions.  The operator defining
+\(\mathrm{Cl}\) only adds LR(0) items, so \(\mathrm{Cl}(q)\subseteq I_{\LRzero}\)
+whenever \(q\subseteq I_{\LRzero}\).  Hence the fixed point \(\mathrm{PT}\) lives
+inside the finite lattice \(\Pow(I_{\LRzero})\), and
+\(Q=\mathrm{PT}\setminus\set*{\emptyset}\) is finite.  Closure-closedness is just
+unfolding the least fixed point defining \(\mathrm{Cl}\), and (iii) follows from
+how \(\mathrm{PT}\) is closed under all \(\mathrm{GOTO}\) successors.
+\end{proof}
+
+\begin{lemma}[Derivation surgery used below]\label{lem:derivation-surgery}
+The following context-free derivation facts are used as ordinary lemmas in the
+subsequent proofs.
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item \emph{Rightmostization for terminal targets.}  If
+      \(\sigma\Rightarrow_{P^\prime}^*x\in T^{\prime *}\), then
+      \(\sigma\RMP^*x\).
+\item \emph{Terminal right-context insertion.}  If \(\sigma\RMP^*\tau\) and
+      \(z\in T^{\prime *}\), then \(\lambda\sigma z\RMP^*\lambda\tau z\) for
+      every left context \(\lambda\in V^{\prime *}\).
+\item \emph{Terminal concatenation decomposition.}  If
+      \(\sigma_1\sigma_2\Rightarrow_{P^\prime}^*x\in T^{\prime *}\), then
+      \(x=x_1x_2\) for some \(x_1,x_2\in T^{\prime *}\) with
+      \(\sigma_i\Rightarrow_{P^\prime}^*x_i\).
+\item \emph{FIRST/path extraction.}  Suppose a state \(r\) contains an item with
+      the dot before a symbol \(X\), and \(X\Rightarrow_{P^\prime}^*t\chi\) for
+      \(t\in T^\prime\).  Then, after following the nullable prefix of the
+      leftmost spine witnessing this derivation, the LR(0) automaton has a
+      nonempty \(t\)-transition.  Equivalently, the terminal \(t\) obtained from
+      \(\mathrm{FIRST}(X)\) produces the \(\delta(\cdot,t)\ne\emptyset\) premise
+      used in Lemma~\ref{lem:follow-fixed-point}.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Items (i)--(iii) are the standard induction arguments on derivation length,
+using the fact that terminals are never rewritten.  For (iv), take a leftmost
+spine from \(X\) to the first terminal \(t\).  The closure rule inserts the item
+for each nonterminal encountered on this spine, while the nullable siblings
+before the spine are followed by \(\mathrm{GOTO}\)-steps.  The first terminal item
+therefore gives a nonempty \(t\)-successor.  In Coq these four statements are
+best made explicit once and then reused rather than reproved inside the main
+lookahead proof.
+\end{proof}
+
+\begin{definition}[Viable prefixes and valid items]\label{def:viable-valid}
+For \(\eta\in V^{\prime *}\), say that \(\eta\) is a \emph{viable prefix} of
+\(G^\prime\) when it ends at some dot position of a handle in a right-sentential
+form:
+\begin{equation}\label{eq:vp-def}
+\eta\text{ viable}
+\quad\Longleftrightarrow\quad
+\exists A,\alpha,\beta,\delta,w.\
+\Item{A}{\alpha\beta}\in P^\prime
+\land
+\eta=\delta\alpha
+\land
+w\in T^{\prime *}
+\land
+S^\prime\RMP^*\delta A w .
+\end{equation}
+For the same \(\eta\), define the valid LR(0) items by
 \begin{equation}\label{eq:valid-def}
 \Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)
-\ \overset{\mathrm{def}}{\iff}\
-\exists\,\delta\in V^{\prime *},\,w\in T^{\prime *}.\
-\eta=\delta\alpha\ \land\ S^\prime\RMP^*\delta Aw
+\quad\Longleftrightarrow\quad
+\Item{A}{\alpha\beta}\in P^\prime
+\land
+\exists\delta,w.\
+\eta=\delta\alpha
+\land
+w\in T^{\prime *}
+\land
+S^\prime\RMP^*\delta A w .
 \end{equation}
-(then \(\Item{A}{\alpha\beta}\in P^\prime\) and \(w\in T^{\prime *}\) make
-\(\delta Aw\RMP\delta\alpha\beta w\) a rightmost step).  Validity captures
-viability:
+Thus validity is just the item-indexed form of viability:
 \begin{equation}\label{eq:valid-vp}
 \mathsf{Valid}(\eta)\ne\emptyset
-\iff
-\eta\text{ is a viable prefix of }G^\prime,
+\quad\Longleftrightarrow\quad
+\eta\text{ is a viable prefix of }G^\prime .
 \end{equation}
-since \(\Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)\) yields
-\(S^\prime\RMP^*\delta Aw\RMP\delta\alpha\beta w\) with
-\(\eta=\delta\alpha\sqsubseteq\delta\alpha\beta\), while a viable prefix
-\(\eta\sqsubseteq\delta\alpha\beta\) (from
-\(S^\prime\RMP^*\delta Aw\RMP\delta\alpha\beta w\)) factors as
-\(\eta=\delta\alpha\beta_1\), \(\beta=\beta_1\beta_2\), giving
-\(\Item{A}{\alpha\beta_1\cdot\beta_2}\in\mathsf{Valid}(\eta)\).
+\end{definition}
 
-\proofpart{Closure computes the valid items at a fixed \(\eta\)}
-If \(q\subseteq\mathsf{Valid}(\eta)\) contains every valid item with nonempty
-left part (and the seed \(\Item{S^\prime}{\eps\cdot S\$}\) when \(\eta=\eps\)),
-then \(\mathrm{Cl}(q)=\mathsf{Valid}(\eta)\).  For \(\subseteq\), the closure rule
-adds \(\Item{A}{\eps\cdot\omega}\) only from some
-\(\Item{B}{\beta_1\cdot A\beta_2}\in\mathrm{Cl}(q)\subseteq\mathsf{Valid}(\eta)\),
-and productivity \(\beta_2\RMP^*x\in T^{\prime *}\) gives
-\[
-S^\prime\RMP^*\delta Bw\RMP\delta\beta_1A\beta_2w\RMP^*\delta\beta_1Axw,
-\qquad
-\eta=\delta\beta_1,\ \ xw\in T^{\prime *}
-\ \Longrightarrow\
-\Item{A}{\eps\cdot\omega}\in\mathsf{Valid}(\eta).
-\]
-For \(\supseteq\), take \(\Item{A}{\eps\cdot\omega}\in\mathsf{Valid}(\eta)\) with a
-witness \(S^\prime\RMP^*\eta Aw\) and induct on its length.  Length \(0\) forces
-\(\eta Aw=S^\prime\), i.e.\ \(\eta=\eps\), \(A=S^\prime\), the seed.  Otherwise the
-step first introducing this occurrence of \(A\) reads
-\[
-S^\prime\RMP^*\mu C\rho\RMP\mu\sigma_1A\sigma_2\rho,
-\qquad
-\Item{C}{\sigma_1A\sigma_2}\in P^\prime,\quad
-\eta=\mu\sigma_1,\quad \rho\in T^{\prime *},
-\]
-so \(\Item{C}{\sigma_1\cdot A\sigma_2}\in\mathsf{Valid}(\eta)\) by the shorter
-witness \(S^\prime\RMP^*\mu C\rho\).  This item lies in \(q\) (if
-\(\sigma_1\ne\eps\)) or in \(\mathrm{Cl}(q)\) (induction hypothesis, if
-\(\sigma_1=\eps\)); its dot precedes \(A\), so the closure rule appends
-\(\Item{A}{\eps\cdot\omega}\in\mathrm{Cl}(q)\).
+\begin{lemma}[One-sided LR(0) path invariants]\label{lem:lra-path-invariants}
+For arbitrary grammars, the characteristic automaton satisfies the directions
+needed for LR(0) completeness:
+\begin{align}
+\Path{\eta}{q_0}{q}
+&\Longrightarrow
+\mathsf{Valid}(\eta)\subseteq q, \label{eq:valid-sub-state}\\[2pt]
+\mathsf{Valid}(\eta)\ne\emptyset
+&\Longrightarrow
+\exists q\in Q.\ \Path{\eta}{q_0}{q}. \label{eq:viable-implies-path}
+\end{align}
+Moreover, every handle occurrence in a rightmost derivation is realized by a path
+and by the corresponding completed LR(0) item:
+\begin{equation}\label{eq:handle}
+\begin{aligned}
+& S^\prime\RMP^*\eta^\prime A y
+  \RMP
+  \eta^\prime\omega y,
+  \qquad
+  \Item{A}{\omega}\in P^\prime,
+  \qquad
+  y=t z\in T^{\prime *} \\
+&\qquad\Longrightarrow
+\exists p,q\in Q.\;
+\Path{\eta^\prime}{q_0}{p}
+\land
+\Path{\omega}{p}{q} \\
+&\qquad\qquad\land
+\Item{A}{\omega\cdot\eps}\in q
+\land
+\Item{A}{\omega}\in\Reduce(q,t).
+\end{aligned}
+\end{equation}
+\end{lemma}
 
-\proofpart{\(\mathrm{GOTO}\) shifts the prefix}
-By \eqref{eq:valid-def}, for every \(X\in V^\prime\),
+\begin{proof}
+The key point is that no productivity assumption is needed for the inclusion
+\(\mathsf{Valid}(\eta)\subseteq q\).  Prove it simultaneously with the following
+closure-superset statement: if a kernel contains all valid items at \(\eta\) whose
+left part is nonempty, and contains the seed \(\Item{S^\prime}{\eps\cdot S\$}\)
+when \(\eta=\eps\), then its closure contains every item in
+\(\mathsf{Valid}(\eta)\).
+
+For a valid item with nonempty left part, the preceding dot position is valid at
+the previous prefix and is put into the predecessor state by induction; the
+\(\mathrm{GOTO}\)-kernel then shifts the dot.  For a valid item
+\(\Item{A}{\eps\cdot\omega}\), choose the marked occurrence of \(A\) in the
+witness \(S^\prime\RMP^*\eta A w\).  If the derivation has length zero, the item
+is the augmented seed.  Otherwise, the step that first introduces this marked
+occurrence has the form
+\[
+S^\prime\RMP^*\mu C\rho
+\RMP
+\mu\sigma_1A\sigma_2\rho,
+\qquad
+\Item{C}{\sigma_1A\sigma_2}\in P^\prime,
+\qquad
+\eta=\mu\sigma_1,
+\]
+and the rightmost-occurrence invariant says that the part to the left of the
+marked \(A\) is never changed after that step.  The item
+\(\Item{C}{\sigma_1\cdot A\sigma_2}\) is valid at \(\eta\) by the shorter witness
+\(S^\prime\RMP^*\mu C\rho\), hence is already in the kernel if
+\(\sigma_1\ne\eps\), or is obtained by the induction hypothesis if
+\(\sigma_1=\eps\).  One closure step then adds
+\(\Item{A}{\eps\cdot\omega}\).  This proves \eqref{eq:valid-sub-state} by
+induction on the path.
+
+For \eqref{eq:viable-implies-path}, use \eqref{eq:valid-vp} and induct on
+\(|\eta|\).  If \(\eta=\eps\), the seed makes \(q_0\ne\emptyset\) and
+\(\Path{\eps}{q_0}{q_0}\).  If \(\eta=\eta_0X\), a valid item at \(\eta\) is either
+itself a shifted item with left part ending in \(X\), or the closure argument
+above traces it back to such a shifted valid item.  By the induction hypothesis
+there is \(p\in Q\) with \(\Path{\eta_0}{q_0}{p}\), and
+\eqref{eq:valid-sub-state} puts the predecessor item with dot before \(X\) in
+\(p\).  Hence \(\mathrm{GOTO}(p,X)\ne\emptyset\), so it lies in \(Q\) by
+Lemma~\ref{lem:state-finiteness}, giving the required path.
+
+Finally, the premise of \eqref{eq:handle} makes
+\(\Item{A}{\omega\cdot\eps}\) valid at \(\eta^\prime\omega\).  By
+\eqref{eq:viable-implies-path}, choose \(q\in Q\) with
+\(\Path{\eta^\prime\omega}{q_0}{q}\), and factor this path uniquely by
+\eqref{eq:path-concat} as \(\Path{\eta^\prime}{q_0}{p}\) and
+\(\Path{\omega}{p}{q}\).  Equation~\eqref{eq:valid-sub-state} puts the completed
+item in \(q\), and Definition~\ref{def:lra}(xii) then gives
+\(\Item{A}{\omega}\in\Reduce(q,t)\).
+\end{proof}
+
+\begin{lemma}[LR(0) path exactness under productivity]
+\label{lem:lra-path-exact-productive}
+Assume every nonterminal of \(G^\prime\) is productive.  Then every path state is
+exactly the corresponding valid-item set:
+\begin{equation}\label{eq:state-eq-valid}
+\Path{\eta}{q_0}{q}
+\Longrightarrow
+q=\mathsf{Valid}(\eta).
+\end{equation}
+Consequently,
+\begin{equation}\label{eq:vp}
+(\exists q\in Q)\ \Path{\eta}{q_0}{q}
+\Longleftrightarrow
+\eta\text{ is a viable prefix of }G^\prime .
+\end{equation}
+Moreover, every path label is realized as the prefix of a right-sentential form:
+\begin{equation}\label{eq:path-realization}
+\Path{\eta}{q_0}{q}
+\Longrightarrow
+\exists z\in T^{\prime *}.\ S^\prime\RMP^*\eta z .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The inclusion \(\mathsf{Valid}(\eta)\subseteq q\) is
+\eqref{eq:valid-sub-state}.  For the reverse inclusion, first prove closure
+soundness under productivity.  Suppose a closure step adds
+\(\Item{A}{\eps\cdot\omega}\) from
+\(\Item{B}{\beta_1\cdot A\beta_2}\in\mathsf{Valid}(\eta)\), witnessed by
+\(S^\prime\RMP^*\delta B w\) and \(\eta=\delta\beta_1\).  Since every nonterminal is
+productive, the suffix \(\beta_2\) derives some terminal string \(x\in T^{\prime *}\);
+by Lemma~\ref{lem:derivation-surgery}, this can be done rightmost in the terminal
+right context.  Hence
+\[
+S^\prime\RMP^*\delta B w
+\RMP
+\delta\beta_1A\beta_2w
+\RMP^*
+\delta\beta_1A xw,
+\]
+so \(\Item{A}{\eps\cdot\omega}\in\mathsf{Valid}(\eta)\).  Thus the closure of
+valid kernel items contains no invalid item.  The \(\mathrm{GOTO}\) step preserves
+validity by shifting the dot:
 \[
 \Item{A}{\alpha\cdot X\beta}\in\mathsf{Valid}(\eta)
-\iff
-\Item{A}{\alpha X\cdot\beta}\in\mathsf{Valid}(\eta X)
-\qquad(\text{same }\delta,w;\ \eta=\delta\alpha\iff\eta X=\delta\alpha X),
+\Longleftrightarrow
+\Item{A}{\alpha X\cdot\beta}\in\mathsf{Valid}(\eta X).
 \]
-and every nonempty-left-part valid item for \(\eta X\) ends in \(X\), hence has
-this form.  These items are the \(\mathrm{GOTO}\)-kernel; closing it gives
-\begin{equation}\label{eq:goto-valid}
-q=\mathsf{Valid}(\eta)\ \Longrightarrow\ \mathrm{GOTO}(q,X)=\mathsf{Valid}(\eta X).
-\end{equation}
+An induction on \(|\eta|\) gives \(q\subseteq\mathsf{Valid}(\eta)\) for every
+\(\Path{\eta}{q_0}{q}\), and therefore \eqref{eq:state-eq-valid}.
+Combining \eqref{eq:state-eq-valid}, \eqref{eq:valid-vp}, and the general
+viable-implies-path direction \eqref{eq:viable-implies-path} proves
+\eqref{eq:vp}.
 
-\proofpart{Induction on \(|\eta|\)}
-No valid item for \(\eps\) has a nonempty left part, so
-\(q_0=\mathrm{Cl}\bigl(\set*{\Item{S^\prime}{\eps\cdot S\$}}\bigr)
-=\mathsf{Valid}(\eps)\).  Inductively, \(\Path{\eta X}{q_0}{q^\prime}\) means
-\(\Path{\eta}{q_0}{q}\) with \(q=\mathsf{Valid}(\eta)\) and
-\(q^\prime=\delta(q,X)=\mathrm{GOTO}(q,X)\overset{\eqref{eq:goto-valid}}{=}\mathsf{Valid}(\eta X)\).
-Hence
-\begin{equation}\label{eq:state-eq-valid}
-\Path{\eta}{q_0}{q}\ \Longrightarrow\ q=\mathsf{Valid}(\eta).
-\end{equation}
-Because every state on a path lies in \(Q=\mathrm{PT}\setminus\set*{\emptyset}\),
-and prefixes of a viable prefix are viable (so a run never blocks),
+For \eqref{eq:path-realization}, let \(\Path{\eta}{q_0}{q}\).  Since \(q\in Q\),
+\(q\ne\emptyset\); by \eqref{eq:state-eq-valid}, choose
+\(\Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)\), witnessed by
+\(\eta=\delta\alpha\), \(S^\prime\RMP^*\delta A w\), and \(w\in T^{\prime *}\).
+Productivity gives \(\beta\Rightarrow_{P^\prime}^*x\in T^{\prime *}\), and
+Lemma~\ref{lem:derivation-surgery} rightmostizes this derivation in the terminal
+right context:
 \[
-(\exists q\in Q)\,\Path{\eta}{q_0}{q}
-\overset{\eqref{eq:state-eq-valid}}{\iff}
-\mathsf{Valid}(\eta)\ne\emptyset
-\overset{\eqref{eq:valid-vp}}{\iff}
-\eta\text{ is a viable prefix of }G^\prime,
+S^\prime\RMP^*\delta A w
+\RMP
+\delta\alpha\beta w
+\RMP^*
+\delta\alpha xw
+=
+\eta xw .
 \]
-which is \eqref{eq:vp}.
-
-\proofpart{Handle invariant}
-With \(\eta=\eta^\prime\omega\), \(\Path{\eta^\prime}{q_0}{p}\),
-\(\Path{\omega}{p}{q}\), and \(S^\prime\RMP^*\eta^\prime Ay\RMP\eta^\prime\omega y\),
-\(y=tz\in T^{\prime *}\): \eqref{eq:path-concat} gives
-\(\Path{\eta^\prime\omega}{q_0}{q}\), so
-\(q=\mathsf{Valid}(\eta^\prime\omega)\) by \eqref{eq:state-eq-valid}.  Taking
-\(\delta=\eta^\prime\), \(w=y\) in \eqref{eq:valid-def},
-\[
-S^\prime\RMP^*\eta^\prime Ay,\ \ y\in T^{\prime *}
-\ \Longrightarrow\
-\Item{A}{\omega\cdot\eps}\in\mathsf{Valid}(\eta^\prime\omega)=q
-\ \overset{\text{Def.\,\ref{def:lra}(xii)}}{\Longrightarrow}\
-\Item{A}{\omega}\in\Reduce(q,t),
-\]
-which is \eqref{eq:handle}.
+Thus \(z=xw\) witnesses \eqref{eq:path-realization}.
 \end{proof}
+
 
 \begin{lemma}[LR(0) completeness]\label{lem:lra-complete}
 \[
@@ -847,8 +993,96 @@ Let
 F(p^\prime,B).
 \]
 
-\begin{lemma}[Semantic Follow fixed point]\label{lem:follow-fixed-point}
-For \((p,A)\in D\),
+\begin{lemma}[General Follow over-approximation]\label{lem:follow-overapprox}
+For arbitrary grammars and every \((p,A)\in D\),
+\begin{equation}\label{eq:follow-overapprox}
+\mathsf{Follow}(p,A)
+\subseteq
+\mu\Phi_F(p,A)
+=
+\Follow\mathbin{!}(p,A).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:read-fixed-point}, the two \(\Follow\)-rules define the least
+fixed point of \(\Phi_F\).  We prove
+\(\mathsf{Follow}(p,A)\subseteq\mu\Phi_F(p,A)\) by induction on a marked
+rightmost derivation witnessing
+\[
+S^\prime\RMP^*\alpha A t z,
+\qquad
+\Path{\alpha}{q_0}{p}.
+\]
+The occurrence of \(A\) cannot be the initial \(S^\prime\) occurrence, because it
+is followed by the terminal \(t\).  Let the step that first introduces this
+marked occurrence be
+\[
+S^\prime\RMP^*
+\alpha^\prime B t^\prime z^\prime
+\RMP
+\alpha^\prime\beta A\gamma t^\prime z^\prime
+\RMP^*
+\alpha A t z,
+\qquad
+\alpha=\alpha^\prime\beta,
+\qquad
+\Item{B}{\beta A\gamma}\in P^\prime .
+\]
+The marked-occurrence invariant for rightmost derivations says that, after this
+introducing step, the left context \(\alpha^\prime\beta\) and the marked \(A\)
+are never changed.  Hence all remaining rewrites occur in the suffix descended
+from \(\gamma t^\prime z^\prime\).  Also
+\(\Item{B}{\beta\cdot A\gamma}\in\mathsf{Valid}(\alpha)\); since
+\(\Path{\alpha}{q_0}{p}\), the one-sided invariant
+\eqref{eq:valid-sub-state} gives
+\begin{equation}\label{eq:includes-item-in-state}
+\Item{B}{\beta\cdot A\gamma}\in p .
+\end{equation}
+
+Now split by the image of this particular \(\gamma\)-block in the displayed
+suffix derivation, not by the mere nullability of \(\gamma\).
+
+If the image of \(\gamma\) is nonempty, let \(t\) be its first terminal in the
+final suffix.  Then
+\(\gamma=\gamma_0X\gamma_1\) where
+\(\gamma_0\Rightarrow_{P^\prime}^*\eps\) and
+\(X\Rightarrow_{P^\prime}^*t\chi\).  Starting from
+\eqref{eq:includes-item-in-state}, the state \(\delta(p,A)\) contains the item
+\(\Item{B}{\beta A\cdot\gamma}\); following the nullable prefix \(\gamma_0\) and
+using the FIRST/path extraction lemma gives a path
+\(\Path{\gamma_0 t}{\delta(p,A)}{s}\) for some \(s\).  Thus
+\(t\in\mathsf{Read}(p,A)\), and Lemma~\ref{lem:read-fixed-point} puts \(t\) in the
+Read seed of \(\Phi_F(p,A)\), hence in \(\mu\Phi_F(p,A)\).
+
+If the image of \(\gamma\) is empty, then
+\(\gamma\Rightarrow_{P^\prime}^*\eps\) and the first terminal following the marked
+\(A\) is the old \(t^\prime\), so \(t=t^\prime\).  Factor the path
+\(\Path{\alpha^\prime\beta}{q_0}{p}\) uniquely as
+\(\Path{\alpha^\prime}{q_0}{p^\prime}\) and
+\(\Path{\beta}{p^\prime}{p}\).  The witness
+\(S^\prime\RMP^*\alpha^\prime B t z\) is strictly shorter than the original
+marked witness, so the induction hypothesis gives
+\(t\in\mu\Phi_F(p^\prime,B)\).
+
+It remains to check that the includes edge is genuinely present.  We already
+have \eqref{eq:includes-item-in-state}, \(\Path{\beta}{p^\prime}{p}\), and
+\(\gamma\Rightarrow_{P^\prime}^*\eps\).  The fourth premise
+\((p^\prime,B)\in D\) follows from the same marked-occurrence argument.  If
+\(B=S^\prime\), then the only \(S^\prime\)-production is
+\(S^\prime\to S\$\), and the suffix \(\gamma\) in an item
+\(S^\prime\to\beta A\gamma\) with the dot before \(A\) contains \(\$\), hence is
+not nullable.  Thus \(B\ne S^\prime\).  The live occurrence of \(B\) in
+\(S^\prime\RMP^*\alpha^\prime B t z\) was therefore introduced by some production
+with the dot before \(B\); that item is valid at \(\alpha^\prime\), and
+\eqref{eq:valid-sub-state} puts it in \(p^\prime\).  Hence
+\(\delta(p^\prime,B)\ne\emptyset\), i.e. \((p^\prime,B)\in D\).  The includes edge
+propagates \(t\) from \((p^\prime,B)\) to \((p,A)\), so
+\(t\in\mu\Phi_F(p,A)\).
+\end{proof}
+
+\begin{lemma}[Semantic Follow fixed point under productivity]\label{lem:follow-fixed-point}
+Assume every nonterminal of \(G^\prime\) is productive.  For \((p,A)\in D\),
 \begin{equation}\label{eq:follow-eq}
 \Follow\mathbin{!}(p,A)
 =
@@ -859,224 +1093,194 @@ For \((p,A)\in D\),
 \end{lemma}
 
 \begin{proof}
-By Lemma~\ref{lem:read-fixed-point}, the two \(\Follow\)-rules define the least
-fixed point of \(\Phi_F\).
-First \(\mathsf{Follow}\) is closed under \(\Phi_F\).
-For the \(\mathsf{Read}\)-seed, fix \(t\in\mathsf{Read}(p,A)\).  As \(p\in Q\) is
-reachable from \(q_0\) by construction of \(\mathrm{PT}\), pick \(\alpha\) with
-\(\Path{\alpha}{q_0}{p}\); by \eqref{eq:sem-read} there is a nullable \(\gamma\)
-with \(\Path{\gamma t}{\delta(p,A)}{s}\), so \eqref{eq:path-concat} yields
-\(\Path{\alpha A\gamma t}{q_0}{s}\), and \eqref{eq:vp} makes \(\alpha A\gamma t\)
-a viable prefix, i.e.\ \(S^\prime\RMP^*\alpha A\gamma t z\) for some
-\(z\in T^{\prime *}\).  Hence
+The inclusion \(\mathsf{Follow}(p,A)\subseteq\mu\Phi_F(p,A)\) is
+Lemma~\ref{lem:follow-overapprox}.  It remains to show that
+\(\mathsf{Follow}\) is closed under \(\Phi_F\), for then the least fixed point is
+contained in \(\mathsf{Follow}\).
+
+For a \(\mathsf{Read}\)-seed, fix \(t\in\mathsf{Read}(p,A)\).  Since
+\((p,A)\in D\), the state \(p\) is reachable from \(q_0\); choose
+\(\alpha\) with \(\Path{\alpha}{q_0}{p}\).  By \eqref{eq:sem-read}, for some
+nullable \(\gamma\) there is a path
+\(\Path{\gamma t}{\delta(p,A)}{s}\), hence
+\(\Path{\alpha A\gamma t}{q_0}{s}\).  Productivity and
+Lemma~\ref{lem:lra-path-exact-productive} realize this path as a prefix of a
+right-sentential form: there exists \(z\in T^{\prime *}\) such that
 \[
-\begin{aligned}
-t\in\mathsf{Read}(p,A)
-&\Longrightarrow
-\exists\alpha,\gamma,z.\
-\Path{\alpha}{q_0}{p}
-\land
-\gamma\Rightarrow_{P^\prime}^*\eps
-\land
-S^\prime\RMP^*\alpha A\gamma t z\\
-&\Longrightarrow
+S^\prime\RMP^*\alpha A\gamma t z .
+\]
+By Lemma~\ref{lem:derivation-surgery}, the nullable \(\gamma\) may be erased by
+rightmost steps in the terminal right context \(t z\), giving
+\[
 S^\prime\RMP^*\alpha A\gamma t z
 \RMP^*
-\alpha A t z
-\qquad(\gamma\Rightarrow_{P^\prime}^*\eps\text{ rewritten rightmost})\\
-&\Longrightarrow
-t\in\mathsf{Follow}(p,A).
-\end{aligned}
+\alpha A t z .
 \]
-For an includes edge, since $t\in\mathsf{Follow}(p^\prime,B), \Item{B}{\beta\cdot A\gamma}\in p, \Path{\beta}{p^\prime}{p}, \text{ and } \gamma\Rightarrow_{P^\prime}^*\eps$,
-\[
-\begin{aligned}[t]
-S^\prime&\RMP^*\alpha^\prime B t z\\
-&\RMP \alpha^\prime\beta A\gamma t z\\
-&\RMP^*\alpha^\prime\beta A t z,
-\end{aligned}
-\]
-with \(\Path{\alpha^\prime\beta}{q_0}{p}\); hence
-\[
-\mathsf{Follow}(p^\prime,B)\subseteq\mathsf{Follow}(p,A).
-\]
+Thus \(t\in\mathsf{Follow}(p,A)\).
 
-Conversely, let \(t\in\mathsf{Follow}(p,A)\), witnessed by
+For an includes edge, assume
 \[
-S^\prime\RMP^*\alpha A t z,
+\Item{B}{\beta\cdot A\gamma}\in p,
 \qquad
-\Path{\alpha}{q_0}{p}.
+\Path{\beta}{p^\prime}{p},
+\qquad
+\gamma\Rightarrow_{P^\prime}^*\eps,
+\qquad
+(p^\prime,B)\in D,
 \]
-The production \(B\to\beta A\gamma\) that created this occurrence of \(A\) gives a
-factorization
+and take \(t\in\mathsf{Follow}(p^\prime,B)\), witnessed by
+\(S^\prime\RMP^*\alpha^\prime B t z\) and
+\(\Path{\alpha^\prime}{q_0}{p^\prime}\).  The item supplies the production
+\(B\to\beta A\gamma\), so
 \[
-S^\prime\RMP^*
-\alpha^\prime B t^\prime z^\prime
+S^\prime\RMP^*\alpha^\prime B t z
+\RMP
+\alpha^\prime\beta A\gamma t z
+\RMP^*
+\alpha^\prime\beta A t z,
+\]
+where the last segment erases \(\gamma\) in the terminal right context.  By
+\eqref{eq:path-concat}, \(\Path{\alpha^\prime\beta}{q_0}{p}\), hence
+\(t\in\mathsf{Follow}(p,A)\).  Therefore
+\(\mathsf{Follow}\) is \(\Phi_F\)-closed, and the least fixed point equality
+follows.
+\end{proof}
+
+
+\begin{remark}[Marked occurrences for a Coq formalization]
+The informal phrase ``the occurrence introduced by this production'' is used in
+three places: the closure-superset direction of
+Lemma~\ref{lem:lra-path-invariants}, the converse/over-approximation direction
+of Lemma~\ref{lem:follow-overapprox}, and the proof that the includes edge really
+has \((p^\prime,B)\in D\).  In a formal development this should be represented
+once, either as a marked derivation relation or as a zipper over sentential
+forms.
+
+The reusable invariant is simple: in a rightmost derivation, once a marked
+occurrence survives a step, the string strictly to its left is never changed by
+later steps.  With this invariant, the introducing step for a marked \(A\) has a
+well-scoped factorization
+\[
+S^\prime\RMP^*\alpha^\prime B t^\prime z^\prime
 \RMP
 \alpha^\prime\beta A\gamma t^\prime z^\prime
 \RMP^*
-\alpha A t z,
-\qquad
-\alpha=\alpha^\prime\beta ,
-\qquad
-t^\prime z^\prime\in T^{\prime *},
+\alpha^\prime\beta A t z,
 \]
-in which the last segment rewrites only the suffix,
-\(\gamma t^\prime z^\prime\RMP^*tz\), leaving this \(A\) untouched.  Splitting on
-whether \(\gamma\) is nullable makes exactly one alternative hold:
-\[
-\begin{cases}
-\gamma=\gamma_0X\gamma_1,\quad
-\gamma_0\Rightarrow_{P^\prime}^*\eps,\quad
-X\RMP^*t\chi,
-&
-t\in\mathsf{Read}(p,A),\\[2pt]
-\gamma\Rightarrow_{P^\prime}^*\eps,\quad t=t^\prime,
-&
-t\in\mathsf{Follow}(p^\prime,B)
-\text{ and }
-(p,A)\leadsto_{\mathrm{includes}}(p^\prime,B).
-\end{cases}
-\]
-In the first case \(\gamma_0\) is read off \(\delta(p,A)\) by a nullable
-\(\delta\)-chain and \(t\in\mathrm{FIRST}(X)\) gives \(\delta(\cdot,t)\ne\emptyset\),
-so \(\gamma_0t:\delta(p,A)\to s\) realizes \eqref{eq:sem-read}.  In the second,
-\(\gamma\Rightarrow_{P^\prime}^*\eps\) forces \(t=t^\prime\), and
-\[
-S^\prime\RMP^*\alpha^\prime B t z,\quad
-\Path{\alpha^\prime}{q_0}{p^\prime}\ (\text{\eqref{eq:path-concat} on }\alpha=\alpha^\prime\beta)
-\ \Longrightarrow\
-t\in\mathsf{Follow}(p^\prime,B),
-\]
-the includes edge holding by \(\Item{B}{\beta\cdot A\gamma}\in p\),
-\(\Path{\beta}{p^\prime}{p}\), \(\gamma\Rightarrow_{P^\prime}^*\eps\).  Its
-witnessing derivation \(S^\prime\RMP^*\alpha^\prime Btz\) is strictly shorter, so
-induction on the length gives
-\[
-\mathsf{Follow}(p,A)
-\subseteq
-\mu\Phi_F(p,A).
-\]
-Together with closure, this proves \eqref{eq:follow-eq}.
-\end{proof}
-
-\begin{remark}[toward a Coq formalization of the converse]
-Every part of Lemma~\ref{lem:follow-fixed-point} except the converse inclusion
-transcribes to a proof assistant essentially verbatim: the closure direction
-exhibits explicit derivations and paths, so its existential witnesses are exactly
-the objects just constructed.  The converse is the single step that does not, and
-it carries most of the formalization cost of this section.
-
-The obstruction is the phrase ``the production \(B\to\beta A\gamma\) that created
-this occurrence of \(A\)'', together with the factorization
-\[
-S^\prime\RMP^*\alpha^\prime B t^\prime z^\prime
-\RMP\alpha^\prime\beta A\gamma t^\prime z^\prime
-\RMP^*\alpha A t z
-\]
-that must leave \emph{this} \(A\) untouched.  On paper the occurrence is read off
-the displayed string; once formalized, a right-sentential form is a bare list of
-symbols in which \(A\) may occur many times, and \(\RMP\) records nothing about
-which occurrence is meant.  The tracked occurrence must be promoted to
-first-class data, for which two encodings suffice.
-\begin{enumerate}
-\item \uline{\emph{Marked derivations.}}  Refine \(\RMP\) to a relation
-\verb|marked_derives| $\lambda$ $A$ $\rho$ on a sentential form presented as
-\(\lambda\,A\,\rho\) around a distinguished \(A\), with one constructor per
-rewrite position: strictly inside the left context \(\lambda\), strictly inside
-the right context \(\rho\), or the introducing step \(B\to\beta A\gamma\) that
-first plants the mark.  The converse becomes structural induction on this
-relation; the right-context constructors yield the \(\mathsf{Read}\) case, and the
-introducing constructor yields the includes edge together with the strictly
-shorter derivation that the induction consumes.
-\item \uline{\emph{Zipper sentential forms.}}  Represent the right-sentential form as a
-zipper \((\lambda,A,\rho)\) --- a left list, the focused symbol, a right list ---
-and case-analyse each \(\RMP\) step by where it fires relative to the focus:
-strictly left, strictly right, or at the focused symbol.  Then ``leaves this
-\(A\) untouched'' is precisely the side condition that the step fires off the
-focus, and the same trichotomy reappears as the three rewrite positions.
-\end{enumerate}
-Under either encoding the informal split on whether \(\gamma\) is nullable
-(\(\mathsf{Read}\) seed versus includes edge) becomes a decidable case analysis on
-the focused step, and the well-founded induction runs on the length of the marked
-or zippered derivation rather than on an unmarked \(S^\prime\RMP^*\cdots\).  By
-contrast Lemma~\ref{lem:read-fixed-point}, Corollary~\ref{cor:lookahead-follow},
-and Theorem~\ref{thm:read-follow} are first-order least-fixed-point manipulations
-over finite sets and need no such occurrence tracking.
+and the two cases in Lemma~\ref{lem:follow-overapprox} are determined by the
+actual image of the marked \(\gamma\)-block in this derivation segment.  If that
+image is nonempty, the first terminal comes from a FIRST/path lemma and gives a
+Read seed.  If that image is empty, then \(\gamma\Rightarrow^*\eps\), the terminal
+lookahead is inherited from the shorter \(B\)-witness, and the includes edge is
+available; the separate \((p^\prime,B)\in D\) premise follows by applying the same
+marked-occurrence invariant to the live occurrence of \(B\).  Thus the case split
+is not ``\(\gamma\) nullable or not'', but ``the tracked \(\gamma\)-occurrence has
+empty image or nonempty image in this particular derivation''.
 \end{remark}
 
-\begin{corollary}[Lookahead by Follow]\label{cor:lookahead-follow}
-Whenever \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
+
+\begin{definition}[Digraph lookahead]\label{def:digraph-lookahead}
+For every completed item \(\Item{A}{\omega\cdot\eps}\in q\), define the lookahead
+set computed from the Read/Follow graph by
 \begin{equation}\label{eq:la-follow-formula}
-\Look(q,\Item{A}{\omega})
-=
+\widehat{\Look}(q,\Item{A}{\omega})
+\triangleq
 \set*{t\in T^\prime
 \mid
-\exists p\in Q.\ 
+\exists p\in Q.\
 \Path{\omega}{p}{q}
 \land
 \delta(p,A)\ne\emptyset
 \land
-t\in\Follow\mathbin{!}(p,A)}.
+ t\in\Follow\mathbin{!}(p,A)}.
+\end{equation}
+\end{definition}
+
+\begin{corollary}[Digraph lookahead is a safe over-approximation]
+\label{cor:lookahead-overapprox}
+For arbitrary grammars, whenever \(q\in Q\) and
+\(\Item{A}{\omega\cdot\eps}\in q\),
+\begin{equation}\label{eq:lookahead-overapprox}
+\Look(q,\Item{A}{\omega})
+\subseteq
+\widehat{\Look}(q,\Item{A}{\omega}).
 \end{equation}
 \end{corollary}
 
 \begin{proof}
-For \(q\in Q\) and \(\Item{A}{\omega\cdot\eps}\in q\),
+Take \(t\in\Look(q,\Item{A}{\omega})\), witnessed by
 \[
-\begin{aligned}
-t\in\Look(q,\Item{A}{\omega})
-&\Longleftrightarrow
-\exists\alpha,z.\
-S^\prime\RMP^*\alpha A t z
-\land
-\Path{\alpha\omega}{q_0}{q}\\
-&\overset{\eqref{eq:path-concat}}{\Longleftrightarrow}
-\exists p,\alpha,z.\
-S^\prime\RMP^*\alpha A t z
-\land
-\Path{\alpha}{q_0}{p}
-\land
-\Path{\omega}{p}{q}\\
-&\overset{\eqref{eq:sem-follow}}{\Longleftrightarrow}
-\exists p.\
-\Path{\omega}{p}{q}
-\land
-\delta(p,A)\ne\emptyset
-\land
-t\in\mathsf{Follow}(p,A)\\
-&\overset{\eqref{eq:follow-eq}}{\Longleftrightarrow}
-\exists p.\ 
-\Path{\omega}{p}{q}
-\land
-\delta(p,A)\ne\emptyset
-\land
-t\in\Follow\mathbin{!}(p,A).
-\end{aligned}
+S^\prime\RMP^*\alpha A t z,
+\qquad
+\Path{\alpha\omega}{q_0}{q}.
 \]
-The side condition \(\delta(p,A)\ne\emptyset\) is automatic for \(A\ne S^\prime\):
-tracing \(\Item{A}{\omega\cdot\eps}\in q\) backward along
-\(\Path{\omega}{p}{q}\) gives \(\Item{A}{\eps\cdot\omega}\in p\), which is
-introduced by an item with the dot before \(A\).  For \(A=S^\prime\), both sides
-are empty because \(S^\prime\) occurs on no right-hand side and the parser does
-not reduce \(\Item{S^\prime}{S\$}\).  This is \eqref{eq:la-follow-formula}.
+By \eqref{eq:path-concat}, factor the path as
+\(\Path{\alpha}{q_0}{p}\) and \(\Path{\omega}{p}{q}\).  Then
+\(t\in\mathsf{Follow}(p,A)\) by \eqref{eq:sem-follow}.  If \(A=S^\prime\), this
+situation cannot occur because \(S^\prime\) occurs on no right-hand side and the
+initial occurrence is not followed by a terminal in any form derived from
+\(S^\prime\).  Hence \(A\ne S^\prime\).  Applying the marked-occurrence invariant
+to the live occurrence of \(A\) in \(S^\prime\RMP^*\alpha A t z\) yields a valid
+item at \(\alpha\) with the dot before \(A\); by \eqref{eq:valid-sub-state} that
+item lies in \(p\).  Thus \(\delta(p,A)\ne\emptyset\), so \((p,A)\in D\).  Finally,
+Lemma~\ref{lem:follow-overapprox} gives
+\(t\in\Follow\mathbin{!}(p,A)\), and the displayed definition of
+\(\widehat{\Look}\) applies.
+\end{proof}
+
+\begin{corollary}[Lookahead by Follow under productivity]\label{cor:lookahead-follow}
+Assume every nonterminal of \(G^\prime\) is productive.  Whenever \(q\in Q\) and
+\(\Item{A}{\omega\cdot\eps}\in q\),
+\begin{equation}\label{eq:lookahead-exact}
+\Look(q,\Item{A}{\omega})
+=
+\widehat{\Look}(q,\Item{A}{\omega}).
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+The inclusion \(\Look\subseteq\widehat{\Look}\) is
+Corollary~\ref{cor:lookahead-overapprox}.  Conversely, suppose
+\(t\in\widehat{\Look}(q,\Item{A}{\omega})\), witnessed by \(p\) with
+\(\Path{\omega}{p}{q}\), \(\delta(p,A)\ne\emptyset\), and
+\(t\in\Follow\mathbin{!}(p,A)\).  By Lemma~\ref{lem:follow-fixed-point},
+\(t\in\mathsf{Follow}(p,A)\); choose witnesses
+\(S^\prime\RMP^*\alpha A t z\) and \(\Path{\alpha}{q_0}{p}\).  Then
+\eqref{eq:path-concat} gives \(\Path{\alpha\omega}{q_0}{q}\), and the semantic
+definition \eqref{eq:la-def} gives \(t\in\Look(q,\Item{A}{\omega})\).
 \end{proof}
 
 \begin{theorem}[Digraph computation of lookahead]\label{thm:read-follow}
-The least relations \(\Read,\Follow\) generated above compute every lookahead
-set by the formula \eqref{eq:la-follow-formula}.
+For arbitrary grammars, the Read/Follow digraph computes
+\(\widehat{\Look}\), a safe over-approximation of the semantic lookahead
+\(\Look\).  If every nonterminal of \(G^\prime\) is productive, then
+\(\widehat{\Look}=\Look\) for every completed item.
 \end{theorem}
 
 \begin{proof}
-The Read and Follow fixed-point claims are Lemmas~\ref{lem:read-fixed-point}
-and~\ref{lem:follow-fixed-point}; applying them to the semantic definition of
-\(\Look\) gives Corollary~\ref{cor:lookahead-follow}, which is the displayed
-formula of the theorem.
+The Read fixed point is Lemma~\ref{lem:read-fixed-point}; the general semantic
+inclusion for Follow is Lemma~\ref{lem:follow-overapprox}, which gives
+Corollary~\ref{cor:lookahead-overapprox}.  Under the explicit productivity
+hypothesis, Lemma~\ref{lem:follow-fixed-point} upgrades the inclusion to equality,
+and Corollary~\ref{cor:lookahead-follow} gives the exact semantic formula.
 \end{proof}
+
 
 \section{Lookahead Restriction}
 
-Recall the lookahead set \(\Look\) of \eqref{eq:la-def}.  Replace the LR(0)
+Recall the semantic lookahead set \(\Look\) of \eqref{eq:la-def}.  The same
+language-preservation argument below applies to any guard \(K\) satisfying
+\[
+\Look(q,\Item{A}{\omega})\subseteq K(q,\Item{A}{\omega})
+\subseteq T^\prime
+\]
+for completed items, because soundness only uses
+\(\Reduce_K\subseteq\Reduce\) and completeness only uses
+\(\Look\subseteq K\).  In particular, for arbitrary grammars one may take the
+digraph-computed over-approximation \(K=\widehat{\Look}\) from
+Corollary~\ref{cor:lookahead-overapprox}; under productivity this is the exact
+semantic lookahead by Corollary~\ref{cor:lookahead-follow}.  We state the formulas
+with the exact semantic guard \(\Look\).  Replace the LR(0)
 reduction function by
 \begin{equation}\label{eq:la-reduce}
 \Reduce_{\Look}(q,t)
@@ -1162,6 +1366,29 @@ L(\vdash_{\Look})=L(G).
 Combine Lemmas~\ref{lem:lookahead-sound} and~\ref{lem:lookahead-complete}.
 \end{proof}
 
+
+\begin{definition}[\texorpdfstring{\(\LALRone\)}{LALR(1)} action table]\label{def:lalr-table}
+For a chosen one-symbol guard \(K\) on completed items, the ACTION entries are
+\[
+\mathsf{Act}_K(q,t)
+\triangleq
+\set*{\mathsf{shift}(\delta(q,t))\mid \delta(q,t)\in Q}
+\cup
+\set*{\mathsf{reduce}(A\to\omega)
+\mid
+\Item{A}{\omega\cdot\eps}\in q
+\land
+t\in K(q,\Item{A}{\omega})}.
+\]
+A guarded LR(0) table is an \(\LALRone\) table when
+\[
+\forall q\in Q,\ t\in T^\prime.\quad |\mathsf{Act}_K(q,t)|\le 1 .
+\]
+The associated parser is the transition system obtained by executing this
+single ACTION entry when it exists; if no ACTION entry exists and the
+configuration is not accepting, the configuration is an error configuration.
+\end{definition}
+
 \begin{lemma}[Conflict-free table condition]\label{lem:lookahead-table}
 If the resulting table has no shift/reduce or reduce/reduce conflict, its
 action is single-valued under one-symbol lookahead, hence it is an
@@ -1176,8 +1403,7 @@ At \((q,t)\), the possible actions are
 \Reduce_{\Look}(q,t).
 \]
 Absence of shift/reduce and reduce/reduce conflicts means that this action is
-single-valued under one-symbol lookahead, which is precisely the \(\LALRone\)
-table condition.
+single-valued under one-symbol lookahead, which is precisely Definition~\ref{def:lalr-table}.
 \end{proof}
 
 \begin{theorem}[Lookahead-guarded reductions]\label{thm:lookahead-guard}
@@ -1212,61 +1438,61 @@ x\leadsto y
 \qquad\text{to mean}\qquad
 F(y)\subseteq F(x).
 \]
-Thus the desired solution is the least function \(F:X\to\Pow(T^\prime)\)
-satisfying
+Equivalently, define the monotone operator
+\[
+\Psi(F)(x)
+\triangleq
+\mathrm{Seed}(x)\cup\bigcup_{x\leadsto y}F(y).
+\]
+The desired solution is the least fixed point
 \begin{equation}\label{eq:digraph}
+F=\mu\Psi,
+\qquad
 F(x)=\mathrm{Seed}(x)\cup\bigcup_{x\leadsto y}F(y).
 \end{equation}
 
-\paragraph{Algorithm \(\mathrm{DIGRAPH}(X,E,\mathrm{Seed})\).}
+\paragraph{Verified algorithm: work-list Kleene iteration.}
+For formal verification, take \(\mathrm{DIGRAPH}(X,E,\mathrm{Seed})\) to be the
+following finite work-list computation.
 \begin{enumerate}
-\item Compute the strongly connected components of \((X,E)\), for example by
-Tarjan's depth-first-search algorithm.
-\item Build the condensation DAG \(\mathcal C\).  Its nodes are SCCs, and
-\(C\leadsto D\) is an edge when some \(x\in C\) and \(y\in D\) satisfy
-\(x\leadsto y\), with \(C\ne D\).
-\item Initialize, for every SCC \(C\),
-\[
-\mathrm{Val}(C)\leftarrow
-\bigcup_{x\in C}\mathrm{Seed}(x).
-\]
-\item Process the SCCs in reverse topological order with respect to
-\(\leadsto\), so every successor \(D\) of \(C\) has already been processed, and
-put
-\[
-\mathrm{Val}(C)
-\leftarrow
-\mathrm{Val}(C)\cup
-\bigcup_{C\leadsto D}\mathrm{Val}(D).
-\]
-\item Return \(F(x)\triangleq\mathrm{Val}(C_x)\), where \(C_x\) is the SCC
-containing \(x\).
+\item Initialize \(F(x)\leftarrow\mathrm{Seed}(x)\) for all \(x\in X\), and put all
+      edges \(x\leadsto y\) in a work-list.
+\item While the work-list is nonempty, remove an edge \(x\leadsto y\).  If
+      \(F(y)\nsubseteq F(x)\), replace
+      \[
+      F(x)\leftarrow F(x)\cup F(y)
+      \]
+      and reinsert every incoming edge \(u\leadsto x\).
+\item Return \(F\) when the work-list is empty.
 \end{enumerate}
+This is the implementation target used by the specification.  It terminates
+because every update strictly increases some finite set \(F(x)\subseteq T^\prime\),
+so at most \(|X|\cdot |T^\prime|\) element insertions occur.  The loop invariant is
+\(\mathrm{Seed}(x)\subseteq F(x)\subseteq\mu\Psi(x)\) for all \(x\).  When the
+work-list is empty, every edge satisfies \(F(y)\subseteq F(x)\), hence
+\(\Psi(F)\subseteq F\); together with \(\mathrm{Seed}\subseteq F\), this says
+\(F\) is \(\Psi\)-closed.  Since \(\mu\Psi\) is the least \(\Psi\)-closed family
+and the invariant gives \(F\subseteq\mu\Psi\), the returned value is exactly
+\(\mu\Psi\).
 
-\paragraph{Correctness condition.}
-For every SCC \(C\), after step 4,
-\[
-\mathrm{Val}(C)=
-\bigcup
-\set*{\mathrm{Seed}(y)
-\mid
-\text{some }x\in C\text{ reaches }y\text{ in }(X,E)}.
-\]
-Therefore the returned \(F\) is exactly the least solution of
-\eqref{eq:digraph}.  This is the only property of the graph algorithm needed by
-Theorem~\ref{thm:read-follow}.
+\paragraph{SCC optimization.}
+The usual Tarjan-SCC/condensation-DAG algorithm computes the same fixed point by
+collapsing cycles and processing the resulting DAG in reverse topological order.
+It is a valid optimization once accompanied by a separate refinement proof that
+its result equals the work-list fixed point above.  The mathematical development
+here relies only on the work-list correctness theorem, not on the internal
+correctness of a particular SCC implementation.
 
 \paragraph{Complexity.}
 Let \(b=\lceil |T^\prime|/w\rceil\), where \(w\) is the machine word size used
-for bitsets.  SCC construction is \(O(|X|+|E|)\), and set propagation is
+for bitsets.  The work-list implementation performs at most
+\(|X|\cdot |T^\prime|\) element insertions and scans incident edges when a set
+grows.  With bitsets this is bounded by the usual
 \[
-O\bigl((|X|+|E|)b\bigr).
+O\bigl((|X|+|E|)\,|T^\prime|\,b\bigr)
 \]
-A simple work-list implementation that repeatedly applies
-\[
-F(x):=F(x)\cup F(y)\qquad(x\leadsto y)
-\]
-is also correct, but the SCC version avoids repeated propagation inside cycles.
+worst-case work-list bound; the SCC implementation improves the practical bound
+to \(O((|X|+|E|)b)\) after the SCC refinement proof is supplied.
 
 \subsection{\texorpdfstring{Instance for \(\Read\)}{Instance for Read}}
 
@@ -1284,6 +1510,28 @@ strings by
 \Longleftrightarrow
 \bigwedge_{i=1}^k \mathrm{Null}(X_i).
 \]
+
+\begin{lemma}[Null correctness]\label{lem:null-correct}
+For every \(\gamma\in V^{\prime *}\),
+\[
+\mathrm{Null}(\gamma)
+\Longleftrightarrow
+\gamma\Rightarrow_{P^\prime}^*\eps .
+\]
+In particular, for \(A\in N^\prime\), \(\mathrm{Null}(A)\) iff
+\(A\Rightarrow_{P^\prime}^*\eps\).
+\end{lemma}
+
+\begin{proof}
+The forward direction is induction on the stage at which a nonterminal enters
+the least fixed point, followed by concatenating the derivations of the symbols
+of \(\gamma\).  The reverse direction is induction on the length of a derivation
+to \(\eps\).  A terminal cannot occur in such a derivation; for a first step
+\(A\Rightarrow X_1\cdots X_k\Rightarrow^*\eps\), terminal concatenation
+decomposition gives \(X_i\Rightarrow^*\eps\) for each \(i\), so the induction
+hypothesis makes every \(X_i\) nullable and the fixed-point rule adds \(A\).  The
+string case follows componentwise.
+\end{proof}
 
 For \(x=(p,A)\in D\), define the direct-read seed
 \[
@@ -1345,14 +1593,16 @@ For every completed item \(\Item{A}{\omega\cdot\eps}\in q\), define
 \triangleq
 \set*{(p,A)\in D\mid \Path{\omega}{p}{q}}.
 \]
-Then
+Then the implemented digraph guard is
 \[
-\Look(q,\Item{A}{\omega})
+\widehat{\Look}(q,\Item{A}{\omega})
 \triangleq
 \bigcup_{(p,A)\in\mathrm{LB}(q,A\to\omega)}
 \Follow\mathbin{!}(p,A),
 \]
-which is \eqref{eq:la-follow-formula} written as an implementation step.
+which is \eqref{eq:la-follow-formula} written as an implementation step.  It is
+always a safe over-approximation of the semantic \(\Look\), and it is exact under
+the productivity hypothesis of Corollary~\ref{cor:lookahead-follow}.
 
 \paragraph{Implementation note.}
 The query \(\Path{\omega}{p}{q}\) can be implemented by following
@@ -1363,14 +1613,14 @@ during construction of the LR(0) automaton.
 
 \subsection{Parser-Table and Conflict Specification}
 
-After \(\Look\) has been computed, construct actions as follows.
+After a guard \(K\) has been chosen---for instance \(K=\widehat{\Look}\) or, under productivity, \(K=\Look\)---construct actions as follows.
 \begin{enumerate}
 \item If \(\delta(q,t)\ne\emptyset\) for \(t\in T^\prime\), add the shift action
 \[
 q\xrightarrow{t}\delta(q,t).
 \]
 \item For each \(\Item{A}{\omega\cdot\eps}\in q\) and each
-\(t\in\Look(q,\Item{A}{\omega})\), add the reduce action \(A\to\omega\) under
+\(t\in K(q,\Item{A}{\omega})\), add the reduce action \(A\to\omega\) under
 lookahead \(t\).
 \item Report a shift/reduce conflict when both a shift action and a reduce
 action are present for the same pair \((q,t)\).
@@ -1397,14 +1647,16 @@ Definition~\ref{def:lra}.
 \item Build \(E_I\); compute \(\Follow\) by
 \(\mathrm{DIGRAPH}(D,E_I,\Read)\).
 \item Build \(\mathrm{LB}\) and compute each
-\(\Look(q,\Item{A}{\omega})\) by unioning the appropriate
+\(\widehat{\Look}(q,\Item{A}{\omega})\) by unioning the appropriate
 \(\Follow\)-sets.
 \item Construct the guarded reduce actions and check conflicts.
 \end{enumerate}
-The postcondition is that the computed \(\Read\), \(\Follow\), and \(\Look\) are
-the least sets satisfying Theorem~\ref{thm:read-follow}, and hence the
-lookahead-restricted parser of Theorem~\ref{thm:lookahead-guard} uses exactly
-the \(\LALRone\) lookahead sets determined by the LR(0) automaton.
+The postcondition is that the computed \(\Read\), \(\Follow\), and \(\widehat{\Look}\) are
+the least sets described by Theorem~\ref{thm:read-follow}.  For arbitrary
+grammars, \(\widehat{\Look}\) safely over-approximates the semantic lookahead and
+therefore preserves the language when used as the guard in Section~3.  Under the
+explicit productivity hypothesis, \(\widehat{\Look}=\Look\), so the computed sets are
+exactly the semantic \(\LALRone\) lookahead sets determined by the LR(0) automaton.
 
 \section{Fuel-Free Parser Execution}\label{sec:fuel-free-parser}
 
@@ -1518,12 +1770,20 @@ backwards.
 \end{proof}
 
 \begin{definition}[Exact reduce-phase termination]\label{def:exact-phase-termination}
-The guarded table is \emph{phase-terminating} when there are no
-\(t\in T^\prime\) and no infinite sequence of stacks
+For a relation \(R\), write \(\mathrm{Acc}_R(x)\) for accessibility of \(x\): every
+\(R\)-successor of \(x\) is again accessible.  The guarded table is
+\emph{phase-terminating} when every reachable reduce-phase head is accessible for
+the exact reduce relation:
 \[
-s_0\Rightarrow_t s_1\Rightarrow_t s_2\Rightarrow_t\cdots
+\forall s\in\mathbf{Stack},\ t\in T^\prime.\quad
+\mathsf{Phase}(s,t)
+\Longrightarrow
+\mathrm{Acc}_{\Rightarrow_t}(s),
 \]
-with \(\mathsf{Phase}(s_0,t)\).
+where \(\mathrm{Acc}_{\Rightarrow_t}(s)\) uses the successor relation
+\(s\Rightarrow_t s^\prime\).  This is the constructive well-foundedness
+formulation.  The classically equivalent ``there is no infinite reachable
+\(\Rightarrow_t\)-chain'' formulation is not used as the definition.
 \end{definition}
 
 \begin{lemma}[Finite branching of exact reductions]\label{lem:exact-reduce-finite-branching}
@@ -1538,66 +1798,40 @@ element.
 \begin{proof}
 Write \(s=\Path{\beta}{q_0}{q}\).  A successor of \(s\) under
 \(\Rightarrow_t\) must be produced by some completed item
-\(\Item{A}{\omega}\in\Reduce_{\Look}(q,t)\).  This set of items is finite.
-For a fixed \(A\to\omega\), the equality \(\beta=\alpha\omega\) determines at
-most one prefix \(\alpha\), and the deterministic LR path from \(q_0\) along
-\(\alpha\) determines at most one exposed state \(p\).  Then the successor state
-is forced to be \(\delta(p,A)\).  Hence only finitely many successors can occur.
-If the table is conflict-free, at most one Reduce action is available at the
-pair \((q,t)\), so there is at most one successor.
+\(\Item{A}{\omega}\in\Reduce_{\Look}(q,t)\).  This set of items is finite.  For a
+fixed \(A\to\omega\), the equality \(\beta=\alpha\omega\) determines at most one
+prefix \(\alpha\), and the deterministic LR path from \(q_0\) along \(\alpha\)
+determines at most one exposed state \(p\).  Then the successor state is forced
+to be \(\delta(p,A)\).  Hence only finitely many successors can occur.  If the
+table is conflict-free, at most one Reduce action is available at the pair
+\((q,t)\), so there is at most one successor.
 \end{proof}
 
-\begin{lemma}[Heights for finitely branching terminating relations]
+\begin{lemma}[Heights for finitely branching accessible relations]
 \label{lem:finitely-branching-height}
-Let \(R\subseteq X\times X\) be finitely branching.  For \(x\in X\), suppose
-that no infinite chain
-\[
-x=x_0\mathrel R x_1\mathrel R x_2\mathrel R\cdots
-\]
-starts at \(x\).  Then
+Let \(R\subseteq X\times X\) be finitely branching, with a finite successor list
+for each \(x\).  If \(\mathrm{Acc}_R(x)\), then one can define, by well-founded
+recursion on this accessibility proof,
 \[
 H_R(x)
 \triangleq
-\max\set*{n\in\mathbb N
-\mid
-\exists x_0,\ldots,x_n\in X.\
-x_0=x\land
-\bigwedge_{0\le i<n}x_i\mathrel R x_{i+1}}
+\begin{cases}
+0,&\text{if }x\text{ has no }R\text{-successor},\\[2pt]
+1+\max\set*{H_R(y)\mid x\mathrel R y},&\text{otherwise.}
+\end{cases}
 \]
-is well-defined.  Moreover, if \(x\mathrel R y\), then
-\[
-H_R(y)<H_R(x).
-\]
-Conversely, any map \(H:X\to\mathbb N\) that strictly decreases along \(R\)
-excludes infinite \(R\)-chains.
+Moreover, if \(x\mathrel R y\), then \(H_R(y)<H_R(x)\).  Conversely, any map
+\(H:X\to\mathbb N\) that strictly decreases along \(R\) gives
+\(\mathrm{Acc}_R(x)\) for every \(x\).
 \end{lemma}
 
 \begin{proof}
-Let \(S_x\) be the set of lengths appearing in the displayed maximum.  It is
-nonempty because \(0\in S_x\).  We first show that \(S_x\) is bounded.
-Suppose, toward a contradiction, that \(S_x\) is unbounded.  Since \(R\) is
-finitely branching, \(x\) has only finitely many successors.  If every successor
-\(y\) of \(x\) had bounded length set \(S_y\), then \(S_x\) would be bounded by
-\[
-\max\bigl(\set*{0}\cup
-\set*{1+\max S_y\mid x\mathrel R y}\bigr),
-\]
-a contradiction.  Hence some successor \(x_1\) has unbounded \(S_{x_1}\).
-Repeating the same argument constructs an infinite chain
-\[
-x=x_0\mathrel R x_1\mathrel R x_2\mathrel R\cdots,
-\]
-contrary to the hypothesis.  Therefore \(S_x\) is bounded; as a nonempty
-bounded subset of \(\mathbb N\), it has a maximum, so \(H_R(x)\) is
-well-defined.
-
-If \(x\mathrel R y\), every path of length \(H_R(y)\) from \(y\) can be prefixed
-by the edge \(x\mathrel R y\), giving a path of length \(H_R(y)+1\) from \(x\).
-Thus \(H_R(x)\ge H_R(y)+1\), and so \(H_R(y)<H_R(x)\).
-
-Finally, if \(H:X\to\mathbb N\) strictly decreases along \(R\), an infinite
-\(R\)-chain would give an infinite strictly descending sequence in
-\(\mathbb N\), which is impossible.
+Accessibility gives the recursive calls \(H_R(y)\) for every successor
+\(x\mathrel R y\); finite branching supplies the finite maximum.  The definition
+therefore immediately yields \(H_R(x)\ge 1+H_R(y)\) for each successor, so
+\(H_R(y)<H_R(x)\).  Conversely, if \(H\) strictly decreases along \(R\), prove
+\(\mathrm{Acc}_R(x)\) by induction on \(H(x)\): every successor has strictly
+smaller rank and is accessible by the induction hypothesis.
 \end{proof}
 
 \begin{definition}[Exact termination certificate]\label{def:termination-cert}
@@ -1645,36 +1879,25 @@ Definition~\ref{def:termination-cert}, every \(\mathsf{Call}\)-edge
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c).
 \]
 The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and
-well-foundedness is preserved by inverse image along \(\mu\).  Hence the
-measure order
+well-foundedness is preserved by inverse image along \(\mu\).  Hence the measure
+order
 \[
 c^\prime\prec_\rho c
 \quad\Longleftrightarrow\quad
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c)
 \]
-is well-founded on run configurations.  Since \(\mathsf{Call}\) is a
-subrelation of \(\prec_\rho\) on reachable configurations, every reachable
-configuration is accessible for \(\mathsf{Call}\).
+is well-founded on run configurations.  Since \(\mathsf{Call}\) is a subrelation
+of \(\prec_\rho\) on reachable configurations, every reachable configuration is
+accessible for \(\mathsf{Call}\).
 \end{proof}
 
 \begin{definition}[Canonical exact rank]\label{def:canonical-exact-rank}
 Assume the guarded table is phase-terminating.  For \(s\in\mathbf{Stack}\) and
-\(t\in T^\prime\), define
-\[
-H_t(s)
-\triangleq
-\begin{cases}
-\displaystyle
-\max\set*{n\in\mathbb N
-\mid
-\exists s_0,\ldots,s_n\in\mathbf{Stack}.\
-s_0=s\land
-\bigwedge_{0\le i<n}s_i\Rightarrow_t s_{i+1}},
-&\text{if }\mathsf{Phase}(s,t),\\[8pt]
-0,&\text{otherwise.}
-\end{cases}
-\]
-For a run configuration \(c=(s,u)\), put
+\(t\in T^\prime\), define \(H_t(s)\) as follows.  If \(\mathsf{Phase}(s,t)\), use
+the accessibility proof supplied by Definition~\ref{def:exact-phase-termination}
+and Lemma~\ref{lem:finitely-branching-height} for \(\Rightarrow_t\).  If
+\(\neg\mathsf{Phase}(s,t)\), put \(H_t(s)=0\).  For a run configuration
+\(c=(s,u)\), put
 \[
 \rho_{\mathrm{ex}}(c)
 \triangleq
@@ -1684,49 +1907,35 @@ H_t(s),&u=t u^\prime\text{ for some }t\in T^\prime,
 0,&u=\eps.
 \end{cases}
 \]
+This rank is a proof object: because \(\mathsf{Reach}\) and \(\mathsf{Phase}\)
+contain existential witnesses, \(\rho_{\mathrm{ex}}\) is not by itself a complete
+decision procedure for arbitrary tables.
 \end{definition}
 
 \begin{theorem}[Sound and complete fuel-free criterion]\label{thm:exact-termination-criterion}
-For a conflict-free guarded table, the following are equivalent.
+For a conflict-free guarded table, the following implications hold
+constructively:
 \begin{enumerate}
-\item Every public parser run starting from some \(c_0(w)\), \(w\in T^*\), is
-finite.
-\item The table is phase-terminating in the sense of
-Definition~\ref{def:exact-phase-termination}.
-\item The table has a termination certificate in the sense of
-Definition~\ref{def:termination-cert}.
+\item[(a)] phase-termination in the sense of
+Definition~\ref{def:exact-phase-termination} implies the existence of a
+termination certificate;
+\item[(b)] a termination certificate implies that every public parser run
+starting from some \(c_0(w)\), \(w\in T^*\), is finite.
 \end{enumerate}
-When these conditions hold, the canonical exact rank
-\(\rho_{\mathrm{ex}}\) of Definition~\ref{def:canonical-exact-rank} is a
-termination certificate.
+Conversely, in classical mathematics, finite public runs imply
+phase-termination; hence the three conditions are equivalent classically.  When
+phase-termination holds, the canonical exact rank \(\rho_{\mathrm{ex}}\) of
+Definition~\ref{def:canonical-exact-rank} is a termination certificate.
 \end{theorem}
 
 \begin{proof}
-\((1)\Rightarrow(2))\).
-Assume every public parser run is finite, and suppose for contradiction that
-there are \(t\in T^\prime\) and an infinite chain
-\[
-s_0\Rightarrow_t s_1\Rightarrow_t s_2\Rightarrow_t\cdots
-\]
-with \(\mathsf{Phase}(s_0,t)\).  By definition of \(\mathsf{Phase}\), there are
-\(u\in T^{\prime *}\) and \(w\in T^*\) such that
-\[
-c_0(w)\vdash_{\Look}^{\,*}(s_0,t u).
-\]
-By Lemma~\ref{lem:exact-reduce-phase}, each edge
-\(s_i\Rightarrow_t s_{i+1}\) is exactly a guarded Reduce step
-\[
-(s_i,t u)\vdash_{\Look}(s_{i+1},t u).
-\]
-Appending these steps to the finite prefix from \(c_0(w)\) yields an infinite
-public parser run, a contradiction.  Hence the table is phase-terminating.
-
-\((2)\Rightarrow(3))\).
-Assume phase-termination.  Let \(c=(s,u)\) be reachable.  If \(u=t u^\prime\),
-then \(\mathsf{Phase}(s,t)\).  By Lemma~\ref{lem:exact-reduce-finite-branching}
-and Lemma~\ref{lem:finitely-branching-height}, the maximum defining \(H_t(s)\)
-exists; the same lemma also gives strict decrease along every exact edge
-\(s\Rightarrow_t s^\prime\).
+\emph{Phase-termination implies a certificate.}
+Assume phase-termination.  Let \(c=(s,u)\) be reachable.  If
+\(u=t u^\prime\), then \(\mathsf{Phase}(s,t)\).  By
+Definition~\ref{def:exact-phase-termination}, \(s\) is accessible for
+\(\Rightarrow_t\); Lemma~\ref{lem:exact-reduce-finite-branching} and
+Lemma~\ref{lem:finitely-branching-height} give a height \(H_t\) that strictly
+decreases along every exact reduce edge.
 
 We prove that \(\rho_{\mathrm{ex}}\) is a termination certificate.  If the
 recursive step from \(c\) to \(c^\prime\) is a Shift and
@@ -1735,27 +1944,22 @@ recursive step from \(c\) to \(c^\prime\) is a Shift and
 |\mathrm{input}(c^\prime)|<|\mathrm{input}(c)|.
 \]
 Therefore \(\mu(c^\prime)<_{\mathrm{lex}}\mu(c)\), independently of the second
-component.
-
-If the recursive step is a Reduce, write
+component.  If the recursive step is a Reduce, write
 \[
 c=(s,t u^\prime),
 \qquad
 c^\prime=(s^\prime,t u^\prime).
 \]
 By Lemma~\ref{lem:exact-reduce-phase}, \(s\Rightarrow_t s^\prime\).  The height
-decrease from Lemma~\ref{lem:finitely-branching-height} gives
+decrease gives
 \[
 \rho_{\mathrm{ex}}(c^\prime)=H_t(s^\prime)<H_t(s)=\rho_{\mathrm{ex}}(c).
 \]
 The input length is unchanged by a Reduce step, so again
-\[
-\mu(c^\prime)<_{\mathrm{lex}}\mu(c).
-\]
-Accept and Error configurations make no recursive call.  Thus
-\(\rho_{\mathrm{ex}}\) is a termination certificate.
+\(\mu(c^\prime)<_{\mathrm{lex}}\mu(c)\).  Accept and Error configurations make no
+recursive call.  Thus \(\rho_{\mathrm{ex}}\) is a termination certificate.
 
-\((3)\Rightarrow(1))\).
+\emph{A certificate implies finite public runs.}
 Assume a termination certificate \(\rho\) exists.  Along every reachable
 recursive parser step, the measure
 \[
@@ -1764,14 +1968,34 @@ recursive parser step, the measure
 strictly decreases in the lexicographic order on \(\mathbb N\times\mathbb N\).
 This order is well-founded, so no infinite sequence of reachable recursive calls
 can start from any \(c_0(w)\).  Hence every public parser run is finite.
+
+\emph{Classical converse.}
+Assume classical dependent choice, or equivalently the standard finitely
+branching form of K\H{o}nig's lemma.  If phase-termination failed, then some
+reachable phase head \((s_0,t)\) would be non-accessible; finite branching would
+produce an infinite chain
+\[
+s_0\Rightarrow_t s_1\Rightarrow_t s_2\Rightarrow_t\cdots .
+\]
+By \(\mathsf{Phase}(s_0,t)\), choose \(u\) and \(w\) with
+\(c_0(w)\vdash_{\Look}^{*}(s_0,t u)\).  Lemma~\ref{lem:exact-reduce-phase} turns
+each edge of the chain into a guarded Reduce step on the same unread input
+\(t u\), so appending the infinite reduce phase to the finite prefix gives an
+infinite public parser run.  Therefore, classically, finite public runs imply
+phase-termination.
 \end{proof}
 
-\begin{corollary}[Fuel-free recursive parser]\label{cor:fuel-free-parser}
-If the equivalent conditions of Theorem~\ref{thm:exact-termination-criterion}
-hold, the public parser can be exposed without a fuel parameter:
+
+\begin{corollary}[Fuel-free recursive recognizer]\label{cor:fuel-free-parser}
+If the guarded table has a termination certificate, the public recognizer can be
+exposed without a fuel parameter:
 \[
-\mathrm{run\_parser}:T^*\to\mathrm{option}\ \mathrm{ParseTree}.
+\mathrm{run\_parser}:T^*\to\mathrm{bool}.
 \]
+It returns \(\mathrm{true}\) exactly for accepted inputs.  A parser returning
+\(\mathrm{option}\ \mathrm{ParseTree}\) requires a separate tree-carrying
+configuration type and a proof that the produced tree denotes the corresponding
+derivation; that structure is not part of the recognizer defined in this note.
 \end{corollary}
 
 \begin{proof}
@@ -1785,16 +2009,21 @@ The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and the
 certificate supplies the required decrease for every reachable Shift or Reduce
 call.  Thus the internal runner is defined on reachable configurations by
 well-founded recursion on \(\prec\), equivalently by carrying a reachability
-proof internally.  The initial configuration \(c_0(w)\) is reachable by the
-empty run, so the public wrapper supplies the accessibility proof and exposes no
-fuel argument.
+proof internally.  The initial configuration \(c_0(w)\) is reachable by the empty
+run, so the public wrapper supplies the accessibility proof and exposes no fuel
+argument.  Its result is Boolean because the configurations above carry only
+control and input, not parse-tree fragments.
 \end{proof}
 
-The criterion above is exact: a table is rejected only when there is an actual
-infinite reduce-only phase reachable from some initial input.  A finite
-control-only graph may still be useful as a sufficient quick check, but it is
-not used as the complete criterion because such a graph can contain cycles that
-no single parser stack can realise.
+The criterion above is exact as a mathematical specification: it rejects a table
+only when there is an actual infinite reduce-only phase reachable from some
+initial input.  It is not, by itself, a complete executable decision procedure,
+because \(\mathsf{Reach}\), \(\mathsf{Phase}\), and the canonical rank
+\(\rho_{\mathrm{ex}}\) contain existential proof data.  A finite control-only graph
+may still be useful as a sufficient quick check, but it is not complete because
+such a graph can contain cycles that no single parser stack can realise.  For an
+executable Coq development one should either use such sufficient checks or supply
+a table-specific termination certificate.
 
 
 \begin{thebibliography}{9}
