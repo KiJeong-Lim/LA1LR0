@@ -62,6 +62,7 @@
 \newcommand{\Follow}{\mathbf{Follow}}
 \newcommand{\Config}{\mathbf{Config}}
 \newcommand{\Reduce}{\mathbf{reduce}}
+\newcommand{\iffdef}{\xLeftrightarrow{\mathrm{def}}}
 \newcommand{\proofpart}[1]{\par\medskip\noindent\uline{\textsc{#1}}.}
 
 \title{\vspace{-2.5em}\sffamily\bfseries LA(1)LR(0)}
@@ -110,7 +111,7 @@ V^\prime\triangleq N^\prime\uplus T^\prime .
 \item
 \[
 \beta\RMP\gamma
-\quad\xLeftrightarrow{\mathrm{def}}\quad
+\quad\iffdef\quad
 (\beta,\gamma)\in
 \set*{(\alpha A z,\alpha\omega z)
 \mid
@@ -167,10 +168,10 @@ Q\triangleq \mathrm{PT}\setminus\set*{\emptyset},
 
 \item The path relation is defined by structural recursion on the input word:
 \[
-\Path{\eps}{p}{q} \Longleftrightarrow p\in Q\land p=q,
+\Path{\eps}{p}{q} \iffdef p\in Q\land p=q,
 \qquad
 \Path{X\alpha}{p}{q}
-\Longleftrightarrow
+\iffdef
 p\in Q\land \mathrm{GOTO}(p,X)\in Q
 \land \Path{\alpha}{\mathrm{GOTO}(p,X)}{q} .
 \]
@@ -252,7 +253,7 @@ For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), define the unread input by
 The accepting configurations are exactly
 \[
 \mathsf{Accept}(c)
-\Longleftrightarrow
+\iffdef
 c=(\Path{S\$}{q_0}{q_f},\eps),
 \]
 and an error configuration is a non-accepting run configuration with no Shift or
@@ -534,7 +535,7 @@ For \(\eta\in V^{\prime *}\), say that \(\eta\) is a \emph{viable prefix} of
 form:
 \begin{equation}\label{eq:vp-def}
 \eta\text{ viable}
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \exists A,\alpha,\beta,\delta,w.\
 \Item{A}{\alpha\beta}\in P^\prime
 \land
@@ -547,7 +548,7 @@ S^\prime\RMP^*\delta A w .
 For the same \(\eta\), define the valid LR(0) items by
 \begin{equation}\label{eq:valid-def}
 \Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \Item{A}{\alpha\beta}\in P^\prime
 \land
 \exists\delta,w.\
@@ -1784,7 +1785,7 @@ to \(O((|X|+|E|)b)\) after the SCC refinement proof is supplied.
 First compute nullable nonterminals by the least fixed point
 \[
 \mathrm{Null}(A)
-\Longleftrightarrow
+\iffdef
 \exists \Item{A}{X_1\cdots X_k}\in P^\prime
 \text{ such that every }X_i\text{ is nullable},
 \]
@@ -1792,7 +1793,7 @@ where terminals are never nullable and \(k=0\) is allowed.  Extend this to
 strings by
 \[
 \mathrm{Null}(X_1\cdots X_k)
-\Longleftrightarrow
+\iffdef
 \bigwedge_{i=1}^k \mathrm{Null}(X_i).
 \]
 
@@ -1827,7 +1828,7 @@ For \(x=(p,A)\in D\), define the direct-read seed
 Define \(E_R\subseteq D\times D\) by
 \[
 (p,A)\leadsto_R(r,C)
-\Longleftrightarrow
+\iffdef
 \delta(p,A)=r
 \land C\in N^\prime
 \land \mathrm{Null}(C)
@@ -1850,7 +1851,7 @@ The seed for follow propagation is the already computed read set:
 Define \(E_I\subseteq D\times D\) by
 \[
 (p,A)\leadsto_I(p^\prime,B)
-\Longleftrightarrow
+\iffdef
 \Item{B}{\beta\cdot A\gamma}\in p
 \land
 \Path{\beta}{p^\prime}{p}
@@ -1976,14 +1977,14 @@ c_0(w)
 A run configuration is reachable when
 \[
 \mathsf{Reach}(c)
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \exists w\in T^*.\ c_0(w)\vdash_{\Look}^{\,*}c.
 \]
 For \(s\in\mathbf{Stack}\) and \(t\in T^\prime\), say that \((s,t)\) is a
 reachable reduce-phase head when
 \[
 \mathsf{Phase}(s,t)
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \exists u\in T^{\prime *}.\ \mathsf{Reach}(s,t u).
 \]
 \end{definition}
@@ -2168,7 +2169,7 @@ well-foundedness is preserved by inverse image along \(\mu\).  Hence the measure
 order
 \[
 c^\prime\prec_\rho c
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c)
 \]
 is well-founded on run configurations.  Since \(\mathsf{Call}\) is a subrelation
@@ -2287,7 +2288,7 @@ derivation; that structure is not part of the recognizer defined in this note.
 Use the certificate rank to order recursive calls by
 \[
 c^\prime\prec c
-\quad\Longleftrightarrow\quad
+\quad\iffdef\quad
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c).
 \]
 The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and the
