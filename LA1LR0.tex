@@ -1409,299 +1409,353 @@ the \(\LALRone\) lookahead sets determined by the LR(0) automaton.
 \section{Fuel-Free Parser Execution}\label{sec:fuel-free-parser}
 
 The table specification above is relational.  An executable parser can be
-obtained without adding a fuel argument if the table construction also returns a
-termination certificate for reduce-only phases.
+obtained without adding a fuel argument exactly when no reachable reduce-only
+phase can run forever.  This section states that condition using the actual
+parser stacks, not a finite control-only over-approximation.
 
-\begin{definition}[Reduce-control rank]\label{def:reduce-control-rank}
-For a conflict-free guarded table, let a run configuration be a stack together
-with the unread input.  Write \(\mathrm{top}(c)\in Q\) for the state on top of
-the stack and \(\mathrm{input}(c)\) for the unread input.
-
-Define the reduce-control graph of the table by the finite relation
+\begin{definition}[Run stacks and reachable phase heads]\label{def:run-stacks-phase}
+A run stack is a viable stack path starting at the initial LR state:
 \[
-(q,t)\leadsto_{\mathrm{red}}(q',t)
-\]
-on \(Q\times T^\prime\), where
-\[
-(q,t)\leadsto_{\mathrm{red}}(q',t)
-\Longleftrightarrow
-\exists A\in N^\prime,\ \omega\in V^{\prime *},\ p\in Q.\,
-\Item{A}{\omega}\in\Reduce_{\Look}(q,t)
-\land
-\Path{\omega}{p}{q}
-\land
-q'=\delta(p,A).
-\]
-The table is \emph{reduce-terminating} when this graph is acyclic.
-
-Assume now that the table is reduce-terminating.  Define the height of a
-control vertex by
-\[
-h(q,t)
+\mathbf{Stack}
 \triangleq
-\max\set*{n\in\mathbb N
+\set*{\Path{\alpha}{q_0}{q}
 \mid
-\exists q_0,\ldots,q_n\in Q.\,
-q_0=q\land
-\bigwedge_{0\le i<n}
-  (q_i,t)\leadsto_{\mathrm{red}}(q_{i+1},t)}.
+\alpha\in V^{\prime *},\ q\in Q,\ \Path{\alpha}{q_0}{q}}.
 \]
-The missing rank is this height, read at the current top state and current
-lookahead:
+The corresponding run configurations are
 \[
-\rho(c)
+\Config_{\mathrm{run}}
 \triangleq
-\begin{cases}
- h(\mathrm{top}(c),t),
-   & \mathrm{input}(c)=t u
-     \text{ for }t\in T^\prime,\ u\in T^{\prime *},\\[2pt]
- 0, & \mathrm{input}(c)=\eps.
-\end{cases}
+\set*{(s,u)
+\mid
+s\in\mathbf{Stack},\ u\in T^{\prime *}}.
+\]
+For an input word \(w\in T^*\), put
+\[
+c_0(w)
+\triangleq
+(\Path{\eps}{q_0}{q_0},w\$).
+\]
+A run configuration is reachable when
+\[
+\mathsf{Reach}(c)
+\quad\Longleftrightarrow\quad
+\exists w\in T^*.\ c_0(w)\vdash_{\Look}^{\,*}c.
+\]
+For \(s\in\mathbf{Stack}\) and \(t\in T^\prime\), say that \((s,t)\) is a
+reachable reduce-phase head when
+\[
+\mathsf{Phase}(s,t)
+\quad\Longleftrightarrow\quad
+\exists u\in T^{\prime *}.\ \mathsf{Reach}(s,t u).
 \]
 \end{definition}
 
-\begin{definition}[Termination certificate]\label{def:termination-cert}
-A termination certificate for a conflict-free guarded table is a rank function
+\begin{definition}[Exact reduce-phase relation]\label{def:exact-reduce-phase}
+For each lookahead \(t\in T^\prime\), define a relation
+\(\Rightarrow_t\subseteq\mathbf{Stack}\times\mathbf{Stack}\) by
 \[
-\rho:\Config_{\mathrm{run}}\to\mathbb N
+s\Rightarrow_t s^\prime
 \]
-such that every recursive parser step strictly decreases the lexicographic
-measure
+iff there exist \(\alpha\in V^{\prime *}\), \(A\in N^\prime\),
+\(\omega\in V^{\prime *}\), and states \(p,q,q^\prime\in Q\) such that
 \[
-\mu(c)\triangleq(|\mathrm{input}(c)|,\rho(c))\in\mathbb N\times\mathbb N .
+s=\bigl(\Path{\alpha\omega}{q_0}{q}\bigr),
+\qquad
+s^\prime=\bigl(\Path{\alpha A}{q_0}{q^\prime}\bigr),
 \]
-Equivalently:
-\begin{enumerate}
-\item a Shift step consumes one terminal, so
-  \(|\mathrm{input}(c')|<|\mathrm{input}(c)|\);
-\item a Reduce step consumes no input, but satisfies
-  \(\rho(c')<\rho(c)\);
-\item Accept and Error configurations make no recursive call.
-\end{enumerate}
+\[
+\Path{\alpha}{q_0}{p},
+\qquad
+\Path{\omega}{p}{q},
+\qquad
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t),
+\qquad
+q^\prime=\delta(p,A).
+\]
+Thus \(s\Rightarrow_t s^\prime\) records one actual guarded Reduce step with
+lookahead \(t\), including the stack prefix that is exposed by popping the
+handle.
 \end{definition}
 
-\begin{lemma}[Heights for finite acyclic relations]\label{lem:finite-acyclic-heights}
-Let \(X\) be a finite set and let \(R\subseteq X\times X\) be acyclic.
-For \(x\in X\), define
+\begin{lemma}[Exactness of reduce phases]\label{lem:exact-reduce-phase}
+For \(s,s^\prime\in\mathbf{Stack}\), \(t\in T^\prime\), and
+\(u\in T^{\prime *}\), the following are equivalent:
+\[
+(s,t u)\vdash_{\Look}(s^\prime,t u)
+\quad\text{by a Reduce step}
+\]
+and
+\[
+s\Rightarrow_t s^\prime.
+\]
+Consequently \(\Rightarrow_t\) is neither forgetting the pop predecessor nor
+combining incompatible stack contexts.
+\end{lemma}
+
+\begin{proof}
+Expanding the guarded Reduce rule, a Reduce step from \((s,t u)\) to
+\((s^\prime,t u)\) has the form
+\[
+s=\bigl(\Path{\alpha\omega}{q_0}{q}\bigr),
+\qquad
+s^\prime=\bigl(\Path{\alpha A}{q_0}{q^\prime}\bigr),
+\]
+with witnesses \(p\in Q\), \(A\in N^\prime\), and
+\(\omega\in V^{\prime *}\) satisfying
+\[
+\Path{\alpha}{q_0}{p},
+\qquad
+\Path{\omega}{p}{q},
+\qquad
+\Item{A}{\omega}\in\Reduce_{\Look}(q,t),
+\qquad
+q^\prime=\delta(p,A).
+\]
+These are exactly the witnesses required by
+Definition~\ref{def:exact-reduce-phase}.  The converse is the same argument read
+backwards.
+\end{proof}
+
+\begin{definition}[Exact reduce-phase termination]\label{def:exact-phase-termination}
+The guarded table is \emph{phase-terminating} when there are no
+\(t\in T^\prime\) and no infinite sequence of stacks
+\[
+s_0\Rightarrow_t s_1\Rightarrow_t s_2\Rightarrow_t\cdots
+\]
+with \(\mathsf{Phase}(s_0,t)\).
+\end{definition}
+
+\begin{lemma}[Finite branching of exact reductions]\label{lem:exact-reduce-finite-branching}
+For each \(s\in\mathbf{Stack}\) and \(t\in T^\prime\), the set
+\[
+\set*{s^\prime\in\mathbf{Stack}\mid s\Rightarrow_t s^\prime}
+\]
+is finite.  If the guarded table is conflict-free, this set has at most one
+element.
+\end{lemma}
+
+\begin{proof}
+Write \(s=\Path{\beta}{q_0}{q}\).  A successor of \(s\) under
+\(\Rightarrow_t\) must be produced by some completed item
+\(\Item{A}{\omega}\in\Reduce_{\Look}(q,t)\).  This set of items is finite.
+For a fixed \(A\to\omega\), the equality \(\beta=\alpha\omega\) determines at
+most one prefix \(\alpha\), and the deterministic LR path from \(q_0\) along
+\(\alpha\) determines at most one exposed state \(p\).  Then the successor state
+is forced to be \(\delta(p,A)\).  Hence only finitely many successors can occur.
+If the table is conflict-free, at most one Reduce action is available at the
+pair \((q,t)\), so there is at most one successor.
+\end{proof}
+
+\begin{lemma}[Heights for finitely branching terminating relations]
+\label{lem:finitely-branching-height}
+Let \(R\subseteq X\times X\) be finitely branching.  For \(x\in X\), suppose
+that no infinite chain
+\[
+x=x_0\mathrel R x_1\mathrel R x_2\mathrel R\cdots
+\]
+starts at \(x\).  Then
 \[
 H_R(x)
 \triangleq
 \max\set*{n\in\mathbb N
 \mid
-\exists x_0,\ldots,x_n\in X.\,
+\exists x_0,\ldots,x_n\in X.\
 x_0=x\land
-\bigwedge_{0\le i<n}(x_i,x_{i+1})\in R}.
+\bigwedge_{0\le i<n}x_i\mathrel R x_{i+1}}
 \]
-Then \(H_R(x)\) is well-defined for every \(x\in X\).  More precisely,
-the set whose maximum is taken is nonempty and every element of it is at most
-\(|X|-1\).  Moreover, whenever \((x,y)\in R\), one has
+is well-defined.  Moreover, if \(x\mathrel R y\), then
 \[
 H_R(y)<H_R(x).
 \]
+Conversely, any map \(H:X\to\mathbb N\) that strictly decreases along \(R\)
+excludes infinite \(R\)-chains.
 \end{lemma}
 
 \begin{proof}
-Fix \(x\in X\), and let
+Let \(S_x\) be the set of lengths appearing in the displayed maximum.  It is
+nonempty because \(0\in S_x\).  We first show that \(S_x\) is bounded.
+Suppose, toward a contradiction, that \(S_x\) is unbounded.  Since \(R\) is
+finitely branching, \(x\) has only finitely many successors.  If every successor
+\(y\) of \(x\) had bounded length set \(S_y\), then \(S_x\) would be bounded by
 \[
-S_x
-\triangleq
-\set*{n\in\mathbb N
-\mid
-\exists x_0,\ldots,x_n\in X.\,
-x_0=x\land
-\bigwedge_{0\le i<n}(x_i,x_{i+1})\in R}.
+\max\bigl(\set*{0}\cup
+\set*{1+\max S_y\mid x\mathrel R y}\bigr),
 \]
-The set \(S_x\) is nonempty: \(0\in S_x\), witnessed by the length-zero path
-\(x_0=x\).
+a contradiction.  Hence some successor \(x_1\) has unbounded \(S_{x_1}\).
+Repeating the same argument constructs an infinite chain
+\[
+x=x_0\mathrel R x_1\mathrel R x_2\mathrel R\cdots,
+\]
+contrary to the hypothesis.  Therefore \(S_x\) is bounded; as a nonempty
+bounded subset of \(\mathbb N\), it has a maximum, so \(H_R(x)\) is
+well-defined.
 
-We claim that \(S_x\) is bounded by \(|X|-1\).  Take any \(n\in S_x\), with
-witnessing path
-\[
-x_0,x_1,\ldots,x_n.
-\]
-If \(n\ge |X|\), then the path contains \(n+1>|X|\) vertices, all lying in the
-finite set \(X\).  By the pigeonhole principle, there are indices
-\(0\le i<j\le n\) such that \(x_i=x_j\).  Choose such a pair with \(j-i\)
-minimal.  Then the vertices
-\[
-x_i,x_{i+1},\ldots,x_{j-1}
-\]
-are pairwise distinct: if \(x_a=x_b\) for some \(i\le a<b\le j-1\), then
-\(b-a<j-i\), contradicting the minimality of \(j-i\).  Since
-\(x_j=x_i\) and \((x_k,x_{k+1})\in R\) for all \(i\le k<j\), the segment
-\[
-x_i,x_{i+1},\ldots,x_{j-1},x_i
-\]
-is a directed cycle of positive length.  This contradicts the assumption that
-\(R\) is acyclic.  Hence \(n<|X|\), equivalently \(n\le |X|-1\).
+If \(x\mathrel R y\), every path of length \(H_R(y)\) from \(y\) can be prefixed
+by the edge \(x\mathrel R y\), giving a path of length \(H_R(y)+1\) from \(x\).
+Thus \(H_R(x)\ge H_R(y)+1\), and so \(H_R(y)<H_R(x)\).
 
-Thus
-\[
-S_x\subseteq \set*{0,1,\ldots,|X|-1}.
-\]
-The right-hand set is finite and \(S_x\) is nonempty, so \(S_x\) has a greatest
-element.  Therefore \(H_R(x)=\max S_x\) is well-defined.
-
-It remains to prove strict decrease along an edge.  Assume \((x,y)\in R\), and
-put \(m=H_R(y)\).  Since \(m\) is the maximum of \(S_y\), there is a witnessing
-path
-\[
-y_0,y_1,\ldots,y_m
-\]
-with \(y_0=y\) and \((y_i,y_{i+1})\in R\) for all \(0\le i<m\).  Prefix this
-path by the edge \((x,y)\in R\).  This gives a path of length \(m+1\) from
-\(x\):
-\[
-x,y_0,y_1,\ldots,y_m.
-\]
-Hence \(m+1\in S_x\), and therefore
-\[
-H_R(x)\ge m+1>m=H_R(y).
-\]
-So \(H_R(y)<H_R(x)\), as required.
+Finally, if \(H:X\to\mathbb N\) strictly decreases along \(R\), an infinite
+\(R\)-chain would give an infinite strictly descending sequence in
+\(\mathbb N\), which is impossible.
 \end{proof}
 
-\begin{theorem}[Correctness of the reduce-control rank]\label{thm:rho-cert}
-If a conflict-free guarded table is reduce-terminating, then the rank \(\rho\) of
-Definition~\ref{def:reduce-control-rank} is a termination certificate in the
-sense of Definition~\ref{def:termination-cert}.
+\begin{definition}[Exact termination certificate]\label{def:termination-cert}
+For a conflict-free guarded table, a termination certificate is a rank function
+\[
+\rho:\Config_{\mathrm{run}}\to\mathbb N
+\]
+such that every reachable Shift or Reduce step strictly decreases
+\[
+\mu(c)\triangleq(|\mathrm{input}(c)|,\rho(c))\in\mathbb N\times\mathbb N
+\]
+in lexicographic order.  Concretely, whenever \(\mathsf{Reach}(c)\) and
+\(c\vdash_{\Look}c^\prime\) is a Shift or Reduce step, one has
+\[
+\mu(c^\prime)<_{\mathrm{lex}}\mu(c).
+\]
+Accept and Error configurations make no recursive call.
+\end{definition}
+
+\begin{definition}[Canonical exact rank]\label{def:canonical-exact-rank}
+Assume the guarded table is phase-terminating.  For \(s\in\mathbf{Stack}\) and
+\(t\in T^\prime\), define
+\[
+H_t(s)
+\triangleq
+\begin{cases}
+\displaystyle
+\max\set*{n\in\mathbb N
+\mid
+\exists s_0,\ldots,s_n\in\mathbf{Stack}.\
+s_0=s\land
+\bigwedge_{0\le i<n}s_i\Rightarrow_t s_{i+1}},
+&\text{if }\mathsf{Phase}(s,t),\\[8pt]
+0,&\text{otherwise.}
+\end{cases}
+\]
+For a run configuration \(c=(s,u)\), put
+\[
+\rho_{\mathrm{ex}}(c)
+\triangleq
+\begin{cases}
+H_t(s),&u=t u^\prime\text{ for some }t\in T^\prime,
+                         u^\prime\in T^{\prime *},\\[2pt]
+0,&u=\eps.
+\end{cases}
+\]
+\end{definition}
+
+\begin{theorem}[Sound and complete fuel-free criterion]\label{thm:exact-termination-criterion}
+For a conflict-free guarded table, the following are equivalent.
+\begin{enumerate}
+\item Every public parser run starting from some \(c_0(w)\), \(w\in T^*\), is
+finite.
+\item The table is phase-terminating in the sense of
+Definition~\ref{def:exact-phase-termination}.
+\item The table has a termination certificate in the sense of
+Definition~\ref{def:termination-cert}.
+\end{enumerate}
+When these conditions hold, the canonical exact rank
+\(\rho_{\mathrm{ex}}\) of Definition~\ref{def:canonical-exact-rank} is a
+termination certificate.
 \end{theorem}
 
 \begin{proof}
-Apply Lemma~\ref{lem:finite-acyclic-heights} to
+\((1)\Rightarrow(2))\).
+Assume every public parser run is finite, and suppose for contradiction that
+there are \(t\in T^\prime\) and an infinite chain
 \[
-X=Q\times T^\prime
-\qquad\text{and}\qquad
-R={\leadsto_{\mathrm{red}}}.
+s_0\Rightarrow_t s_1\Rightarrow_t s_2\Rightarrow_t\cdots
 \]
-The set \(X\) is finite, and reduce-termination says exactly that
-\(\leadsto_{\mathrm{red}}\) is acyclic on \(Q\times T^\prime\).  Therefore the
-height used in Definition~\ref{def:reduce-control-rank} is well-defined.  Indeed,
-the path
+with \(\mathsf{Phase}(s_0,t)\).  By definition of \(\mathsf{Phase}\), there are
+\(u\in T^{\prime *}\) and \(w\in T^*\) such that
 \[
-q_0,q_1,\ldots,q_n
+c_0(w)\vdash_{\Look}^{\,*}(s_0,t u).
 \]
-appearing in the definition of \(h(q,t)\) is the same thing as the
-\(\leadsto_{\mathrm{red}}\)-path
+By Lemma~\ref{lem:exact-reduce-phase}, each edge
+\(s_i\Rightarrow_t s_{i+1}\) is exactly a guarded Reduce step
 \[
-(q_0,t),(q_1,t),\ldots,(q_n,t)
+(s_i,t u)\vdash_{\Look}(s_{i+1},t u).
 \]
-in \(Q\times T^\prime\).  Thus \(h(q,t)\) is the instance of
-\(H_R((q,t))\) supplied by the lemma.  In particular, every reduce-control edge
-strictly lowers this height: if
-\[
-(q,t)\leadsto_{\mathrm{red}}(q',t),
-\]
-then
-\[
-h(q',t)<h(q,t).
-\]
+Appending these steps to the finite prefix from \(c_0(w)\) yields an infinite
+public parser run, a contradiction.  Hence the table is phase-terminating.
 
-Now inspect one recursive parser step from \(c\) to \(c'\).  If the step is a
-Shift and \(\mathrm{input}(c)=t u\), then \(\mathrm{input}(c')=u\), so
-\[
-|\mathrm{input}(c')|<|\mathrm{input}(c)|.
-\]
-Consequently
-\[
-\mu(c')<_{\mathrm{lex}}\mu(c),
-\]
-regardless of the value of the second component.
+\((2)\Rightarrow(3))\).
+Assume phase-termination.  Let \(c=(s,u)\) be reachable.  If \(u=t u^\prime\),
+then \(\mathsf{Phase}(s,t)\).  By Lemma~\ref{lem:exact-reduce-finite-branching}
+and Lemma~\ref{lem:finitely-branching-height}, the maximum defining \(H_t(s)\)
+exists; the same lemma also gives strict decrease along every exact edge
+\(s\Rightarrow_t s^\prime\).
 
-If the step is a Reduce, then the unread input is unchanged.  Write
-\(\mathrm{input}(c)=t u\), let \(q=\mathrm{top}(c)\), and let
-\(q'=\mathrm{top}(c')\).  By the reduce rule, there exist
-\(A\in N^\prime\), \(\omega\in V^{\prime *}\), and \(p\in Q\) such that
+We prove that \(\rho_{\mathrm{ex}}\) is a termination certificate.  If the
+recursive step from \(c\) to \(c^\prime\) is a Shift and
+\(\mathrm{input}(c)=t u^\prime\), then \(\mathrm{input}(c^\prime)=u^\prime\), so
 \[
-\Item{A}{\omega}\in\Reduce_{\Look}(q,t),
+|\mathrm{input}(c^\prime)|<|\mathrm{input}(c)|.
+\]
+Therefore \(\mu(c^\prime)<_{\mathrm{lex}}\mu(c)\), independently of the second
+component.
+
+If the recursive step is a Reduce, write
+\[
+c=(s,t u^\prime),
 \qquad
-\Path{\omega}{p}{q},
-\qquad
-q'=\delta(p,A).
+c^\prime=(s^\prime,t u^\prime).
 \]
-By the definition of the reduce-control relation, this is precisely the statement
-that
+By Lemma~\ref{lem:exact-reduce-phase}, \(s\Rightarrow_t s^\prime\).  The height
+decrease from Lemma~\ref{lem:finitely-branching-height} gives
 \[
-(q,t)\leadsto_{\mathrm{red}}(q',t).
+\rho_{\mathrm{ex}}(c^\prime)=H_t(s^\prime)<H_t(s)=\rho_{\mathrm{ex}}(c).
 \]
-The height decrease proved above therefore gives
+The input length is unchanged by a Reduce step, so again
 \[
-\rho(c')=h(q',t)<h(q,t)=\rho(c).
+\mu(c^\prime)<_{\mathrm{lex}}\mu(c).
 \]
-Since a Reduce step does not consume input,
+Accept and Error configurations make no recursive call.  Thus
+\(\rho_{\mathrm{ex}}\) is a termination certificate.
+
+\((3)\Rightarrow(1))\).
+Assume a termination certificate \(\rho\) exists.  Along every reachable
+recursive parser step, the measure
 \[
-|\mathrm{input}(c')|=|\mathrm{input}(c)|,
+\mu(c)=(|\mathrm{input}(c)|,\rho(c))
 \]
-and hence again
-\[
-\mu(c')<_{\mathrm{lex}}\mu(c).
-\]
-
-Accept and Error configurations make no recursive call, so there is no decrease
-condition to prove for them.  Therefore every recursive call strictly decreases
-\(\mu\), and \(\rho\) is a termination certificate.
-\end{proof}
-
-Thus the certificate is computable from the generated table: build the finite
-reduce-control graph, check that it is acyclic, compute \(h\) in reverse
-topological order, and use the resulting \(\rho\).  It is a property of the
-generated table, not a user-supplied timeout budget.
-
-
-\begin{lemma}[Accessibility of parser configurations]\label{lem:parser-acc}
-If a guarded table has a termination certificate, then every initial run
-configuration is accessible for the strict parser-step order
-\[
-c'\prec c
-\quad\Longleftrightarrow\quad
-\mu(c')<_{\mathrm{lex}}\mu(c).
-\]
-\end{lemma}
-
-\begin{proof}
-The strict order \(<\) on \(\mathbb N\) is well-founded, hence so is the
-lexicographic order on \(\mathbb N\times\mathbb N\).  By
-Definition~\ref{def:termination-cert}, every recursive call of the parser moves
-from \(c\) to a configuration \(c'\) with \(c'\prec c\).  Therefore the inverse
-image of the well-founded lexicographic order along \(\mu\) is well-founded on
-run configurations.  Equivalently, every initial configuration has an
-\(\mathsf{Acc}\,\prec\) proof.
+strictly decreases in the lexicographic order on \(\mathbb N\times\mathbb N\).
+This order is well-founded, so no infinite sequence of reachable recursive calls
+can start from any \(c_0(w)\).  Hence every public parser run is finite.
 \end{proof}
 
 \begin{corollary}[Fuel-free recursive parser]\label{cor:fuel-free-parser}
-Under the same certificate assumption, the parser can be defined as a total
-recursive function
+If the equivalent conditions of Theorem~\ref{thm:exact-termination-criterion}
+hold, the public parser can be exposed without a fuel parameter:
 \[
-\mathrm{run}_{\mathsf{Acc}}
-  : \prod_{c:\Config_{\mathrm{run}}}
-    \mathsf{Acc}\,\prec\,c \to
-    \mathrm{option}\ \mathrm{ParseTree},
-\]
-and the public parser has no fuel parameter:
-\[
-\mathrm{run\_parser}(w)
-\triangleq
-\mathrm{run}_{\mathsf{Acc}}
-  (c_0(w))
-  (\text{Lemma~\ref{lem:parser-acc} applied to }c_0(w)).
+\mathrm{run\_parser}:T^*\to\mathrm{option}\ \mathrm{ParseTree}.
 \]
 \end{corollary}
 
 \begin{proof}
-Define \(\mathrm{run}_{\mathsf{Acc}}\) by structural recursion on the
-\(\mathsf{Acc}\,\prec\,c\) proof.  In Shift and Reduce cases,
-Definition~\ref{def:termination-cert} supplies the strict decrease needed to
-use the accessibility predecessor proof.  In Accept and Error cases, return the
-corresponding result immediately.  Lemma~\ref{lem:parser-acc} supplies the
-accessibility proof for the initial configuration, hiding it from the public
-interface.
+Use the certificate rank to order recursive calls by
+\[
+c^\prime\prec c
+\quad\Longleftrightarrow\quad
+\mu(c^\prime)<_{\mathrm{lex}}\mu(c).
+\]
+The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and the
+certificate supplies the required decrease for every reachable Shift or Reduce
+call.  Thus the internal runner is defined on reachable configurations by
+well-founded recursion on \(\prec\), equivalently by carrying a reachability
+proof internally.  The initial configuration \(c_0(w)\) is reachable by the
+empty run, so the public wrapper supplies the accessibility proof and exposes no
+fuel argument.
 \end{proof}
 
-Thus the public parser interface is
-\[
-T^*\to\mathrm{option}\ \mathrm{ParseTree},
-\]
-with no fuel argument and no timeout result.
+The criterion above is exact: a table is rejected only when there is an actual
+infinite reduce-only phase reachable from some initial input.  A finite
+control-only graph may still be useful as a sufficient quick check, but it is
+not used as the complete criterion because such a graph can contain cycles that
+no single parser stack can realise.
+
 
 \begin{thebibliography}{9}
 \bibitem{DeRemerPennello1982}
