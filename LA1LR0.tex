@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 
 \usepackage[a4paper,left=22mm,right=22mm,top=20mm,bottom=24mm]{geometry}
 \usepackage[T1]{fontenc}
@@ -1415,6 +1415,260 @@ If the guarded table is conflict-free, it is an \(\LALRone\) parser accepting
 Corollary~\ref{cor:lookahead-language} gives acceptance of \(L(G)\), and
 Lemma~\ref{lem:lookahead-table} gives the \(\LALRone\) table condition under the
 stated absence of conflicts.
+\end{proof}
+
+\section{Language-Class Bridge}\label{sec:language-class-bridge}
+
+The productivity hypothesis in Theorem~\ref{thm:read-follow} is a hypothesis on a
+particular grammar and its LR(0) automaton.  It is not a WLOG step inside an
+automaton-level proof.  At the level of languages, however, the loss disappears:
+a semantic witness can be replaced by an equivalent productive certified witness.
+The replacement is existential; it rebuilds the grammar and therefore rebuilds the
+automaton.
+
+\begin{definition}[Semantic and certified witnesses]\label{def:semantic-certified-witness}
+A grammar \(G\) is a \emph{semantic \(\LALRone\) witness} when the ACTION table
+of Definition~\ref{def:lalr-table}, built with the exact semantic guard
+\(K=\Look_G\), is conflict-free.  A grammar \(H\) is a
+\emph{certified \(\LALRone\) witness} when every nonterminal of \(H^\prime\) is
+productive and the ACTION table built with the implemented guard
+\(K=\widehat{\Look}_H\) is conflict-free.
+Define
+\[
+\mathcal L_{\mathrm{sem}}
+\triangleq
+\set*{L(G)\mid G\text{ is a semantic }\LALRone\text{ witness}},
+\qquad
+\mathcal L_{\mathrm{cert}}
+\triangleq
+\set*{L(H)\mid H\text{ is a certified }\LALRone\text{ witness}}.
+\]
+The empty language is the only degenerate case excluded by the phrase ``every
+nonterminal is productive'': if \(L(H)=\emptyset\), the start symbol of \(H\) is
+not productive.  The theorem below therefore states the nonempty language-class
+claim.  Empty input languages may be handled separately by an explicit reject-all
+recognizer, or by allowing the start symbol as a distinguished nonproductive
+exception.
+\end{definition}
+
+\begin{theorem}[Semantic witness to productive certified witness]\label{thm:semantic-to-certified}
+Let \(G\) be a grammar with \(L(G)\ne\emptyset\).  If \(G\) is a semantic
+\(\LALRone\) witness, then there exists a grammar \(H\), over the same terminal
+alphabet, such that
+\[
+L(H)=L(G),
+\qquad
+\text{every nonterminal of }H^\prime\text{ is productive},
+\qquad
+H\text{ is a certified }\LALRone\text{ witness}.
+\]
+Consequently, on nonempty languages,
+\[
+\mathcal L_{\mathrm{sem}}=\mathcal L_{\mathrm{cert}}.
+\]
+\end{theorem}
+
+\begin{proof}
+We prove the nontrivial inclusion
+\(\mathcal L_{\mathrm{sem}}\subseteq\mathcal L_{\mathrm{cert}}\).  The reverse
+inclusion is immediate from Theorem~\ref{thm:read-follow}: if \(H\) is productive,
+then \(\widehat{\Look}_H=\Look_H\), so a certified conflict-free table is also a
+semantic conflict-free table.
+
+\proofpart{1. Remove dead productions only at the language level}
+Let \(G^\circ\) be the unaugmented productive core obtained by deleting from
+\(P\) every production whose left-hand side or right-hand side mentions a
+nonproductive nonterminal of \(G^\prime\).  Since \(L(G)\ne\emptyset\), the start
+symbol \(S\) is productive.  Fact~\ref{fact:productive}, with the trailing
+endmarker stripped as in Corollary~\ref{cor:lra-correct}, gives
+\[
+L(G^\circ)=L(G).
+\]
+This step is used only to know which productions can occur in terminal
+derivations.  We do not claim that the LR(0) automaton of \(G\) may be replaced
+by the automaton of \(G^\circ\) inside the previous proofs.
+
+\proofpart{2. Split productive nonterminals by parser states}
+Let \(Q_G,\delta_G,q_0\) be the LR(0) automaton of the original grammar \(G^\prime\),
+and let the conflict-free semantic ACTION table of \(G\) be built with
+\(K=\Look_G\).  We construct a finite split grammar \(G^\bullet\).  Its
+nonterminals are triples
+\[
+\langle p,A,r\rangle
+\qquad
+(p,r\in Q_G,\ A\in N^\circ,\ \delta_G(p,A)=r),
+\]
+where \(N^\circ\subseteq N\) is the set of productive nonterminals of \(G^\prime\),
+excluding the augmented symbol \(S^\prime\).  The start symbol is
+\[
+S^\bullet\triangleq \langle q_0,S,\delta_G(q_0,S)\rangle .
+\]
+For every core production
+\(A\to X_1\cdots X_m\in G^\circ\) and every state sequence
+\[
+p_0\xrightarrow{X_1}p_1\xrightarrow{X_2}\cdots\xrightarrow{X_m}p_m
+\quad\text{in }G,
+\]
+meaning \(p_i=\delta_G(p_{i-1},X_i)\ne\emptyset\), add the production
+\[
+\langle p_0,A,\delta_G(p_0,A)\rangle
+\to
+\Theta_1\cdots\Theta_m,
+\]
+where
+\[
+\Theta_i=
+\begin{cases}
+X_i, & X_i\in T,\\
+\langle p_{i-1},X_i,p_i\rangle, & X_i\in N^\circ .
+\end{cases}
+\]
+If \(m=0\), this is an \(\eps\)-production for every pair
+\((p_0,\delta_G(p_0,A))\) with \(\delta_G(p_0,A)\ne\emptyset\).  Finally, let
+\(H\) be the productive core of \(G^\bullet\), again by
+Fact~\ref{fact:productive}.  Because \(L(G)\ne\emptyset\), the split start symbol
+is productive, so this trimming does not delete the start symbol.  The augmented
+grammar \(H^\prime\) is obtained from \(H\) in the usual way, by adding a fresh
+start production \(S_H^\prime\to S^\bullet\$\).
+
+\proofpart{3. The split grammar is equivalent to the original grammar}
+Let \(\pi\) erase state annotations:
+\[
+\pi(\langle p,A,r\rangle)=A,
+\qquad
+\pi(t)=t\quad(t\in T^\prime),
+\]
+and extend \(\pi\) homomorphically to strings, productions, derivations, and
+parse trees.  Every production of \(G^\bullet\) erases to a production of the core
+\(G^\circ\).  Hence every terminal derivation of \(G^\bullet\), and therefore of
+\(H\), erases to a terminal derivation of \(G^\circ\).  Thus
+\[
+L(H)\subseteq L(G^\circ).
+\]
+Conversely, take \(x\in L(G^\circ)\).  Since \(G\) is a semantic witness,
+Corollary~\ref{cor:lookahead-language} gives an accepting run of the semantic
+lookahead parser for \(G\) on \(x\$\).  Read that run backwards as the rightmost
+derivation used in Lemma~\ref{lem:lra-complete}, ignoring only the final shift of
+\(\$\).  Each grammar reduction
+\(A\to X_1\cdots X_m\) pops a stack segment
+\[
+p_0\xrightarrow{X_1}p_1\xrightarrow{X_2}\cdots\xrightarrow{X_m}p_m
+\]
+and then pushes \(A\), moving to \(\delta_G(p_0,A)\).  Replace this reduction by
+the corresponding split production displayed above, and annotate every child
+nonterminal \(X_i\) by the state pair \((p_{i-1},p_i)\).  Induction over the
+reverse parse gives
+\[
+S^\bullet\Rightarrow_{G^\bullet}^* x .
+\]
+The derivation uses only productive split nonterminals, so it survives the final
+productive-core trimming.  Therefore \(x\in L(H)\), and
+\[
+L(H)=L(G^\circ)=L(G).
+\]
+By construction of the final core, every nonterminal of \(H\) is productive; and
+because \(L(H)\ne\emptyset\), the augmented start symbol of \(H^\prime\) is also
+productive via \(S_H^\prime\to S^\bullet\$\).  Hence every nonterminal of
+\(H^\prime\) is productive.
+
+\proofpart{4. Split LR(0) states remember the original parser state}
+We record the invariant that prevents the productive trimming from reintroducing
+spurious LALR merging.  For an item of \(H^\prime\)
+\[
+\langle p_0,A,r\rangle
+\to
+\Theta_1\cdots\Theta_i\cdot\Theta_{i+1}\cdots\Theta_m,
+\]
+define its \emph{current original state} \(\rho\) to be the state obtained by
+following \(\pi(\Theta_1\cdots\Theta_i)\) from \(p_0\) in the original automaton
+\(Q_G\).  This state is defined because the production was added only from a
+valid state sequence.  Then every reachable LR(0) state \(\bar q\) of \(H^\prime\)
+has a unique state \(\rho(\bar q)\in Q_G\) such that every item of \(\bar q\) has
+current original state \(\rho(\bar q)\), and erasing annotations sends items of
+\(\bar q\) to items of the original state \(\rho(\bar q)\).
+
+The proof is by induction over the construction of reachable LR(0) states.
+Closure preserves the invariant: if the dot is before
+\(\langle p,B,r\rangle\), then the current original state is exactly \(p\), and
+all closure items for productions of \(\langle p,B,r\rangle\) start in the same
+state \(p\).  GOTO preserves the invariant because shifting a terminal \(t\) or a
+split nonterminal \(\langle p,B,r\rangle\) advances the current original state by
+\(\delta_G(-,t)\) or \(\delta_G(p,B)=r\), respectively.  Erasing the moved item and
+then closing is exactly a subset of the corresponding original closure, since
+\(G^\bullet\) uses only productions whose erasures are productions of \(G\).
+
+A useful consequence is uniqueness of split reductions inside one split state:
+if two completed split items in the same \(\bar q\) erase to the same original
+production \(A\to\omega\), then the split items are identical.  Indeed, a
+backward induction over \(\omega\) recovers the same encoded state sequence from
+the common current state \(\rho(\bar q)\) and the common erased production; the
+source state at the beginning and all nonterminal target annotations are forced
+by the invariant and by the determinism of \(\delta_G\).
+
+\proofpart{5. Semantic lookahead also erases}
+Let \(\bar I\) be a completed item of \(H^\prime\) in a split state \(\bar q\), and
+let \(\pi(\bar I)=\Item{A}{\omega\cdot\eps}\).  If
+\(t\in\Look_H(\bar q,\pi^{-1}(A\to\omega))\), then
+\[
+t\in \Look_G(\rho(\bar q),\Item{A}{\omega}).
+\]
+To see this, take the semantic lookahead witness in \(H^\prime\):
+\[
+S_H^\prime\Rightarrow_{H^\prime,\mathbf{rm}}^* \alpha\,\bar A\,t z,
+\qquad
+\Path{\alpha\bar\omega}{\bar q_0}{\bar q},
+\qquad
+z\in T^{\prime *},
+\]
+where \(\bar A\) and \(\bar\omega\) erase to \(A\) and \(\omega\).  Erasing
+annotations gives
+\[
+S_G^\prime\Rightarrow_{G^\prime,\mathbf{rm}}^* \pi(\alpha) A t z,
+\qquad
+\Path{\pi(\alpha)\omega}{q_0}{\rho(\bar q)},
+\]
+by the state invariant.  This is precisely the defining witness for
+\(t\in\Look_G(\rho(\bar q),\Item{A}{\omega})\).
+
+\proofpart{6. Conflicts in the split grammar would be conflicts in the original table}
+Suppose the semantic ACTION table of \(H\) had a shift/reduce conflict at
+\((\bar q,t)\).  The shift item erases, by the state invariant, to an original
+shift on \(t\) from \(\rho(\bar q)\).  The reduce item erases, by the previous
+paragraph, to an original reduction whose semantic lookahead contains \(t\) at
+the same original state.  This is a shift/reduce conflict in the semantic table
+of \(G\), contradiction.
+
+Similarly, suppose the semantic ACTION table of \(H\) had a reduce/reduce
+conflict at \((\bar q,t)\).  By uniqueness of split reductions inside one split
+state, the two split reductions erase to two distinct original productions.  By
+lookahead erasure, both original reductions are enabled under \(t\) at the same
+state \(\rho(\bar q)\).  This is a reduce/reduce conflict in the semantic table of
+\(G\), again a contradiction.  Hence the semantic \(\LALRone\) table of \(H\) is
+conflict-free.
+
+Finally, every nonterminal of \(H^\prime\) is productive, so
+Theorem~\ref{thm:read-follow} gives
+\(\widehat{\Look}_H=\Look_H\).  Therefore the implemented digraph guard and the
+semantic guard build the same ACTION table for \(H\).  Since the semantic table is
+conflict-free, the implemented table is conflict-free as well.  Thus \(H\) is a
+productive certified \(\LALRone\) witness for \(L(G)\).
+\end{proof}
+
+\begin{corollary}[Nonempty language-class equality]\label{cor:language-class-equality}
+For every nonempty language \(L\subseteq T^*\), the following are equivalent.
+\begin{enumerate}
+\item \(L\in\mathcal L_{\mathrm{sem}}\): some grammar for \(L\) has a
+conflict-free semantic \(\LALRone\) table.
+\item \(L\in\mathcal L_{\mathrm{cert}}\): some productive grammar for \(L\) has a
+conflict-free digraph-computed \(\LALRone\) table.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+The implication \((1)\Rightarrow(2)\) is Theorem~\ref{thm:semantic-to-certified}.
+For \((2)\Rightarrow(1)\), productivity gives
+\(\widehat{\Look}=\Look\) by Theorem~\ref{thm:read-follow}, so the certified table
+is the semantic table.
 \end{proof}
 
 \appendix
