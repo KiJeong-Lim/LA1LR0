@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 
 \usepackage[a4paper,left=22mm,right=22mm,top=20mm,bottom=24mm]{geometry}
 \usepackage[T1]{fontenc}
@@ -62,7 +62,6 @@
 \newcommand{\Follow}{\mathbf{Follow}}
 \newcommand{\Config}{\mathbf{Config}}
 \newcommand{\Reduce}{\mathbf{reduce}}
-\newcommand{\iffdef}{\xLeftrightarrow{\mathrm{def}}}
 \newcommand{\proofpart}[1]{\par\medskip\noindent\uline{\textsc{#1}}.}
 
 \title{\vspace{-2.5em}\sffamily\bfseries LA(1)LR(0)}
@@ -111,7 +110,7 @@ V^\prime\triangleq N^\prime\uplus T^\prime .
 \item
 \[
 \beta\RMP\gamma
-\quad\iffdef\quad
+\quad\xLeftrightarrow{\mathrm{def}}\quad
 (\beta,\gamma)\in
 \set*{(\alpha A z,\alpha\omega z)
 \mid
@@ -168,10 +167,10 @@ Q\triangleq \mathrm{PT}\setminus\set*{\emptyset},
 
 \item The path relation is defined by structural recursion on the input word:
 \[
-\Path{\eps}{p}{q} \iffdef p\in Q\land p=q,
+\Path{\eps}{p}{q} \Longleftrightarrow p\in Q\land p=q,
 \qquad
 \Path{X\alpha}{p}{q}
-\iffdef
+\Longleftrightarrow
 p\in Q\land \mathrm{GOTO}(p,X)\in Q
 \land \Path{\alpha}{\mathrm{GOTO}(p,X)}{q} .
 \]
@@ -253,7 +252,7 @@ For \(c=(\Path{\alpha}{p}{q},u)\in\Config\), define the unread input by
 The accepting configurations are exactly
 \[
 \mathsf{Accept}(c)
-\iffdef
+\Longleftrightarrow
 c=(\Path{S\$}{q_0}{q_f},\eps),
 \]
 and an error configuration is a non-accepting run configuration with no Shift or
@@ -535,7 +534,7 @@ For \(\eta\in V^{\prime *}\), say that \(\eta\) is a \emph{viable prefix} of
 form:
 \begin{equation}\label{eq:vp-def}
 \eta\text{ viable}
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \exists A,\alpha,\beta,\delta,w.\
 \Item{A}{\alpha\beta}\in P^\prime
 \land
@@ -548,7 +547,7 @@ S^\prime\RMP^*\delta A w .
 For the same \(\eta\), define the valid LR(0) items by
 \begin{equation}\label{eq:valid-def}
 \Item{A}{\alpha\cdot\beta}\in\mathsf{Valid}(\eta)
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \Item{A}{\alpha\beta}\in P^\prime
 \land
 \exists\delta,w.\
@@ -1418,16 +1417,28 @@ Lemma~\ref{lem:lookahead-table} gives the \(\LALRone\) table condition under the
 stated absence of conflicts.
 \end{proof}
 
-\section{Language-Class Bridge}\label{sec:language-class-bridge}
 
-The productivity hypothesis in Theorem~\ref{thm:read-follow} is a hypothesis on a
-particular grammar and its LR(0) automaton.  It is not a WLOG step inside an
-automaton-level proof.  At the level of languages, however, the loss disappears:
-a semantic witness can be replaced by an equivalent productive certified witness.
-The replacement is existential; it rebuilds the grammar and therefore rebuilds the
-automaton.
+\section{Language-Class Bridge, Corrected}
+\label{sec:language-class-bridge}
 
-\begin{definition}[Semantic and certified witnesses]\label{def:semantic-certified-witness}
+The productivity hypothesis in Theorem~\ref{thm:read-follow} is a hypothesis on
+one concrete grammar and on the LR(0) automaton built from that grammar.  It is
+not a WLOG step inside an automaton-level proof.  A productive pruning of a
+grammar preserves the generated terminal language, but it can change the LR(0)
+state space by merging states that were separated only by non-productive items.
+Consequently, a semantic \(\LALRone\) witness for the original grammar does not,
+by itself, transport to the directly pruned grammar.
+
+This section states the corrected bridge.  There are two separate facts.
+First, productive pruning preserves the language and yields a grammar to which
+the exactness theorem \(\widehat{\Look}=\Look\) applies.  Second, semantic
+\(\LALRone\) conflict-freeness transports across the pruning only under an
+additional merge-safety condition, or by running and certifying the pruned parser
+generator directly.  No unconditional nonempty language-class equality is claimed
+from direct pruning alone.
+
+\begin{definition}[Semantic and certified witnesses]
+\label{def:semantic-certified-witness}
 A grammar \(G\) is a \emph{semantic \(\LALRone\) witness} when the ACTION table
 of Definition~\ref{def:lalr-table}, built with the exact semantic guard
 \(K=\Look_G\), is conflict-free.  A grammar \(H\) is a
@@ -1444,264 +1455,350 @@ Define
 \triangleq
 \set*{L(H)\mid H\text{ is a certified }\LALRone\text{ witness}}.
 \]
-The empty language is the only degenerate case excluded by the phrase ``every
-nonterminal is productive'': if \(L(H)=\emptyset\), the start symbol of \(H\) is
-not productive.  The theorem below therefore states the nonempty language-class
-claim.  Empty input languages may be handled separately by an explicit reject-all
-recognizer, or by allowing the start symbol as a distinguished nonproductive
-exception.
+The inclusion \(\mathcal L_{\mathrm{cert}}\subseteq\mathcal L_{\mathrm{sem}}\)
+is immediate from Theorem~\ref{thm:read-follow}.  The reverse inclusion is not
+proved by direct productive pruning alone.
 \end{definition}
 
-\begin{theorem}[Semantic witness to productive certified witness]\label{thm:semantic-to-certified}
-Let \(G\) be a grammar with \(L(G)\ne\emptyset\).  If \(G\) is a semantic
-\(\LALRone\) witness, then there exists a grammar \(H\), over the same terminal
-alphabet, such that
+\begin{definition}[Productive pruning]
+\label{def:productive-pruning}
+Let \(G=(N,T,P,S)\) be an unaugmented grammar.  A nonterminal \(A\in N\) is
+\emph{live} when it is productive in the augmented grammar \(G^\prime\), ignoring
+only the fresh start symbol.  Thus \(A\) is live when
 \[
-L(H)=L(G),
-\qquad
-\text{every nonterminal of }H^\prime\text{ is productive},
-\qquad
-H\text{ is a certified }\LALRone\text{ witness}.
+A\Rightarrow_{P}^{*} w
+\quad\text{for some }w\in T^* .
 \]
-Consequently, on nonempty languages,
+Assume that \(S\) is live.  The \emph{productive pruning} \(G^\circ\) is the
+grammar whose nonterminal set is the subtype
 \[
-\mathcal L_{\mathrm{sem}}=\mathcal L_{\mathrm{cert}}.
+N^\circ \triangleq \set*{A\in N\mid A\text{ is live}},
 \]
-\end{theorem}
+whose terminal set is \(T\), whose start symbol is the live copy of \(S\), and
+whose productions are exactly the productions
+\[
+A\to X_1\cdots X_m\in P
+\]
+for which \(A\) is live and every nonterminal among the \(X_i\) is live, with
+all live nonterminals retyped into \(N^\circ\).  Terminals are left unchanged.
+The erasure map
+\[
+\pi:N^\circ\uplus T\to N\uplus T
+\]
+forgets the subtype proof on nonterminals and is the identity on terminals.
+\end{definition}
 
-\begin{proof}
-We prove the nontrivial inclusion
-\(\mathcal L_{\mathrm{sem}}\subseteq\mathcal L_{\mathrm{cert}}\).  The reverse
-inclusion is immediate from Theorem~\ref{thm:read-follow}: if \(H\) is productive,
-then \(\widehat{\Look}_H=\Look_H\), so a certified conflict-free table is also a
-semantic conflict-free table.
-
-\proofpart{1. Remove dead productions only at the language level}
-Let \(G^\circ\) be the unaugmented productive core obtained by deleting from
-\(P\) every production whose left-hand side or right-hand side mentions a
-nonproductive nonterminal of \(G^\prime\).  Since \(L(G)\ne\emptyset\), the start
-symbol \(S\) is productive.  Fact~\ref{fact:productive}, with the trailing
-endmarker stripped as in the proof of Corollary~\ref{cor:lra-sound}, gives
+\begin{lemma}[Productive pruning preserves the terminal language]
+\label{lem:productive-pruning-language}
+If the start symbol of \(G\) is live, then
 \[
 L(G^\circ)=L(G).
 \]
-This step is used only to know which productions can occur in terminal
-derivations.  We do not claim that the LR(0) automaton of \(G\) may be replaced
-by the automaton of \(G^\circ\) inside the previous proofs.
+Moreover every nonterminal of \((G^\circ)^\prime\) is productive.
+\end{lemma}
 
-\proofpart{2. Split productive nonterminals by parser states}
-Let \(Q_G,\delta_G,q_0\) be the LR(0) automaton of the original grammar \(G^\prime\),
-and let the conflict-free semantic ACTION table of \(G\) be built with
-\(K=\Look_G\).  We construct a finite split grammar \(G^\bullet\).  Its
-nonterminals are triples
-\[
-\langle p,A,r\rangle
-\qquad
-(p,r\in Q_G,\ A\in N^\circ,\ \delta_G(p,A)=r),
-\]
-where \(N^\circ\subseteq N\) is the set of productive nonterminals of \(G^\prime\),
-excluding the augmented symbol \(S^\prime\).  The start symbol is
-\[
-S^\bullet\triangleq \langle q_0,S,\delta_G(q_0,S)\rangle .
-\]
-For every core production
-\(A\to X_1\cdots X_m\in G^\circ\) and every state sequence
-\[
-p_0\xrightarrow{X_1}p_1\xrightarrow{X_2}\cdots\xrightarrow{X_m}p_m
-\quad\text{in }G,
-\]
-meaning \(p_i=\delta_G(p_{i-1},X_i)\ne\emptyset\), add the production
-\[
-\langle p_0,A,\delta_G(p_0,A)\rangle
-\to
-\Theta_1\cdots\Theta_m,
-\]
-where
-\[
-\Theta_i=
-\begin{cases}
-X_i, & X_i\in T,\\
-\langle p_{i-1},X_i,p_i\rangle, & X_i\in N^\circ .
-\end{cases}
-\]
-If \(m=0\), this is an \(\eps\)-production for every pair
-\((p_0,\delta_G(p_0,A))\) with \(\delta_G(p_0,A)\ne\emptyset\).  Finally, let
-\(H\) be the productive core of \(G^\bullet\), again by
-Fact~\ref{fact:productive}.  Because \(L(G)\ne\emptyset\), the split start symbol
-is productive, so this trimming does not delete the start symbol.  The augmented
-grammar \(H^\prime\) is obtained from \(H\) in the usual way, by adding a fresh
-start production \(S_H^\prime\to S^\bullet\$\).
+\begin{proof}
+The inclusion \(L(G^\circ)\subseteq L(G)\) follows by erasing the subtype
+annotations from every production and every derivation step.
 
-\proofpart{3. The split grammar is equivalent to the original grammar}
-Let \(\pi\) erase state annotations:
-\[
-\pi(\langle p,A,r\rangle)=A,
-\qquad
-\pi(t)=t\quad(t\in T^\prime),
-\qquad
-\pi(S_H^\prime)=S_G^\prime,
-\]
-and extend \(\pi\) homomorphically to strings, productions, derivations, and
-parse trees.  Every production of \(G^\bullet\) erases to a production of the core
-\(G^\circ\), and the augmented production \(S_H^\prime\to S^\bullet\$\) erases to
-the original augmented production \(S_G^\prime\to S\$\).  Hence every terminal derivation of \(G^\bullet\), and therefore of
-\(H\), erases to a terminal derivation of \(G^\circ\).  Thus
-\[
-L(H)\subseteq L(G^\circ).
-\]
-Conversely, take \(x\in L(G^\circ)\).  Since \(G\) is a semantic witness,
-Corollary~\ref{cor:lookahead-language} gives an accepting run of the semantic
-lookahead parser for \(G\) on \(x\$\).  Read that run backwards as the rightmost
-derivation used in Lemma~\ref{lem:lra-complete}, ignoring only the final shift of
-\(\$\).  Each grammar reduction
-\(A\to X_1\cdots X_m\) pops a stack segment
-\[
-p_0\xrightarrow{X_1}p_1\xrightarrow{X_2}\cdots\xrightarrow{X_m}p_m
-\]
-and then pushes \(A\), moving to \(\delta_G(p_0,A)\).  Replace this reduction by
-the corresponding split production displayed above, and annotate every child
-nonterminal \(X_i\) by the state pair \((p_{i-1},p_i)\).  Induction over the
-reverse parse gives
-\[
-S^\bullet\Rightarrow_{G^\bullet}^* x .
-\]
-The derivation uses only productive split nonterminals, so it survives the final
-productive-core trimming.  Therefore \(x\in L(H)\), and
-\[
-L(H)=L(G^\circ)=L(G).
-\]
-By construction of the final core, every nonterminal of \(H\) is productive; and
-because \(L(H)\ne\emptyset\), the augmented start symbol of \(H^\prime\) is also
-productive via \(S_H^\prime\to S^\bullet\$\).  Hence every nonterminal of
-\(H^\prime\) is productive.
+For the converse, let \(S\Rightarrow_G^* x\) with \(x\in T^*\).  Every
+nonterminal occurrence that appears in a derivation which eventually reaches the
+terminal string \(x\) is productive: the suffix of the derivation below that
+occurrence gives a terminal yield for that nonterminal.  Hence every production
+used along the derivation has a live left-hand side and only live nonterminal
+occurrences on its right-hand side.  The same derivation can therefore be retyped
+as a derivation in \(G^\circ\), giving \(x\in L(G^\circ)\).  Equivalently, this is
+Fact~\ref{fact:productive} applied only at the language level, not as an
+automaton-level WLOG step.
 
-\proofpart{4. Split LR(0) states remember the original parser state}
-We record the invariant that prevents the productive trimming from reintroducing
-spurious LALR merging.  For an item of \(H^\prime\)
-\[
-\langle p_0,A,r\rangle
-\to
-\Theta_1\cdots\Theta_i\cdot\Theta_{i+1}\cdots\Theta_m,
-\]
-define its \emph{current original state} \(\rho\) to be the state obtained by
-following \(\pi(\Theta_1\cdots\Theta_i)\) from \(p_0\) in the original automaton
-\(Q_G\).  This state is defined because the production was added only from a
-valid state sequence.  The items of the augmented production
-\(S_H^\prime\to S^\bullet\$\) have no split left-hand side; assign them the
-current original states \(q_0\), \(\delta_G(q_0,S)\), and \(q_f\) at the three dot
-positions.  This assignment is consistent with the reading below, since the dot
-before \(S^\bullet=\langle q_0,S,\delta_G(q_0,S)\rangle\) has current state
-\(q_0\); under \(\pi(S_H^\prime)=S_G^\prime\) the three augmented items erase to
-\(\Item{S_G^\prime}{\eps\cdot S\$}\), \(\Item{S_G^\prime}{S\cdot\$}\), and
-\(\Item{S_G^\prime}{S\$\cdot\eps}\), which lie in \(q_0\), \(\delta_G(q_0,S)\), and
-\(q_f\) respectively.  In particular the shift of \(\$\) in the split automaton
-erases to the original shift of \(\$\), so the conflict analysis below also
-covers the augmented items.  Then every reachable LR(0) state \(\bar q\) of \(H^\prime\)
-has a unique state \(\rho(\bar q)\in Q_G\) such that every item of \(\bar q\) has
-current original state \(\rho(\bar q)\), and erasing annotations sends items of
-\(\bar q\) to items of the original state \(\rho(\bar q)\).
-
-The proof is by induction over the construction of reachable LR(0) states.
-Closure preserves the invariant: if the dot is before
-\(\langle p,B,r\rangle\), then the current original state is exactly \(p\), and
-all closure items for productions of \(\langle p,B,r\rangle\) start in the same
-state \(p\).  GOTO preserves the invariant because shifting a terminal \(t\) or a
-split nonterminal \(\langle p,B,r\rangle\) advances the current original state by
-\(\delta_G(-,t)\) or \(\delta_G(p,B)=r\), respectively.  Erasing the moved item and
-then closing is exactly a subset of the corresponding original closure, since
-\(G^\bullet\) uses only productions whose erasures are productions of \(G\).
-
-A useful consequence is uniqueness of split reductions inside one split state:
-if two completed split items in the same \(\bar q\) erase to the same original
-production \(A\to\omega\), then the split items are identical.  First note that a
-split production is determined by its erasure together with its source state:
-the encoded state sequence is computed forward by
-\(p_i=\delta_G(p_{i-1},X_i)\), and the left-hand side is
-\(\langle p_0,A,\delta_G(p_0,A)\rangle\).  It therefore suffices to show that the
-two completed items carry the same source state \(p_0\).  If \(\omega=\eps\),
-both items have the dot at the left end; an item with the dot at the left end
-has current original state equal to its source state, so the invariant forces
-\(p_0=\rho(\bar q)\) for both.  If \(|\omega|=m\ge 1\), both are kernel items of
-\(\bar q\).  Retreating the dot by one position is injective on items, and
-whenever \(\mathrm{GOTO}(\bar q_1,\Theta)=\bar q\), every kernel item of
-\(\bar q\) ends in \(\Theta\) and its retreated item lies in \(\bar q_1\); so both
-retreated items lie in every predecessor state of \(\bar q\).  Fix one access
-path of \(\bar q\) from \(\bar q_0\) and walk it backward \(m\) steps; this is
-possible because every item of \(\bar q_0\) has the dot at the left end, so an
-access path of a state holding a kernel item at dot position \(m\) has at least
-\(m\) edges.  After \(m\) retreats the two items lie, with the dot at the left
-end, in one common state \(\bar q_{-m}\) on this path, and as in the
-\(\omega=\eps\) case the invariant gives \(p_0=\rho(\bar q_{-m})\) for both.
-Hence the two split items are identical.  Backward determinism of \(\delta_G\)
-is neither available nor used here: distinct source states may reach a common
-target under \(\delta_G\), and the forcing comes from the state invariant at a
-common predecessor state, not from inverting \(\delta_G\).
-
-\proofpart{5. Semantic lookahead also erases}
-Let \(\bar I\) be a completed item of \(H^\prime\) in a split state \(\bar q\), and
-let \(\pi(\bar I)=\Item{A}{\omega\cdot\eps}\).  If
-\(t\in\Look_H(\bar q,\pi^{-1}(A\to\omega))\), then
-\[
-t\in \Look_G(\rho(\bar q),\Item{A}{\omega}).
-\]
-To see this, take the semantic lookahead witness in \(H^\prime\):
-\[
-S_H^\prime\Rightarrow_{H^\prime,\mathbf{rm}}^* \alpha\,\bar A\,t z,
-\qquad
-\Path{\alpha\bar\omega}{\bar q_0}{\bar q},
-\qquad
-z\in T^{\prime *},
-\]
-where \(\bar A\) and \(\bar\omega\) erase to \(A\) and \(\omega\).  Erasing
-annotations gives
-\[
-S_G^\prime\Rightarrow_{G^\prime,\mathbf{rm}}^* \pi(\alpha) A t z,
-\qquad
-\Path{\pi(\alpha)\omega}{q_0}{\rho(\bar q)},
-\]
-by the state invariant.  This is precisely the defining witness for
-\(t\in\Look_G(\rho(\bar q),\Item{A}{\omega})\).
-
-\proofpart{6. Conflicts in the split grammar would be conflicts in the original table}
-Suppose the semantic ACTION table of \(H\) had a shift/reduce conflict at
-\((\bar q,t)\).  The shift item erases, by the state invariant, to an original
-shift on \(t\) from \(\rho(\bar q)\).  The reduce item erases, by the previous
-paragraph, to an original reduction whose semantic lookahead contains \(t\) at
-the same original state.  This is a shift/reduce conflict in the semantic table
-of \(G\), contradiction.
-
-Similarly, suppose the semantic ACTION table of \(H\) had a reduce/reduce
-conflict at \((\bar q,t)\).  By uniqueness of split reductions inside one split
-state, the two split reductions erase to two distinct original productions.  By
-lookahead erasure, both original reductions are enabled under \(t\) at the same
-state \(\rho(\bar q)\).  This is a reduce/reduce conflict in the semantic table of
-\(G\), again a contradiction.  Hence the semantic \(\LALRone\) table of \(H\) is
-conflict-free.
-
-Finally, every nonterminal of \(H^\prime\) is productive, so
-Theorem~\ref{thm:read-follow} gives
-\(\widehat{\Look}_H=\Look_H\).  Therefore the implemented digraph guard and the
-semantic guard build the same ACTION table for \(H\).  Since the semantic table is
-conflict-free, the implemented table is conflict-free as well.  Thus \(H\) is a
-productive certified \(\LALRone\) witness for \(L(G)\).
+Every nonterminal of \(G^\circ\) is productive by definition of the subtype
+\(N^\circ\).  Since the start symbol is live, the augmented start symbol of
+\((G^\circ)^\prime\) is also productive via the fresh production
+\(S_{G^\circ}^\prime\to S^\circ\$\).  Thus every nonterminal of
+\((G^\circ)^\prime\) is productive.
 \end{proof}
 
-\begin{corollary}[Nonempty language-class equality]\label{cor:language-class-equality}
-For every nonempty language \(L\subseteq T^*\), the following are equivalent.
+\begin{definition}[Path-indexed image relation]
+\label{def:path-indexed-image}
+Let \(Q^\circ,\delta^\circ,q_0^\circ\) be the LR(0) automaton of
+\((G^\circ)^\prime\), and let \(Q,\delta,q_0\) be the LR(0) automaton of
+\(G^\prime\).  Extend the erasure \(\pi\) to augmented symbols by sending the
+fresh start and endmarker of \((G^\circ)^\prime\) to the corresponding fresh
+start and endmarker of \(G^\prime\).  For states \(q\in Q^\circ\) and \(r\in Q\),
+write
+\[
+q\leadsto r
+\]
+when there exists a word \(\alpha\in {V_{G^\circ}^{\prime}}^{*}\) such that
+\[
+\Path{\alpha}{q_0^\circ}{q}
+\quad\text{in }G^\circ,
+\qquad
+\Path{\pi(\alpha)}{q_0}{r}
+\quad\text{in }G.
+\]
+This relation is deliberately not a function from pruned states to original
+states.
+\end{definition}
+
+\begin{lemma}[Path-indexed images step forward]
+\label{lem:path-image-step}
+Assume \(q\leadsto r\) and \(\delta^\circ(q,X)=q'\).  Then there exists
+\(r'\in Q\) such that
+\[
+\delta(r,\pi(X))=r'
+\qquad\text{and}\qquad
+q'\leadsto r'.
+\]
+\end{lemma}
+
+\begin{proof}
+Choose a witnessing path \(\Path{\alpha}{q_0^\circ}{q}\) and its erased original
+path \(\Path{\pi(\alpha)}{q_0}{r}\).  Appending the pruned transition by \(X\)
+gives a path \(\Path{\alpha X}{q_0^\circ}{q'}\).  Erasing the transition gives
+the original transition by \(\pi(X)\), so the erased path ends in
+\(r'\triangleq\delta(r,\pi(X))\).  Hence \(q'\leadsto r'\).
+\end{proof}
+
+\begin{lemma}[There need not be a transition-stable state image]
+\label{lem:no-functional-image}
+In general there is no function
+\[
+\iota:Q^\circ\to Q
+\]
+satisfying
+\[
+\delta^\circ(p,X)=q
+\quad\Longrightarrow\quad
+\delta(\iota(p),\pi(X))=\iota(q)
+\]
+for direct productive pruning.
+\end{lemma}
+
+\begin{proof}
+Consider the grammar
+\[
+\begin{array}{rclcrcl}
+S&\to&aA&\mid&bA&\mid&aX,\\
+A&\to&c,\\
+X&\to&cY,\\
+Y&\to&Yd.
+\end{array}
+\]
+The live nonterminals are \(S\) and \(A\).  Productive pruning removes \(X\) and
+\(Y\), leaving
+\[
+S\to aA\mid bA,
+\qquad
+A\to c.
+\]
+In the pruned LR(0) automaton the paths \(ac\) and \(bc\) reach the same reduce
+state \(q=\set*{\Item{A}{c\cdot\eps}}\).  In the original automaton, however,
+the path \(ac\) reaches a state containing both
+\[
+\Item{A}{c\cdot\eps}
+\qquad\text{and}\qquad
+\Item{X}{c\cdot Y},
+\]
+whereas the path \(bc\) reaches a state containing \(\Item{A}{c\cdot\eps}\) but
+not \(\Item{X}{c\cdot Y}\).  These original target states are different.  Thus a
+single value \(\iota(q)\) cannot be compatible with both erased paths, and the
+transition-stability equation above cannot hold in general.
+\end{proof}
+
+\begin{lemma}[Direct pruning need not preserve semantic \(\LALRone\) witnesses]
+\label{lem:direct-pruning-counterexample}
+There are grammars \(G\) whose semantic \(\LALRone\) table is conflict-free, but
+whose direct productive pruning \(G^\circ\) has a semantic \(\LALRone\)
+reduce/reduce conflict.
+\end{lemma}
+
+\begin{proof}
+Use the grammar
+\[
+\begin{aligned}
+S&\to aAd\mid bAe\mid aBe\mid bBd\mid aX\mid bY,\\
+A&\to c,\\
+B&\to c,\\
+X&\to cU,\\
+Y&\to cV,\\
+U&\to Uu,\\
+V&\to Vv.
+\end{aligned}
+\]
+The nonterminals \(X,Y,U,V\) are non-productive, while \(S,A,B\) are productive.
+In the original LR(0) automaton the dead alternatives split the two relevant
+states.  After reading \(ac\), the state contains the completed items
+\(\Item{A}{c\cdot\eps}\) and \(\Item{B}{c\cdot\eps}\), together with the dead
+item \(\Item{X}{c\cdot U}\).  The exact semantic lookaheads are
+\[
+\Look_G(A\to c)=\set*{d},
+\qquad
+\Look_G(B\to c)=\set*{e}
+\]
+in that state.  After reading \(bc\), the state is separated by the dead item
+\(\Item{Y}{c\cdot V}\), and the semantic lookaheads are
+\[
+\Look_G(A\to c)=\set*{e},
+\qquad
+\Look_G(B\to c)=\set*{d}.
+\]
+Thus no reduce/reduce conflict occurs in either original state.
+
+Direct productive pruning removes \(X,Y,U,V\) and leaves
+\[
+S\to aAd\mid bAe\mid aBe\mid bBd,
+\qquad
+A\to c,
+\qquad
+B\to c.
+\]
+Now the two LR(0) states after \(ac\) and \(bc\) merge into the single core
+\[
+\set*{\Item{A}{c\cdot\eps},\Item{B}{c\cdot\eps}}.
+\]
+The semantic lookahead attached to this merged state is the union of the two
+contexts:
+\[
+\Look_{G^\circ}(A\to c)=\set*{d,e},
+\qquad
+\Look_{G^\circ}(B\to c)=\set*{d,e}.
+\]
+Hence both reductions are enabled on \(d\) and also on \(e\), giving a semantic
+\(\LALRone\) reduce/reduce conflict in \(G^\circ\).  This shows that original
+semantic conflict-freeness does not automatically transport through direct
+productive pruning.
+\end{proof}
+
+\begin{definition}[Table-level merge safety]
+\label{def:table-merge-safety}
+Let \(G^\circ\) be the productive pruning of \(G\).  Let
+\(\mathsf{Conflict}_{G}(r,t)\) mean that the semantic ACTION table of \(G\) has a
+shift/reduce or reduce/reduce conflict at original state \(r\) and lookahead
+\(t\).  Define \(\mathsf{Conflict}_{G^\circ}(q,t)\) analogously for the semantic
+ACTION table of the pruned grammar.
+
+The pruning is \emph{table-merge-safe relative to \(G\)} when
+\[
+\forall q,t.
+\quad
+\mathsf{Conflict}_{G^\circ}(q,t)
+\Longrightarrow
+\exists r.\ q\leadsto r\ \wedge\ \mathsf{Conflict}_{G}(r,t).
+\]
+Equivalently, every semantic conflict introduced by the pruned table must be the
+image of a genuine semantic conflict in some original state reachable by an
+erased pruned path.  This condition is a certificate or hypothesis; Lemma~\ref{lem:direct-pruning-counterexample}
+shows that it cannot be derived from productive pruning alone.
+\end{definition}
+
+\begin{definition}[Rank-edge merge safety]
+\label{def:rank-merge-safety}
+Some executable developments also certify termination or reduce-edge ordering by
+a rank on parser states.  Such a certificate needs more than a target-state
+image: a reduce edge records both the predecessor before reading the handle and
+the state after the reduction.  A pruning is \emph{rank-edge merge-safe} when
+every pruned reduce edge
+\[
+p\xrightarrow{\omega}q,
+\qquad
+p\xrightarrow{A}q'
+\]
+can be retargeted to original states
+\[
+r_p\xrightarrow{\pi(\omega)}r_q,
+\qquad
+r_p\xrightarrow{A}r_{q'}
+\]
+with \(p\leadsto r_p\), \(q\leadsto r_q\), and \(q'\leadsto r_{q'}\), and with
+whatever rank decrease the original certificate requires.  This is intentionally
+stated as a separate certificate condition.  It should not be hidden inside a
+canonical state-image function.
+\end{definition}
+
+\begin{theorem}[Merge-safe semantic witness to productive certified witness]
+\label{thm:semantic-to-certified}
+Let \(G\) be a grammar with \(L(G)\ne\emptyset\), and let \(G^\circ\) be its
+productive pruning.  Assume:
 \begin{enumerate}
-\item \(L\in\mathcal L_{\mathrm{sem}}\): some grammar for \(L\) has a
-conflict-free semantic \(\LALRone\) table.
-\item \(L\in\mathcal L_{\mathrm{cert}}\): some productive grammar for \(L\) has a
-conflict-free digraph-computed \(\LALRone\) table.
+\item \(G\) is a semantic \(\LALRone\) witness, and
+\item the productive pruning \(G^\circ\) is table-merge-safe relative to \(G\).
 \end{enumerate}
+Then \(G^\circ\) is an equivalent productive certified \(\LALRone\) witness:
+\[
+L(G^\circ)=L(G),
+\qquad
+\text{every nonterminal of }(G^\circ)^\prime\text{ is productive},
+\qquad
+G^\circ\text{ is certified.}
+\]
+If the implementation also requires a termination or reduce-edge rank
+certificate, add the rank-edge merge-safety condition of
+Definition~\ref{def:rank-merge-safety} to transport that certificate.
+\end{theorem}
+
+\begin{proof}
+Language equivalence and productivity of \((G^\circ)^\prime\) are exactly
+Lemma~\ref{lem:productive-pruning-language}.  It remains to prove that the
+implemented \(\LALRone\) table of \(G^\circ\) is conflict-free.
+
+First consider the semantic table of \(G^\circ\).  If it had a conflict at
+\((q,t)\), table-merge-safety would give an original state \(r\) with
+\(q\leadsto r\) such that the semantic table of \(G\) has a conflict at
+\((r,t)\).  This contradicts the assumption that \(G\) is a semantic
+\(\LALRone\) witness.  Hence the semantic table of \(G^\circ\) is conflict-free.
+
+Because every nonterminal of \((G^\circ)^\prime\) is productive,
+Theorem~\ref{thm:read-follow} gives
+\[
+\widehat{\Look}_{G^\circ}=\Look_{G^\circ}.
+\]
+Therefore the implemented digraph-computed table and the semantic table of
+\(G^\circ\) have the same enabled reductions.  Since the semantic table is
+conflict-free, the implemented table is conflict-free as well.  Thus
+\(G^\circ\) is a certified \(\LALRone\) witness.
+
+The final sentence follows by applying the additional rank-edge merge-safety
+certificate to each pruned reduce edge.  The predecessor state is carried by the
+path-indexed image relation, not by a global canonical image function, so the
+required rank decrease is inherited from the original certificate on the
+retargeted original edge.
+\end{proof}
+
+\begin{corollary}[Corrected nonempty bridge]
+\label{cor:language-class-equality}
+For nonempty languages, the following statements are valid.
+\begin{enumerate}
+\item \(\mathcal L_{\mathrm{cert}}\subseteq\mathcal L_{\mathrm{sem}}\).
+\item If \(L=L(G)\) for some semantic \(\LALRone\) witness \(G\),
+\(L(G)\ne\emptyset\), and the productive pruning of \(G\) is table-merge-safe,
+then \(L\in\mathcal L_{\mathrm{cert}}\).
+\end{enumerate}
+There is no unconditional theorem here saying that every nonempty
+\(L\in\mathcal L_{\mathrm{sem}}\) is obtained by direct productive pruning as an
+element of \(\mathcal L_{\mathrm{cert}}\).
 \end{corollary}
 
 \begin{proof}
-The implication \((1)\Rightarrow(2)\) is Theorem~\ref{thm:semantic-to-certified}.
-For \((2)\Rightarrow(1)\), productivity gives
-\(\widehat{\Look}=\Look\) by Theorem~\ref{thm:read-follow}, so the certified table
-is the semantic table.
+For (1), if \(H\) is certified, every nonterminal of \(H^\prime\) is productive.
+Theorem~\ref{thm:read-follow} gives \(\widehat{\Look}_H=\Look_H\), so the
+certified conflict-free table is also the semantic conflict-free table.  Hence
+\(H\) is a semantic witness.
+
+For (2), apply Theorem~\ref{thm:semantic-to-certified} to the chosen grammar
+\(G\).  The resulting productive pruning \(G^\circ\) is certified and satisfies
+\(L(G^\circ)=L(G)=L\).
 \end{proof}
+
+\begin{remark}[Coq-oriented proof shape]
+In a formalization, the central invariant should be the path-indexed relation
+\(q\leadsto r\), not a canonical function from pruned states to original states.
+Canonical images may be introduced only after a separate uniqueness or
+merge-safety certificate has been supplied.  Reduce-edge transport should also
+carry the predecessor path image explicitly.  Otherwise the proof attempts to
+show a transition-stable quotient property that is false for direct productive
+pruning in general.
+\end{remark}
 
 \appendix
 \section{Digraph Algorithm and Implementation Specification}
@@ -1785,7 +1882,7 @@ to \(O((|X|+|E|)b)\) after the SCC refinement proof is supplied.
 First compute nullable nonterminals by the least fixed point
 \[
 \mathrm{Null}(A)
-\iffdef
+\Longleftrightarrow
 \exists \Item{A}{X_1\cdots X_k}\in P^\prime
 \text{ such that every }X_i\text{ is nullable},
 \]
@@ -1793,7 +1890,7 @@ where terminals are never nullable and \(k=0\) is allowed.  Extend this to
 strings by
 \[
 \mathrm{Null}(X_1\cdots X_k)
-\iffdef
+\Longleftrightarrow
 \bigwedge_{i=1}^k \mathrm{Null}(X_i).
 \]
 
@@ -1828,7 +1925,7 @@ For \(x=(p,A)\in D\), define the direct-read seed
 Define \(E_R\subseteq D\times D\) by
 \[
 (p,A)\leadsto_R(r,C)
-\iffdef
+\Longleftrightarrow
 \delta(p,A)=r
 \land C\in N^\prime
 \land \mathrm{Null}(C)
@@ -1851,7 +1948,7 @@ The seed for follow propagation is the already computed read set:
 Define \(E_I\subseteq D\times D\) by
 \[
 (p,A)\leadsto_I(p^\prime,B)
-\iffdef
+\Longleftrightarrow
 \Item{B}{\beta\cdot A\gamma}\in p
 \land
 \Path{\beta}{p^\prime}{p}
@@ -1977,14 +2074,14 @@ c_0(w)
 A run configuration is reachable when
 \[
 \mathsf{Reach}(c)
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \exists w\in T^*.\ c_0(w)\vdash_{\Look}^{\,*}c.
 \]
 For \(s\in\mathbf{Stack}\) and \(t\in T^\prime\), say that \((s,t)\) is a
 reachable reduce-phase head when
 \[
 \mathsf{Phase}(s,t)
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \exists u\in T^{\prime *}.\ \mathsf{Reach}(s,t u).
 \]
 \end{definition}
@@ -2169,7 +2266,7 @@ well-foundedness is preserved by inverse image along \(\mu\).  Hence the measure
 order
 \[
 c^\prime\prec_\rho c
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c)
 \]
 is well-founded on run configurations.  Since \(\mathsf{Call}\) is a subrelation
@@ -2288,7 +2385,7 @@ derivation; that structure is not part of the recognizer defined in this note.
 Use the certificate rank to order recursive calls by
 \[
 c^\prime\prec c
-\quad\iffdef\quad
+\quad\Longleftrightarrow\quad
 \mu(c^\prime)<_{\mathrm{lex}}\mu(c).
 \]
 The lexicographic order on \(\mathbb N\times\mathbb N\) is well-founded, and the
